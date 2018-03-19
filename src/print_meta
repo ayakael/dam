@@ -1,0 +1,27 @@
+#!/bin/bash
+
+###
+# Prints metadata of specified TRACKNUMBER, from textfile following the MTAG specification. Outputs as standard FIELD=VALUE that can then be pipped into metaflac.
+###
+
+
+print_meta() {
+    local MTAG=${1}
+    local TRACKNUMBER="${2}"
+    local TAGS=$(cat ${MTAG} | sed -e 's/^[[:space:]]*\"//')
+    local tagList=($(echo ${TAGS} | awk 'BEGIN {RS="\", ";FS="\" : \""}{if($1!~"{"){print $1}}' | awk '!seen[$0]++'))
+
+    for tag in ${tagList[@]}; do
+        local COUNT=1
+        while [[ ${COUNT} -le ${TRACKNUMBER} ]]; do
+            local PRTVAR=$(print_meta_track ${COUNT} ${tag} ${TAGS})
+            [[ ! -z ${PRTVAR} ]] && local CURVAR=${PRTVAR}
+            local COUNT=$(( ${COUNT} + 1 ))
+        done
+        echo -n "${tag}=${CURVAR};"
+        unset CURVAR
+        unset PRTVAR
+    done
+    echo -n "IMAGEID=$(sed 's|.tags||g' <<< ${MTAG})"
+}
+

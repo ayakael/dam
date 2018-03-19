@@ -1,0 +1,28 @@
+#!/bin/bash
+
+###
+# Command used to ADD or DELete an exception rule in OPT_EXCLUDE_FILE
+###
+
+cmd_exclude() {
+    local TARGET="${1}"
+    local EXCLUDE="${TARGET}/${EXCLUDE}"
+    local CMD="${2}"; shift 2
+    local fieldList=("${@}")
+
+    case ${CMD} in
+        add)
+            printf "%s\n" ${fieldList[@]} >> ${EXCLUDE}
+        ;;
+
+        del)
+            for field in ${fieldList[@]}; do
+                sed -i "/${field}/d" ${EXCLUDE}
+            done
+        ;;
+
+        ls)
+            cat ${EXCLUDE}
+        ;;
+    esac
+}

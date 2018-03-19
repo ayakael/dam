@@ -1,0 +1,13 @@
+#!/bin/bash
+
+###
+# Prints IDs that are already deployed by parsing the IMAGEID field in  all of the FLAC files
+# that are present in the TARGET directory.
+###
+
+print_deployed_ids() {
+    local TARGET="${@}"
+    for flac in $(find "${TARGET}" -name '*.flac' -not -path '*/\.*' -printf "%P\t"); do
+        echo "${flac}=$(metaflac --list ${TARGET}/${flac} | grep IMAGEID | cut -d= -f2);"
+    done
+}

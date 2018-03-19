@@ -1,0 +1,28 @@
+#! /bin/bash
+
+###
+# Deploys image ID using deploy_imageid function
+###
+
+cmd_deploy() {
+    local TARGET="${1}"; shift
+    local imageidList=(${@})
+    local MANIFEST="${TARGET}/${MANIFEST}"
+    local LAST_COMMIT="${TARGET}/${LAST_COMMIT}"
+    local EXCLUDE="${TARGET}/${EXCLUDE}"
+    if [[ ! -f "${MANIFEST}" ]] || [[ ! -f "${LAST_COMMIT}" ]] || [[ ! -f "${EXCLUDE}" ]]; then return 1; fi
+
+
+    for imageid in ${imageidList[@]}; do
+        _msg ECHO "Cleaning ${imageid} of ${TARGET}"
+        clean ${TARGET} ${imageid} ${MANIFEST} >${STDERR} 2>&1
+        [[ $? -ne 0 ]] && local ERRORS=true
+        if [[ -f "${imageid}.tags" ]] && is_not_excluded ${imageid} ${EXCLUDE}; then
+            deploy ${imageid} ${TARGET} ${MANIFEST}
+            [[ $? -ne 0 ]] && local ERRORS=true
+        fi
+    done
+    [[ ${ERRORS} ]] && return 2
+
+}
+

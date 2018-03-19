@@ -1,0 +1,60 @@
+#!/bin/bash
+
+###
+# Deploys IMAGEID to TARGET and then updates MANIFEST file
+##
+
+
+deploy_imageid() {
+    local IMAGEID="${1}"
+    local TARGET="${2}"
+    local MANIFEST="${3}"
+    local TOTALTRACKS="$(grep -e TITLE ${IMAGEID}.tags | wc -l)"
+
+    if [[ ! -e "${IMAGEID}.flac" ]]; then
+        _msg EXEC "Downloading data for ${IMAGEID}"
+        git annex get ${IMAGEID}.* >${STDERR} 2>&1
+        [[ $? -ne 0 ]] && _msg WARN || _msg OK
+        local DELETE=true
+    fi
+
+    _msg EXEC "Generating data for ${IMAGEID}"
+    gen_flac ${IMAGEID}.flac ${IMAGEID}.cue >${STDERR} 2>&1
+    local EXIT_CODE=$?
+    [[ ${EXIT_CODE} -eq 0 ]] && _msg OK || _msg WARN
+
+    _msg EXEC "Parsing metadata for ${IMAGEID}"
+    local COUNT=1
+    while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
+        metaList[${COUNT}]="$(gen_meta ${IMAGEID}.tags ${COUNT})"
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    _msg OK
+
+    _msg EXEC "Applying metadata for ${IMAGEID}"
+    local COUNT=1
+    while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
+        awk 'BEGIN {RS=";"}{print $0}' <<< ${metaList[${COUNT}]} | head -n -1 | metaflac --import-tags-from=- --import-picture-from="${IMAGEID}.jpg" $(printf 'split-track%02d.flac' ${COUNT})
+        [[ $? -ne 0 ]] && local GEN_META_ERR=true
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    [[ ${GEN_META_ERR} ]] && _msg WARN || _msg OK
+
+    _msg EXEC "Deploying ${IMAGEID} to ${TARGET}"
+    local COUNT=1
+    while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
+        local DIR=$(gen_dir ${metaList[${COUNT}]} | sed s'|:|_|g')
+        mkdir -p "${TARGET}/$(dirname "${DIR}")"
+        mv $(printf 'split-track%02d.flac' ${COUNT}) "${TARGET}/${DIR}.flac"
+        echo "${DIR}.flac=${IMAGEID};" >> ${MANIFEST}
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    _msg OK
+
+    if [[ ${DELETE} ]]; then
+        _msg EXEC "Dropping data for ${IMAGEID}"
+        git annex drop ${IMAGEID}.* >${STDERR} 2>&1
+        _msg OK
+    fi
+}
+

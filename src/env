@@ -1,0 +1,13 @@
+#!/bin/bash
+
+###
+# Sets environment variables necessary for the functioning of this script
+###
+
+source /usr/lib/bash/bunc
+IFS='   
+'
+MANIFEST=".manifest"
+LAST_COMMIT=".last_commit"
+EXCLUDE=".exclude"
+
