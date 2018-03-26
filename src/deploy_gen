@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# doc deploy_gen {
+# 
+# DESCRIPTION
+#   deploy_gen - Splits specified image into multiple files using a text file 
+#   formatted under the CUE specification
+#
+# USAGE
+#   deploy_gen </path/to/git/dir> </path/to/db_file> <image-id> <track-id>
+# }
+
+deploy_gen() {
+    local GITDIR="${1}"
+    local DB_FILE="${2}"
+    local IMAGEID="${3}"
+    local TRACKID="${4}"
+    local TRACKNO=$(print_track_no ${DB_FILE} ${IMAGEID} ${TRACKID})
+
+    ## breakpointList generator
+    # Generates list with cuebreakpoints utility
+    local breakpointList=($(cuebreakpoints "${GITDIR}/${IMAGEID}.cue" 2>/dev/null))
+
+    # In the event that breakpointList is empty because image represents only one track, 
+    # no split occurs, and returns a 0.
+    [[ -z "${breakpointList[@]}" ]] && { cat "${GITDIR}/${IMAGEID}.flac" > ${GITDIR}/${TRACKID}.flac; return 0; }
+    
+    # Attempts first split. If fails because of lack of CD quality file, retries with modified breakpointList
+    if ! printf '%s\n' ${breakpointList[@]} | shntool split "${GITDIR}/${IMAGEID}.flac" -o flac -O always -x ${TRACKNO} -d "${GITDIR}" -f ${TRACKID}.flac; then 
+        printf '%s\n' ${breakpointList[@]} | sed s/$/0/ | shntool split "${GITDIR}/${IMAGEID}.flac" -o flac -O always -x ${TRACKNO} -d "${GITDIR}" -f ${TRACKID}.flac
+        [[ $? -eq 0 ]] && return 2 || return 1
+    fi
+    return 0
+}
+    

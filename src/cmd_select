@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# doc cmd_select {
+#
+# DESCRIPTION
+#   cmd_select - Command selects all IMAGEID that matches the CONDITION
+#
+# USAGE
+#   cmd_select </path/to/git/dir> </path/to/db/file> <BOULEAN> <condition> [<...>]
+#
+# CONDITIONS
+#   CONDITIONS are defined using the following format:
+#       <metadata field>=<value>
+#   The metadata field can be anything that can be injected as metadata in a Vorbis or id3tag. 
+#
+# }
+
+cmd_select() {
+    local GIT_DIR="${1}"
+    local DB_FILE="${2}"
+    local SELECTED="${3}"; shift 3
+    local conditionList=(${@})
+
+    for condition in ${conditionList[@]}; do
+        local FIELD="$(echo ${condition} | cut -d'=' -f1)"
+        local VALUE="$(echo ${condition} | cut -d'=' -f2)"
+        local imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(grep -i -l '"'${FIELD}'" : "'${VALUE}'"' ${GIT_DIR}/*.tags)))
+        
+        for imageid in ${imageidList[@]}; do
+            local rowList=($(_cfg query '$3="'${imageid}'"' ${DB_FILE}))
+
+            for rowno in ${rowList[@]}; do
+                _cfg change SELECTED ${rowno} ${SELECTED} ${DB_FILE}
+            done
+        done
+    done
+}
+

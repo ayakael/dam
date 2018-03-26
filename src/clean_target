@@ -1,18 +1,27 @@
 #!/bin/bash
 
-###
-# Cleans target of all FLAC files that are owned by IMAGEID that exist in TARGET directory 
-###
+# doc clean_target {
+#
+# DESCRIPTION
+#   clean_target - Cleans target of IMAGEID
+#
+# USAGE
+#   clean_target </path/to/target> <IMAGEID> </path/to/db/file>
+#
+# }
 
 clean_target() {
     local TARGET="${1}"
     local IMAGEID="${2}"
-    local MANIFEST="${3}"
+    local DB_FILE="${3}"
 
-    for old_file in $(grep ${IMAGEID} ${MANIFEST} | cut -d'=' -f1); do
-        rm ${TARGET}/${old_file}
+    rownoList=($(_cfg query '$2=='${IMAGEID} ${DB_FILE}))
+
+    for rowno in ${rownoList[@]}; do
+        FILE_PATH=$(_cfg print TARGET_PATH ${rowno} ${DB_FILE})
+        rm "${TARGET}/${FILE_PATH}"
+        _cfg drop row ${rowno}
     done
-    sed -i "/${IMAGEID}/d" ${MANIFEST}
     find ${TARGET}/* -empty -type d -delete >/dev/null 2>&1
 }
 

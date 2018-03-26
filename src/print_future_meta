@@ -1,11 +1,19 @@
 #!/bin/bash
 
-###
-# Prints metadata of specified TRACKNUMBER, from textfile following the MTAG specification. Outputs as standard FIELD=VALUE that can then be pipped into metaflac.
-###
+# doc print_future_meta {
+#
+# DESCRIPTION
+#   print_future_meta - Prints metadata of specified TRACKNUMBER, from textfile following 
+#   the MTAG specification. Outputs as standard FIELD=VALUE that can then be pipped into
+#   metaflac.
+#
+# USAGE
+#   print_future_meta </path/to/mtag/file> <track no>
+#
+# }
 
 
-print_meta() {
+print_future_meta() {
     local MTAG=${1}
     local TRACKNUMBER="${2}"
     local TAGS=$(cat ${MTAG} | sed -e 's/^[[:space:]]*\"//')
@@ -14,7 +22,7 @@ print_meta() {
     for tag in ${tagList[@]}; do
         local COUNT=1
         while [[ ${COUNT} -le ${TRACKNUMBER} ]]; do
-            local PRTVAR=$(print_meta_track ${COUNT} ${tag} ${TAGS})
+            local PRTVAR=$(print_meta_field ${COUNT} ${tag} ${TAGS})
             [[ ! -z ${PRTVAR} ]] && local CURVAR=${PRTVAR}
             local COUNT=$(( ${COUNT} + 1 ))
         done

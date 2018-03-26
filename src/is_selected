@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# doc is_selected {
+#
+# DESCRIPTION
+#   is selected - Returns true if IMAGEID is defined as selected in DB_FILE.
+#
+# USAGE
+#   is_selected </path/to/db/file> <IMAGEID> <TRACKID>
+#
+#  }
+
+is_selected() {
+    local DB_FILE="${1}"
+    local IMAGEID="${2}"
+    local TRACKID="${3}"
+    
+    ROWNO=$(_cfg query '$2=="'${IMAGEID}'" && $3=="'${TRACKID}'"' ${DB_FILE})
+    [[ "$(_cfg print SELECTED ${ROWNO} ${DB_FILE})" == "true" ]] && return 0 || return 1
+}
+

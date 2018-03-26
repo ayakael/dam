@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# doc print_present_meta {
+#
+# DESCRIPTION
+#   print_present_meta - Prints metadata of remote flac in FIELD=VALUE; format.
+#
+# USAGE
+#   print_present_meta </path/to/flac
+#
+# }
+
+print_present_meta() {
+    local FLAC="${1}"
+
+    metaflac --list --block-type=VORBIS_COMMENT "${FLAC}" | grep "comment\[" | awk 'BEGIN{FS=": ";ORS=";"}{print $2}'
+    } 

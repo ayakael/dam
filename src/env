@@ -7,7 +7,4 @@
 source /usr/lib/bash/bunc
 IFS='   
 '
-MANIFEST=".manifest"
-LAST_COMMIT=".last_commit"
-EXCLUDE=".exclude"
 

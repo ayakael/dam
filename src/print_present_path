@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# doc print_present_path {
+#
+# DESCRIPTION
+#   Prints path of exiting TRACKID for IMAGEID.
+#
+# USAGE
+#   print_present_path <imageid> <track number> </path/to/db/file>
+#
+# }
+
+print_present_path() {
+    local IMAGEID="${1}"
+    local TRACKID="${2}"
+    local DB_FILE="${3}"
+
+    local ROW=$(_cfg query '$2=="'${IMAGEID}'" && $3=="'${TRACKNO}'"' ${DB_FILE})
+    _cfg print TARGET_PATH ${ROW} ${DB_FILE}
+} 
