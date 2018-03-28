@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# doc print_present_meta {
+# doc print_meta_flac {
 #
 # DESCRIPTION
-#   print_present_meta - Prints metadata of remote flac in FIELD=VALUE; format.
+#   print_meta_flac - Prints metadata of remote flac in FIELD=VALUE; format.
 #
 # USAGE
-#   print_present_meta </path/to/flac
+#   print_meta_flac </path/to/flac>
 #
 # }
 
-print_present_meta() {
+print_meta_flac() {
     local FILE="${1}"
     
     if [[ -f ${FILE} ]]; then

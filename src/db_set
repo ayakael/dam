@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# doc db_set {
+#
+# DESCRIPTION
+#   db_set - Command selects or deslects all TRACKIDs that matches the CONDITION
+#
+# USAGE
+#   db_set </path/to/git/dir> </path/to/db/file> <BOULEAN> <condition> [<...>]
+#
+# CONDITIONS
+#   CONDITIONS are defined using the following format:
+#       <metadata field>=<value>
+#   The metadata field can be anything that can be injected as metadata in a Vorbis or id3tag. 
+#
+# }
+
+db_set() {
+    local GIT_DIR="${1}"
+    local DB_FILE="${2}"
+    local SELECTED="${3}"; shift 3
+    local conditionList=(${@})
+
+    for condition in ${conditionList[@]}; do
+        local FIELD="$(echo ${condition} | cut -d'=' -f1)"
+        local VALUE="$(echo ${condition} | cut -d'=' -f2)"
+        local imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(grep -i -l '"'${FIELD}'" : "'${VALUE}'"' ${GIT_DIR}/*.tags)))
+        
+        for imageid in ${imageidList[@]}; do
+            local TOTALTRACKS=$(grep "@" ${imageid}.tags | wc -l)
+            local COUNT=1
+            while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
+                [[ "$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD})" == "${VALUE}" ]] && local trackidList[${COUNT}]="$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} TRACKID)"
+                local COUNT=$(( ${COUNT} + 1 ))
+            done 
+            for trackid in ${trackidList[@]}; do
+                awk -v selected=${SELECTED} -v trackid=${trackid} 'BEGIN{FS="\t";OFS="\t"}{if($4==trackid){$1=selected}{print $0}}' > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}
+            done
+        done
+    done
+}
+

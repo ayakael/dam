@@ -21,10 +21,10 @@ deploy_trackid() {
     local TRACKNO="$(print_track_no ${GIT_DIR} ${IMAGEID} ${TRACKID})"
 
     ## Path and metadata parsing 
-    local FUTURE_META="$(print_future_meta ${GIT_DIR}/${IMAGEID}.tags ${TRACKNO})"
+    local FUTURE_META="$(print_meta_mtag ${GIT_DIR}/${IMAGEID}.tags ${TRACKNO})"
     local FUTURE_PATH="$(print_future_path ${FUTURE_META}})"
     local PRESENT_PATH="$(print_present_path ${DB_FILE} ${IMAGEID} ${TRACKID})"
-    local PRESENT_META="$(print_present_meta "${TARGET}/${PRESENT_PATH}")"
+    local PRESENT_META="$(print_meta_flac "${TARGET}/${PRESENT_PATH}")"
     local ROW_NO=$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print NR}}' ${DB_FILE})
 
     # If the track is selected, we will check if the trackid has already been deployed, if not deploy. If the metadata to be

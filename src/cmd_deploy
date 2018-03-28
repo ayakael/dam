@@ -1,28 +1,27 @@
 #! /bin/bash
 
-###
-# Deploys image ID using deploy_imageid function
-###
+# doc cmd_deploy {
+#
+# DESCRIPTION
+#   cmd_deploy - Command that deploys IMAGEIDs using deploy_imageid function
+#
+# USAGE
+#   cmd_deploy - </path/to/git/dir> </path/to/target> <imageid_1> <imageid_2> <...>
+#
+# }
 
 cmd_deploy() {
-    local TARGET="${1}"; shift
+    local GIT_DIR="${1}"
+    local TARGET="${2}"; shift 2
     local imageidList=(${@})
-    local MANIFEST="${TARGET}/${MANIFEST}"
-    local LAST_COMMIT="${TARGET}/${LAST_COMMIT}"
-    local EXCLUDE="${TARGET}/${EXCLUDE}"
-    if [[ ! -f "${MANIFEST}" ]] || [[ ! -f "${LAST_COMMIT}" ]] || [[ ! -f "${EXCLUDE}" ]]; then return 1; fi
-
+    local DB_FILE="${TARGET}/${DB_FILE}"
+    [[ ! -f "${DB_FILE}" ]] && return 1
 
     for imageid in ${imageidList[@]}; do
-        _msg ECHO "Cleaning ${imageid} of ${TARGET}"
-        clean ${TARGET} ${imageid} ${MANIFEST} >${STDERR} 2>&1
-        [[ $? -ne 0 ]] && local ERRORS=true
-        if [[ -f "${imageid}.tags" ]] && is_not_excluded ${imageid} ${EXCLUDE}; then
-            deploy ${imageid} ${TARGET} ${MANIFEST}
-            [[ $? -ne 0 ]] && local ERRORS=true
-        fi
+        _msg EXEC "Deploying ${imageid} to ${TARGET}"
+        deploy_imageid ${GIT_DIR} ${TARGET} ${DB_FILE} ${imageid} >${STDERR} 2>&1
+        [[ $? -ne 0 ]] && { _msg WARN; local ERR=true; }
     done
-    [[ ${ERRORS} ]] && return 2
-
+    [[ ${ERR} ]] && return 2
 }
 

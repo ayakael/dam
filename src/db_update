@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# doc update_db {
+# doc db_update {
 #
 # DESCRIPTION
-#   update_db - Updates TARGET's DB_FILE with defined IMAGEIDs
+#   db_update - Updates TARGET's DB_FILE with defined IMAGEIDs
 #
 # USAGE
-#   update_db <path/to/git/dir> <path/to/target/dir> <path/to/db/file> <IMAGEID> <...>
+#   db_update <path/to/git/dir> <path/to/target/dir> <path/to/db/file> <IMAGEID> <...>
 #
 # }
 
-update_db() {
+db_update() {
     local GIT_DIR="${1}"
     local TARGET="${2}"
     local DB_FILE="${3}"; shift 3

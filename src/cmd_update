@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# doc cmd_update{
+#
+# DESCRIPTION
+#   cmd_update - Updates database of TARGET from git HEAD to last commit hash.
+#
+# USAGE
+#   cmd_update </path/to/git/dir> </path/to/target/dir>
+#
+# }
+
+cmd_update() {
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
+
+    # In the event that LAST_COMMIT OR DB_FILE does not exist, echo out that the LAST_COMMIT 
+    # is the first COMMIT of GIT_DIR, thus stating that no database update has ever occured
+    if [[ -z "$(grep LAST_COMMIT ${DB_FILE})" ]]; then
+        echo "LAST_COMMIT\t$(git -C "${GIT_DIR}" rev-list HEAD | tail -n 1)" >> ${DB_FILE}
+    fi
+
+    # Defines what imageids needs updating by determining what files has changed since last
+    # update via git diff --name-only.
+    local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
+    local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_COMMIT"){print $2}}')
+    imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
+    
+    _msg EXEC "Updating database from ${OLD_COMMIT} to ${NEW_COMMIT}" 
+    db_update "${DIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageidList[@]}
+    [[ $? -ne 0 ]] && { _msg WARN; local ERR=true; } || _msg OK
+    [[ ${ERR} ]] && return 1 || return 0
+}

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# doc print_meta_mtag {
+#
+# DESCRIPTION
+#   print_meta_mtag - Prints metadata of specified TRACKNO, from textfile following 
+#   the MTAG specification. Outputs as standard FIELD=VALUE that can then be pipped into
+#   metaflac. Can also be supplied with what tags to extract
+#
+# USAGE
+#   print_meta_mtag </path/to/mtag/file> <track no> [<field_1> <field_2> <...>]
+#
+# }
+
+
+print_meta_mtag() {
+    local FILE=${1}
+    local TRACKNO="${2}"; shift 2
+    local tagList=(${@})
+   
+    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1!~"@"){print $1}}' ${FILE} | awk '!seen[$0]++') IMAGEID)
+
+    for tag in ${tagList[@]}; do
+        [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"));"; continue; }
+        echo -n "${tag}=$(print_meta_field ${FILE} ${TRACKNO} ${tag});"
+    done
+}
+
