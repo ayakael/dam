@@ -16,5 +16,5 @@ print_meta_field() {
     local TRACK_NO="${2}"
     local FIELD="${3}"
 
-    awk -v track="${TRACK_NO}" 'BEGIN {RS="\"\n * }"}{if(NR==track){print $0}}' ${FILE} |   awk -v field="${FIELD}" 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1==field){print $2}}'
+     awk -v track=${TRACK_NO} 'BEGIN {RS="\n * }"}{if(NR<=track){print $0}}' ${FILE} |  awk -v field="\"${FIELD}\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}' | tail -n 1 | sed -e 's/^"//' -e 's/"$//'
 }

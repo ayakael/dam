@@ -14,6 +14,7 @@ print_present_meta() {
     local FILE="${1}"
     
     if [[ -f ${FILE} ]]; then
-         awk 'BEGIN{FS=": ";ORS=";"}{if($1 ~ /comment\[/){print $2}}' <<< $(metaflac --list --block-type=VORBIS_COMMENT "${FILE}") | sed 's|.$||'
+         awk 'BEGIN{FS=": ";ORS=";"}{if($1 ~ /comment\[/){print $2}}' <<< $(metaflac --list --block-type=VORBIS_COMMENT "${FILE}") | sed 's|.$||'  
+
     fi
 } 
