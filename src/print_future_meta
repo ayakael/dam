@@ -5,22 +5,24 @@
 # DESCRIPTION
 #   print_future_meta - Prints metadata of specified TRACKNUMBER, from textfile following 
 #   the MTAG specification. Outputs as standard FIELD=VALUE that can then be pipped into
-#   metaflac.
+#   metaflac. Can also be supplied with what tags to extract
 #
 # USAGE
-#   print_future_meta </path/to/mtag/file> <track no>
+#   print_future_meta </path/to/mtag/file> <track no> [<field>]
 #
 # }
 
 
 print_future_meta() {
     local MTAG=${1}
-    local TRACKNUMBER="${2}"
-    local tagList=($(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1!~"@"){print $1}}' ${MTAG} | awk '!seen[$0]++'))
+    local TRACKNUMBER="${2}"; shift 2
+    local tagList=(${@})
+   
+    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1!~"@"){print $1}}' ${MTAG} | awk '!seen[$0]++') IMAGEID)
 
     for tag in ${tagList[@]}; do
+        [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${MTAG}"));"; continue; }
         echo -n "${tag}=$(print_meta_field ${MTAG} ${TRACKNUMBER} ${tag});"
     done
-    echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${MTAG}"))"
 }
 
