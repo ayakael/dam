@@ -10,45 +10,19 @@ case "${1}" in
         cmd_exclude ${@}
     ;;
 
-    init)
+    include)
         shift
-        cmd_init ${@}
+        cmd_include ${@}
     ;;
 
     deploy)
         shift
-        TARGET="${1}"; shift
-        imageidList=($(printf '%s\n' ${@} | sed 's/\(.*\)\..*/\1/'))
-        cmd_deploy ${TARGET} ${imageidList[@]}
+        cmd_deploy ${@}
     ;;
 
     update)
         shift
-        TARGET="${1}"; shift
-        LAST_COMMIT="${TARGET}/${LAST_COMMIT}"
-        NEW_COMMIT=$(git rev-parse HEAD)
-        OLD_COMMIT=$(grep COMMIT "${LAST_COMMIT}" | cut -d'=' -f2)
-        imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
-        echo $LAST_COMMIT
-        echo $NEW_COMMIT
-        echo $OLD_COMMIT
-        echo ${imageidList[@]}
-
-        cmd_deploy ${TARGET} ${imageidList[@]}
-        case $? in
-            0)
-                _msg ECHO "Update completed succesfully"
-                sed -i "s/COMMIT=.*/COMMIT=${NEW_COMMIT}/" ${LAST_COMMIT}
-            ;;
-
-            1)
-                _msg ECHO "Missing exclude, manifest or exclude file. Please make sure you init"
-            ;;
-
-            2)
-                _msg ECHO "Update completed with errors. Please review and deploy problematic images manually."
-                sed -i "s/COMMIT=.*/COMMIT=${NEW_COMMIT}/" ${LAST_COMMIT}
-            ;;
-        esac
+        cmd_update ${@}
+        ;;
 esac
 

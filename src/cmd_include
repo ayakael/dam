@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# doc cmd_exclude {
+# doc cmd_include {
 #
 # DESCRIPTION
-#   cmd_exclude - Excludes track that matches CONDITION in DB_FILE
+#   cmd_include - Include track that matches CONDITION in DB_FILE
 #
 # USAGE
-#   cmd_exclude </path/to/dir/dir> </path/to/target> </path/to/db_file> <condition_1> <condition_2> <...>
+#   cmd_include </path/to/dir/dir> </path/to/target> </path/to/db_file> <condition_1> <condition_2> <...>
 #
 # CONDITIONS
 #   CONDITIONS are defined using the following format:
@@ -15,15 +15,15 @@
 #
 # }
 
-cmd_exclude() {
+cmd_include() {
     local GIT_DIR="${1}"
     local TARGET="${2}"
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"; shift 2
     local conditionList==("${@}")
 
     for condition in ${conditionList[@]}; do
-        _msg EXEC "Excluding all tracks that match the following condition: ${condition}"
-        db_set ${GIT_DIR} ${DB_FILE} false "${condition}"
+        _msg EXEC "Including all tracks that match the following condition: ${condition}"
+        db_set ${GIT_DIR} ${DB_FILE} true "${condition}"
         [[ $? -ne 0 ]] && { _msg WARN; return 1; } || { _msg OK; return 0; }
     done
 }

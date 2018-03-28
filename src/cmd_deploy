@@ -14,13 +14,15 @@ cmd_deploy() {
     local GIT_DIR="${1}"
     local TARGET="${2}"; shift 2
     local imageidList=(${@})
-    local DB_FILE="${TARGET}/${DB_FILE}"
+    local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
     [[ ! -f "${DB_FILE}" ]] && return 1
+
+    [[ -z "${imageidList[@]}" ]] && local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
 
     for imageid in ${imageidList[@]}; do
         _msg EXEC "Deploying ${imageid} to ${TARGET}"
         deploy_imageid ${GIT_DIR} ${TARGET} ${DB_FILE} ${imageid} >${STDERR} 2>&1
-        [[ $? -ne 0 ]] && { _msg WARN; local ERR=true; }
+        [[ $? -ne 0 ]] && { _msg WARN; local ERR=true; } || _msg OK
     done
     [[ ${ERR} ]] && return 2
 }

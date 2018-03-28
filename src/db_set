@@ -19,23 +19,46 @@ db_set() {
     local GIT_DIR="${1}"
     local DB_FILE="${2}"
     local SELECTED="${3}"; shift 3
-    local conditionList=(${@})
+    local CONDITION="${@}"
+    
+    # Defines what imageids are imported into database, as we're only going to act on those
+    local FIELD="$(echo ${CONDITION} | cut -d'=' -f1)"
+    local VALUE="$(echo ${CONDITION} | cut -d'=' -f2)"
+       
+    # Determines which IMAGEIDs present in the DB_FILE match the CONDITION
+    local COUNT=1
+    local dbimageidList=$(awk 'BEGIN{FS="\t"}{print $2}' ${DB_FILE} | awk '!seen[$0]++')
+    for dbimageid in ${dbimageidList[@]}; do
+        local MTAG="$(printf "${GIT_DIR}/%s.tags" ${dbimageid})"
+        local MATCH="$(grep -i -l "\"${FIELD}\" : \"${VALUE}\""  "${MTAG}")"
+        local imageidList[${COUNT}]="$(basename -s .tags ${MATCH} 2>/dev/null)"
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
 
-    for condition in ${conditionList[@]}; do
-        local FIELD="$(echo ${condition} | cut -d'=' -f1)"
-        local VALUE="$(echo ${condition} | cut -d'=' -f2)"
-        local imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(grep -i -l '"'${FIELD}'" : "'${VALUE}'"' ${GIT_DIR}/*.tags)))
-        
-        for imageid in ${imageidList[@]}; do
-            local TOTALTRACKS=$(grep "@" ${imageid}.tags | wc -l)
-            local COUNT=1
-            while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
-                [[ "$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD})" == "${VALUE}" ]] && local trackidList[${COUNT}]="$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} TRACKID)"
-                local COUNT=$(( ${COUNT} + 1 ))
-            done 
-            for trackid in ${trackidList[@]}; do
-                awk -v selected=${SELECTED} -v trackid=${trackid} 'BEGIN{FS="\t";OFS="\t"}{if($4==trackid){$1=selected}{print $0}}' > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}
-            done
+    # Goes through imageidList to determine which TRACKID matches the CONDITION
+    for imageid in ${imageidList[@]}; do
+
+        # Defines TOTALTRACKS of IMAGEID
+        local TOTALTRACKS=$(grep "@" ${GIT_DIR}/${imageid}.tags | wc -l)
+
+        # Loop goes through all of the tracks in IMAGEID, and determines which of the TRACKIDs has a FIELD that matches the VALUE
+        local COUNT=1
+        while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
+
+            local TRACK_VALUE=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD} | cut -d'=' -f2 | sed 's|.$||')
+            # If print_meta_mtag extract the same VALUE from FIELD as the CONDITION, the TRACKID of this TRACK is added into trackidList
+            if [[ "${TRACK_VALUE}" == "${VALUE}" ]]; then
+                local TRACKID=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} TRACKID |  cut -d'=' -f2 | sed 's|.$||')
+                _msg ECHO "Track ${COUNT} of ${imageid} matches condition. Adding to trackidList"
+                local trackidList[${COUNT}]="${TRACKID}"
+            fi
+
+            local COUNT=$(( ${COUNT} + 1 ))
+        done 
+            
+        # Changes state of trackids that matched
+        for trackid in ${trackidList[@]}; do
+            awk -v imageid=${imageid} -v selected=${SELECTED} -v trackid=${trackid} 'BEGIN{FS="\t";OFS="\t"}{if($2==imageid && $3==trackid){$1=selected}{print $0}}' ${DB_FILE}  > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}
         done
     done
 }

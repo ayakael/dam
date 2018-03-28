@@ -21,7 +21,7 @@ print_meta_mtag() {
     [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1!~"@"){print $1}}' ${FILE} | awk '!seen[$0]++') IMAGEID)
 
     for tag in ${tagList[@]}; do
-        [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"));"; continue; }
+        [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"))"; continue; }
         echo -n "${tag}=$(print_meta_field ${FILE} ${TRACKNO} ${tag});"
     done
 }
