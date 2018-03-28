@@ -40,7 +40,7 @@ deploy_trackid() {
     
         # If the PRESENT_META and FUTURE_META diverge, wipe the old metadata, and reapply
         if [[ "${PRESENT_META}" != "${FUTURE_META}" ]]; then
-            _msg ECHO "${TRACKID} has different metadata. Updating"
+            _msg ECHO "${TRACKID} has differing metadata. Updating"
             [[ "${PRESENT_PATH}" == "null" ]] || metaflac --remove-all "${TARGET}/${PRESENT_PATH}"
             awk 'BEGIN {RS=";"}{print $0}' <<< ${FUTURE_META} | head -n -1 | metaflac --import-tags-from=- --import-picture-from="${GIT_DIR}/${IMAGEID}.jpg" "${TARGET}/${PRESENT_PATH}"
         fi 
@@ -50,6 +50,7 @@ deploy_trackid() {
             _msg ECHO "${TRACKID} has differing paths. Moving"
             mkdir -p "$(dirname "${TARGET}/${FUTURE_PATH}")"
             mv "${TARGET}/${PRESENT_PATH}" "${TARGET}/${FUTURE_PATH}"
+            rmdir -p --ignore-fail-on-non-empty "$(dirname "${TARGET}/${PRESENT_PATH}")"
             awk -v rowno=${ROW_NO} -v value="${FUTURE_PATH}" 'BEGIN{FS="\t";OFS="\t"}{if(NR==rowno){$4=value}{print $0}}' ${DB_FILE} > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}
         fi
 
@@ -63,5 +64,4 @@ deploy_trackid() {
             rm "${GIT_DIR}/${IMAGEID}-${TRACKID}.flac"
         fi 
     fi
-    return 0
 }
