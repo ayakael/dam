@@ -15,7 +15,6 @@ is_selected() {
     local IMAGEID="${2}"
     local TRACKID="${3}"
     
-    ROWNO=$(_cfg query '$2=="'${IMAGEID}'" && $3=="'${TRACKID}'"' ${DB_FILE})
-    [[ "$(_cfg print SELECTED ${ROWNO} ${DB_FILE})" == "true" ]] && return 0 || return 1
+    [[ "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS"\t"}{if($2==imageid && $3==trackid){print $1}}' ${DB_FILE})"  == "true" ]] && return 0 || return 1
 }
 

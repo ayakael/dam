@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+source ../src/env
+source ../src/update_db
+
+GIT_DIR=~/media/music
+TARGET=~/media/target
+DB_FILE=~/media/target/.dam.db
+IMAGEID=SHA256-zyVXHCNCiYlngNrv5cpTXfOWsm8--82bc52d968f90a4e3b4ec316e67c6e0acae66112db9f237cb4b11df623cf20c2
+
+update_db ${GIT_DIR} ${TARGET} ${DB_FILE} ${IMAGEID}

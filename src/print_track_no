@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# doc print_track_no {
+#
+# DESCRIPTION
+#   print_track_no - Prints track number of TRACKID using MTAG file
+#
+# USAGE
+#   print_track_no <path/to/git/dir> <IMAGEID> <TRACKID>
+#
+# }
+
+print_track_no() {
+    local GIT_DIR="${1}"
+    local IMAGEID="${2}"
+    local TRACKID="${3}"
+
+    local TOTALTRACKS=$(grep TITLE ${GIT_DIR}/${IMAGEID}.tags | wc -l)
+
+    local COUNT=1
+    while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do    
+        [[ "$(print_meta_field ${GIT_DIR}/${IMAGEID}.tags ${COUNT} TRACKID)" == "${TRACKID}" ]] && echo ${COUNT}
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+}
+

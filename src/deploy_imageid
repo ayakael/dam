@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# doc deploy_imageid {
+#
+# DESCRIPTION
+#   deploy_imageid - Wraps the deploy_trackid function on a per imageid basis
+#
+# USAGE
+#   deploy_imageid <path/to/git/dir> </path/to/target> <IMAGEID>
+#
+# }
+
+deploy_imageid() {
+    ## Argument parsing
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${3}"
+    local IMAGEID="${4}"
+
+    [[ -n "$(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid && $4=="null"){print NR}}' ${DB_FILE})" ]] && { deploy_gen ${GIT_DIR} ${IMAGEID}; deploy_mv ${GIT_DIR} ${IMAGEID}; }
+
+    local trackidList=($(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($2==imageid){print $3}}' ${DB_FILE}))
+    for trackid in ${trackidList[@]}; do
+        _msg ECHO "Processing ${trackid} of ${IMAGEID}"
+        deploy_trackid ${GIT_DIR} ${TARGET} ${DB_FILE} ${IMAGEID} ${trackid}
+    done
+}
+
+

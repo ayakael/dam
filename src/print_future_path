@@ -1,42 +1,42 @@
 #!/bin/bash
 
-# doc print_target_path {
+# doc print_future_path {
 #
 # DESCRIPTION
 #   Prints relative output path based on provided metadata TAGS. Expects input from print_meta
 #   function.
 #
 # USAGE
-#   print_target_path <output from print_meta>
+#   print_future_path <output from print_meta>
 #
 # }
 
-print_target_path() {
+print_future_path() {
     local TAGS="${@}"
-    local tagList=(GENRE COMPOSER ALBUM ARTIST PERFORMER DATE DISCNUMBER TOTALDISCS TRACKNUMBER TITLE)
+    local tagList=(GENRE COMPOSER ALBUM ARTIST CONDUCTOR PERFORMER DATE DISCNUMBER TOTALDISCS TRACKNUMBER TITLE)
 
     for tag in ${tagList[@]}; do
         CURTAG="$(awk -v field=${tag} 'BEGIN{RS=";";FS="="}{if($1==field){printf $2}}' <<< ${TAGS})"
         eval local ${tag}='${CURTAG}'
     done
 
-    [[ -z "${GENRE+x}" ]] && echo -n "${GENRE}/"
-    if [[ -z "${CONDUCTOR+x}" ]]; then 
-        [[ -z "${COMPOSER+x}" ]] && echo -n "${COMPOSER}/"
-        [[ -z "${ALBUM+x}" ]] && echo -n "${ALBUM}/"
-        [[ -z "${ARTIST+x}" ]] && echo -n "${ARTIST}/"
-        [[ -z "${DATE+x}" ]] && echo -n "${DATE}"
-        if [[ -z "${DATE+x}" ]] && [[ -z "${PERFORMER+x}" ]]; then echo -n "-"; fi
-        [[ -z "${PERFORMER+x}" ]] && echo -n "${PERFORMER}/"
+    [[ -n "${GENRE}" ]] && echo -n "${GENRE}/"
+    if [[ -n "${CONDUCTOR}" ]]; then 
+        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/"
+        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/"
+        [[ -n "${CONDUCTOR}" ]] && echo -n "${CONDUCTOR}/"
+        [[ -n "${DATE}" ]] && echo -n "${DATE}"
+        if [[ -n "${DATE}" ]] && [[ -n "${PERFORMER}" ]]; then echo -n " - "; fi
+        [[ -n "${PERFORMER+x}" ]] && echo -n "${PERFORMER}/"
     else
-        [[ -z "${ARTIST+x}" ]] && echo -n "${ARTIST}/"
-        [[ -z "${DATE+x}" ]] && echo -n "${DATE}"
-        if [[ -z "${DATE+x}" ]] && [[ -z "${ARTIST+x}" ]]; then echo -n "-"; fi
-        [[ -z "${ALBUM+x}" ]] && echo -n "${ALBUM}/\t"
+        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/"
+        [[ -n "${DATE}" ]] && echo -n "${DATE}"
+        if [[ -n "${DATE}" ]] && [[ -n "${ALBUM}" ]]; then echo -n " - "; fi
+        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/"
     fi
     
     [[ ${TOTALDISCS} -gt 1 ]] && echo -n "${DISCNUMBER}."
     printf "%02d" ${TRACKNUMBER}
-    echo -n " - $(sed 's|/|-|g' <<< ${TITLE} | sed 's|?||g')"
+    echo -n " - $(sed 's|/|-|g' <<< ${TITLE} | sed 's|?||g').flac"
 }
 

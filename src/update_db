@@ -11,15 +11,16 @@
 # }
 
 update_db() {
-    local GITDIR="${1}"
+    local GIT_DIR="${1}"
     local TARGET="${2}"
     local DB_FILE="${3}"; shift 3
     local imageidList=(${@})
 
+    [[ -f "${DB_FILE}" ]] || touch "${DB_FILE}"
     for imageid in ${imageidList[@]}; do
-        trackidList=($(awk 'BEGIN{FS="\" : \"";RS="\",\n * \""}{if($1=="TRACKID"){print $2}}'))
+        trackidList=($(awk 'BEGIN{FS="\" : \"";RS="\",\n * \""}{if($1=="TRACKID"){print $2}}' ${GIT_DIR}/${imageid}.tags))
         for trackid in ${trackidList[@]}; do
-            [[ -z $(_cfg query '$2=="'${imageid}'" && $3=="'${trackid}'"' ${DB_FILE}) ]] && _cfg insert true ${imageid} ${trackid}
+            [[ -z $(awk -v imageid="${imageid}" -v trackid="${trackid}" 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE}) ]] && echo -e "true\t${imageid}\t${trackid}\tnull" >> ${DB_FILE}
         done
     done
 }

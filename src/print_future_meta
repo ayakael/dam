@@ -16,13 +16,12 @@
 print_future_meta() {
     local MTAG=${1}
     local TRACKNUMBER="${2}"
-    local TAGS=$(cat ${MTAG} | sed -e 's/^[[:space:]]*\"//')
-    local tagList=($(echo ${TAGS} | awk 'BEGIN {RS="\", ";FS="\" : \""}{if($1!~"{"){print $1}}' | awk '!seen[$0]++'))
+    local tagList=($(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1!~"@"){print $1}}' ${MTAG} | awk '!seen[$0]++'))
 
     for tag in ${tagList[@]}; do
         local COUNT=1
         while [[ ${COUNT} -le ${TRACKNUMBER} ]]; do
-            local PRTVAR=$(print_meta_field ${COUNT} ${tag} ${TAGS})
+            local PRTVAR=$(print_meta_field ${MTAG} ${COUNT} ${tag})
             [[ ! -z ${PRTVAR} ]] && local CURVAR=${PRTVAR}
             local COUNT=$(( ${COUNT} + 1 ))
         done
@@ -30,6 +29,6 @@ print_future_meta() {
         unset CURVAR
         unset PRTVAR
     done
-    echo -n "IMAGEID=$(sed 's|.tags||g' <<< ${MTAG})"
+    echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${MTAG}"))"
 }
 

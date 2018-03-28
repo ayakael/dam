@@ -1,14 +1,20 @@
 #!/bin/bash
 
-###
-# Prints VALUE of FIELD, for specific TRACK NUMBER out of a JSON string. Expects to be used
-# by print_meta()
-###
+# doc print_meta_field {
+#
+# DESCRIPTION
+#   print_meta_field - Prints VALUE of FIELD, for specific TRACK NUMBER out of a JSON string. Expects to be used
+#   by print_meta()
+#
+# USAGE
+#   print_meta_field <file> <track_no> <field_name>
+#
+# }
 
 print_meta_field() {
-    local TRACK_NO="${1}"
-    local FIELD="${2}"; shift 2
-    local TAGS="${@}"
+    local FILE="${1}"
+    local TRACK_NO="${2}"
+    local FIELD="${3}"
 
-    awk -v track="${TRACK_NO}" 'BEGIN {RS="\" * }"}{if(NR==track){print $0}}' <<< ${TAGS} | awk -v field="${FIELD}" 'BEGIN {RS="\", ";FS="\" : \"";}{if($1==field){print $2}}'
+    awk -v track="${TRACK_NO}" 'BEGIN {RS="\"\n * }"}{if(NR==track){print $0}}' ${FILE} |   awk -v field="${FIELD}" 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1==field){print $2}}'
 }

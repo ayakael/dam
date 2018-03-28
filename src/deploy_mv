@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# doc deploy_mv {
+# 
+# DESCRIPTION
+#   deploy_mv - Renames output files from deploy_gen to associated TRACKID
+#
+# USAGE
+#   deploy_mv </path/to/git/dir> <IMAGEID.
+# }
+
+deploy_mv() {
+    local GITDIR="${1}"
+    local IMAGEID="${2}"
+    
+    # Generated trackidList to know what id to assign to each file
+    local trackidList=$(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1=="TRACKID"){print $2}}' "${GITDIR}/${IMAGEID}.tags")
+
+    # Then renames the ouput files to TRACKID
+    local COUNT=1
+    for trackid in ${trackidList[@]}; do
+        mv "${GITDIR}/$(printf 'split-track%02d.flac' ${COUNT})" "${GITDIR}/${IMAGEID}-${trackid}.flac"
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    return 0
+}
+    
