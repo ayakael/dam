@@ -18,7 +18,15 @@ cmd_deploy() {
     [[ ! -f "${DB_FILE}" ]] && return 1
 
     [[ -z "${imageidList[@]}" ]] && local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
+    
+    # Checks if target has enough space
+    local deployableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
+    local removableidList=($(awk 'BEGIN{FS="\t"}{if($1=="false" && $4!="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
+    local DU="$(( $(print_imageid_du ${GIT_DIR} ${deployableidList[@]}) - $(print_imageid_du ${GIT_DIR} ${removableidList[@]}) ))"
+    local DF="$(df ${TARGET} --output=avail | tail -n -1)"
+    [[ ${DU} -ge ${DF} ]] && { _msg ECHO "Target does not have enough space for deployable IMAGEID. Need ${DU}, has ${DF}."; return 2; }
 
+    
     for imageid in ${imageidList[@]}; do
         _msg EXEC "Deploying ${imageid} to ${TARGET}"
         deploy_imageid ${GIT_DIR} ${TARGET} ${DB_FILE} ${imageid} >${STDERR} 2>&1
