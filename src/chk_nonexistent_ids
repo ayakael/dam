@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# doc chk_nonexistent_ids {
+#
+# DESCRIPTION
+#   chk_nonexistent_ids - Checks if all trackids in DB_FILE points to an existing file. If not, deletes.
+#
+# USAGE
+#   chk_nonexistent_ids </path/to/target/dir> </path/to/db/file/>
+#
+# }
+
+chk_nonexistent_ids() {
+    local TARGET="${1}"
+    local DB_FILE="${2}"
+
+    for row in $(awk 'BEGIN{RS="\n";FS="\t";OFS="="}{print $2,$3,$4}' ${DB_FILE}); do
+        local IMAGEID="$(cut -d"=" -f1 <<< ${row})"
+        local TRACKID="$(cut -d"=" -f2 <<< ${row})"
+        local FILE="$(cut -d"=" -f3 <<< ${row})"
+        _msg ECHO "Checking track id ${TRACKID}"
+        
+        if [[ ! -f "${TARGET}/${FILE}" ]] && [[ ${FILE} != "null" ]]; then
+            _msg ECHO "${TRACKID} points to non-existent file"
+            sed -i "/${IMAGEID}	${TRACKID}/d" ${DB_FILE}
+        fi
+    done
+
+}
+
+
