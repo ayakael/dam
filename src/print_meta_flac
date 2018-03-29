@@ -6,14 +6,23 @@
 #   print_meta_flac - Prints metadata of remote flac in FIELD=VALUE; format.
 #
 # USAGE
-#   print_meta_flac </path/to/flac>
+#   print_meta_flac </path/to/flac> [<field_1> <field_2> <...>]
 #
 # }
 
 print_meta_flac() {
-    local FILE="${1}"
+    local FILE="${1}"; shift
+    local tagList=(${@})
+    [[ ! -f ${FILE} ]] && return 1
     
-    if [[ -f ${FILE} ]]; then
-         awk 'BEGIN{FS=": ";ORS=";"}{if($1 ~ /comment\[/){print $2}}' <<< $(metaflac --list --block-type=VORBIS_COMMENT "${FILE}") | sed 's|.$||'  
+    local METADATA=$(awk 'BEGIN{FS=": ";ORS=";"}{if($1 ~ /comment\[/){print $2}}' <<< $(metaflac --list --block-type=VORBIS_COMMENT "${FILE}"))
+    if [[ -z "${tagList[@]}" ]]; then
+        echo -n ${METADATA} | sed 's|.$||'
+    else
+        for tag in ${tagList[@]}; do
+            local SEL_METADATA="${SEL_METADATA}$(awk -v tag=${tag} 'BEGIN{FS="=";RS=";";ORS=";"}{if($1==tag){print $0}}' <<< ${METADATA})"
+        done
+        echo -n "${SEL_METADATA}" |  sed 's|.$||'
     fi
+
 } 
