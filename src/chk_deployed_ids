@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# doc chk_deployed_ids {
+#
+# DESCRIPTION
+#   chk_deployed_ids - Checks if all FLAC files present in TARGET is accounted for in DB_FILE
+#
+# USAGE
+#   chk_deployed_ids </path/to/target/dir> </path/to/db/file/>
+#
+# }
+
+chk_deployed_ids() {
+    local TARGET="${1}"
+    local DB_FILE="${2}"
+
+    for flac in $(find "${TARGET}" -name '*.flac' -not -path '*/\.*' -printf "%P\n"); do
+        _msg ECHO "Checking ${flac}"
+        local metadataList=($(awk 'BEGIN{RS=";";FS="="}{print $2}' <<< $(print_meta_flac "${TARGET}/${flac}" IMAGEID TRACKID)))
+        local IMAGEID=${metadataList[0]}
+        local TRACKID=${metadataList[1]}
+        
+        if [[ -z "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE})" ]]; then
+            _msg ECHO "Fixing accounting for ${flac}"
+            echo "true	${IMAGEID}	${TRACKID}	${flac}" >> ${DB_FILE}
+        elif [[ "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $4}}' ${DB_FILE})" != "${flac}" ]]; then
+            _msg ECHO "Fixing path for ${flac}" 
+            awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){$4=path}{print $0}}' ${DB_FILE} > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}
+        fi
+    done
+
+}
+
+
