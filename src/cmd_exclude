@@ -19,11 +19,15 @@ cmd_exclude() {
     local GIT_DIR="${1}"
     local TARGET="${2}"
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"; shift 2
-    local conditionList==("${@}")
+    local conditionList=("${@}")
+    echo ${conditionList[@]}
 
     for condition in ${conditionList[@]}; do
         _msg EXEC "Excluding all tracks that match the following condition: ${condition}"
         db_set ${GIT_DIR} ${DB_FILE} false "${condition}"
-        [[ $? -ne 0 ]] && { _msg WARN; return 1; } || { _msg OK; return 0; }
+        [[ $? -ne 0 ]] && { _msg WARN; } || { _msg OK; }
     done
+    local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
+    local DU="$(print_imageid_du ${GIT_DIR} ${imageidList[@]})"
+    _msg ECHO "Current estimated disk usage: ${DU} bytes"
 }
