@@ -22,8 +22,8 @@ db_set() {
     local CONDITION="${@}"
     
     # Defines what imageids are imported into database, as we're only going to act on those
-    local FIELD="$(echo ${CONDITION} | cut -d'=' -f1)"
-    local VALUE="$(echo ${CONDITION} | cut -d'=' -f2)"
+    local FIELD="$(echo ${CONDITION} | cut -d'=' -f1 | tr '[:lower:]' '[:upper:]' )"
+    local VALUE="$(echo ${CONDITION} | cut -d'=' -f2 | tr '[:lower:]' '[:upper:]' )"
        
     # Determines which IMAGEIDs present in the DB_FILE match the CONDITION
     local COUNT=1
@@ -45,7 +45,7 @@ db_set() {
         local COUNT=1
         while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
 
-            local TRACK_VALUE=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD} | cut -d'=' -f2 | sed 's|.$||')
+            local TRACK_VALUE=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD} | cut -d'=' -f2 | sed 's|.$||' | tr '[:lower:]' '[:upper:]')
             # If print_meta_mtag extract the same VALUE from FIELD as the CONDITION, the TRACKID of this TRACK is added into trackidList
             if [[ "${TRACK_VALUE}" == "${VALUE}" ]]; then
                 local TRACKID=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} TRACKID |  cut -d'=' -f2 | sed 's|.$||')
