@@ -3,17 +3,16 @@
 # doc print_present_path {
 #
 # DESCRIPTION
-#   Prints path of exiting TRACKID for IMAGEID.
+#   Prints path of exiting TRACKID.
 #
 # USAGE
-#   print_present_path </path/to/db/file> <imageid> <trackid>
+#   print_present_path </path/to/db/file> <trackid>
 #
 # }
 
 print_present_path() {
     local DB_FILE="${1}"
-    local IMAGEID="${2}"
-    local TRACKID="${3}"
+    local TRACKID="${2}"
 
-    awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $4}}' ${DB_FILE}
+    awk -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($3==trackid){print $4}}' ${DB_FILE}
 } 
