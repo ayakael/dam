@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# doc cmd_du {
+#
+# DESCRIPTION
+#   cmd_du - Prints disk usage information like TOTAL USAGE of IMAGEID files on TARGET.
+#
+# USAGE
+#   cmd_du </path/to/git/dir> </path/to/target/dir>
+#
+# }
+
+cmd_du() {
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
+    
+    local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
+    local DU="$(print_imageid_du ${GIT_DIR} ${imageidList[@]})"
+    _msg ECHO "Current estimated disk usage: ${DU} bytes"
+}

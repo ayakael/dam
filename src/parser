@@ -23,6 +23,11 @@ case "${1}" in
     update)
         shift
         cmd_update ${@}
-        ;;
+    ;;
+
+    du)
+        shift
+        cmd_du "${@}"
+    ;;
 esac
 
