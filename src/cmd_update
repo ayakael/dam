@@ -17,18 +17,18 @@ cmd_update() {
 
     # In the event that LAST_COMMIT OR DB_FILE does not exist, echo out that the LAST_COMMIT 
     # is the first COMMIT of GIT_DIR, thus stating that no database update has ever occured
-    if [[ -z "$(grep LAST_COMMIT ${DB_FILE})" ]]; then
-        echo -e "LAST_COMMIT\t$(git -C "${GIT_DIR}" rev-list HEAD | tail -n 1)" >> ${DB_FILE}
+    if [[ -z "$(grep LAST_UPDATE ${DB_FILE})" ]]; then
+        echo -e "LAST_UPDATE\t$(git -C "${GIT_DIR}" rev-list HEAD | tail -n 1)" >> ${DB_FILE}
     fi
 
     # Defines what imageids needs updating by determining what files has changed since last
     # update via git diff --name-only.
     local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
-    local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_COMMIT"){print $2}}' ${DB_FILE})
-    imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
+    local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_UPDATE"){print $2}}' ${DB_FILE})
+    local imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
     
     _msg EXEC "Updating database from ${OLD_COMMIT} to ${NEW_COMMIT}" 
     db_update "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageidList[@]}
     [[ $? -ne 0 ]] && { _msg WARN; local ERR=true; } || _msg OK
-    [[ ${ERR} ]] && return 1 || { awk -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t"}{if($1=="LAST_COMMIT"){$2=newcommit}{print $0}}' ${DB_FILE} > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}; return 0; }
+    [[ ${ERR} ]] && return 1 || { gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_UPDATE"){$2=newcommit}{print $0}}' ${DB_FILE}; return 0; }
 }

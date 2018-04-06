@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# doc deploy_meta {
+#
+# DESCRIPTION
+#   deploy_meta - Makes the deployment of metadata in TARGET consistent with GIT_DIR
+#
+# USAGE
+#   deploy_meta <path/to/git/dir> <path/to/target> <path/to/db/file> <IMAGEID>
+#
+# }
+
+deploy_meta() {
+    ## Argument parsing
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${3}"
+    local IMAGEID="${4}"
+    
+    local trackidList=($(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid){print $3}}' ${DB_FILE}))
+    for trackid in ${trackidList[@]}; do
+        local TRACKNO="$(print_track_no ${GIT_DIR} ${IMAGEID} ${trackid})"
+        _msg ECHO "Checking ${trackid}"
+        ## Path and metadata parsing 
+        local FUTURE_META="$(print_meta_mtag ${GIT_DIR}/${IMAGEID}.tags ${TRACKNO} | tr '\\' -d)"
+        local FUTURE_PATH="$(print_future_path ${FUTURE_META} | tr '"\:*?|<>' '________' )"
+        local PRESENT_PATH="$(print_present_path "${DB_FILE}" ${IMAGEID} ${trackid})"
+        local PRESENT_META="$(print_meta_flac "${TARGET}/${PRESENT_PATH}")"
+
+        # If the PRESENT_META and FUTURE_META diverge, wipe the old metadata, and reapply
+        if [[ "${PRESENT_META}" != "${FUTURE_META}" ]]; then
+            _msg ECHO "${trackid} has differing metadata. Updating"
+            [[ "${PRESENT_PATH}" == "null" ]] || metaflac --remove-all "${TARGET}/${PRESENT_PATH}"
+            awk 'BEGIN {RS=";"}{print $0}' <<< ${FUTURE_META} | head -n -1 | metaflac --import-tags-from=- --import-picture-from="${GIT_DIR}/${IMAGEID}.jpg" "${TARGET}/${PRESENT_PATH}"
+        fi 
+
+        # If the PRESENT_PATH and FUTURE_PATH diverge, move to new location
+        if [[ "${PRESENT_PATH}" != "${FUTURE_PATH}" ]]; then
+            _msg ECHO "${trackid} has differing paths. Moving"
+            mkdir -p "$(dirname "${TARGET}/${FUTURE_PATH}")"
+            mv "${TARGET}/${PRESENT_PATH}" "${TARGET}/${FUTURE_PATH}"
+            rmdir -p --ignore-fail-on-non-empty "$(dirname "${TARGET}/${PRESENT_PATH}")" >${STDERR} 2>&1
+            gawk -i inplace -v trackid=${trackid} -v value="${FUTURE_PATH}" 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}
+        fi
+    done
+}

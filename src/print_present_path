@@ -12,7 +12,8 @@
 
 print_present_path() {
     local DB_FILE="${1}"
-    local TRACKID="${2}"
+    local IMAGEID="${2}"
+    local TRACKID="${3}"
 
-    awk -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($3==trackid){print $4}}' ${DB_FILE}
+    awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $4}}' ${DB_FILE}
 } 

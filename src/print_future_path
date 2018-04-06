@@ -37,6 +37,7 @@ print_future_path() {
     
     [[ ${TOTALDISCS} -gt 1 ]] && echo -n "${DISCNUMBER}."
     printf "%02d" ${TRACKNUMBER}
-    echo -n " - $(sed 's|/|-|g' <<< ${TITLE} | sed 's|?||g').flac"
+    [[ -n "${TITLE}" ]] && echo -n " - $(sed 's|/|_|g' <<< ${TITLE})" || echo -n " - ${ALBUM}"
+    echo -n ".flac"
 }
 

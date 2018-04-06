@@ -19,6 +19,11 @@ db_update() {
     [[ -f "${DB_FILE}" ]] || touch "${DB_FILE}"
     for imageid in ${imageidList[@]}; do
         trackidList=($(awk 'BEGIN{FS="\" : \"";RS="\",\n * \""}{if($1=="TRACKID"){print $2}}' ${GIT_DIR}/${imageid}.tags))
+        if [[ -f ${GIT_DIR}/${imageid}.tags ]]; then
+            _msg ECHO "Removing ${imageid} from database file"
+            gawk -i inplace -v imageid="${imageid}" 'BEGIN{FS="\t";OFS="\t"}{if($2=imageid){$1="null"}{print $0}}' ${DB_FILE}
+            continue
+        fi
         for trackid in ${trackidList[@]}; do
             if [[ -z $(awk -v imageid="${imageid}" -v trackid="${trackid}" 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE}) ]]; then
                 _msg ECHO "Adding ${trackid} of ${imageid} to database file"

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# doc print_trackids_to_imageids {
+#
+# DESCRIPTION
+#   print_trackids_to_imageids - Prints the IMAGEIDs of all TRACKIDs.
+#
+# USAGE
+#   print_trackids_to_imageids </path/to/db/file> <TRACKID_1> [<...>]
+#
+# }
+
+print_trackids_to_imageids() {
+    ## Argument parsing
+    local DB_FILE="${1}"; shift
+    local trackidList=(${@})
+    
+    ## Prints imageid of trackid if trackidList has only 1 element
+    [[ ${#imageidList[@]} -eq 1 ]] && { awk -v trackid=${trackid} 'BEGIN{FS="\t"}{if($3==trackid){print $2}}' ${DB_FILE}; return 0; }
+    
+    ## Generates imageidList
+    for trackid in ${trackidList[@]}; do
+        local imageidList=(${imageidList[@]} $(awk -v trackid=${trackid} 'BEGIN{FS="\t"}{if($3==trackid){print $2}}' ${DB_FILE}))
+    done
+
+    awk '!seen[$0]++' <<<$(printf "%s\n" ${imageidList[@]}) 
+    return 0
+}
