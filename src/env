@@ -4,7 +4,6 @@
 # Sets environment variables necessary for the functioning of this script
 ###
 
-source /usr/lib/bash/bunc
 IFS='	
 '
 _OPT_DB_FILE=.dam.db
