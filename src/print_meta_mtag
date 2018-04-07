@@ -18,8 +18,8 @@ print_meta_mtag() {
     local TRACK_NO="${2}"; shift 2
     local tagList=(${@})
    
-    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1!~"@"){print $1}}' ${FILE} | awk '!seen[$0]++') IMAGEID)
-
+    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="[,]?\n";FS=" : "}{if($1!~"@"){print $1}}' ${FILE} | tr -d '[]{}" ' | awk '!seen[$0]++' | tail -n +3) IMAGEID)
+    
     for tag in ${tagList[@]}; do
         # Finalizes output with IMAGEID
         [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"))"; continue; }

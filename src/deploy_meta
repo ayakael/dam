@@ -32,7 +32,7 @@ deploy_meta() {
         if [[ "${PRESENT_META}" != "${FUTURE_META}" ]]; then
             _msg ECHO "${trackid} has differing metadata. Updating"
             [[ "${PRESENT_PATH}" == "null" ]] || metaflac --remove-all "${TARGET}/${PRESENT_PATH}"
-            awk 'BEGIN {RS=";"}{print $0}' <<< ${FUTURE_META} | head -n -1 | metaflac --import-tags-from=- --import-picture-from="${GIT_DIR}/${IMAGEID}.jpg" "${TARGET}/${PRESENT_PATH}"
+            sed s'/;/\n/' <<< ${FUTURE_META}  | metaflac --import-tags-from=- --import-picture-from="${GIT_DIR}/${IMAGEID}.jpg" "${TARGET}/${PRESENT_PATH}"
             [[ $? -eq 0 ]] || local ERR=true
         fi 
 

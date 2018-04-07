@@ -14,7 +14,7 @@ deploy_mv() {
     local IMAGEID="${2}"
     
     # Generated trackidList to know what id to assign to each file
-    local trackidList=$(awk 'BEGIN{RS="\",*\n * \"";FS="\" : \""}{if($1=="TRACKID"){print $2}}' "${GITDIR}/${IMAGEID}.tags")
+    local trackidList=$(awk -v field="\"TRACKID\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}' "${GITDIR}/${IMAGEID}.tags" | tr -d '"')
 
     # Then renames the ouput files to TRACKID
     local COUNT=1
