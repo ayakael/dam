@@ -14,19 +14,31 @@ chk_deployed_ids() {
     local TARGET="${1}"
     local DB_FILE="${2}"
 
-    for flac in $(find "${TARGET}" -name '*.flac' -not -path '*/\.*' -printf "%P\n"); do
-        _msg ECHO "Checking ${flac}"
+    local flacList=($(find "${TARGET}" -name '*.flac' -not -path '*/\.*' -printf "%P\n"))
+
+    local COUNT=0
+    for flac in ${flacList[@]}; do
+        local COUNT=$(( ${COUNT} + 1 ))
+        local ERR=false
+        echo "[ ${COUNT} / ${#flacList[@]} ] Checking ${flac}"
         local metadataList=($(awk 'BEGIN{RS=";";FS="="}{print $2}' <<< $(print_meta_flac "${TARGET}/${flac}" IMAGEID TRACKID)))
         local IMAGEID=${metadataList[0]}
         local TRACKID=${metadataList[1]}
         
+        if [[ -z "${IMAGEID}" ]] || [[ -z "${TRACKID}" ]]; then echo "${flac} does not contain IMAGEID or TRACKID metadata" > ${STDERR}; local ERR=true; fi
+        [[ "${ERR}" == "true" ]] && { cat ${STDERR}; continue; } 
+
+        
         if [[ -z "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE})" ]]; then
-            _msg ECHO "Fixing accounting for ${flac}"
+            local ERR=true
+            echo  "Fixing accounting for ${flac}" > ${STDERR}
             echo -e "true\t${IMAGEID}\t${TRACKID}\t${flac}" >> ${DB_FILE}
         elif [[ "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $4}}' ${DB_FILE})" != "${flac}" ]]; then
-            _msg ECHO "Fixing path for ${flac}" 
-            awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){$4=path}{print $0}}' ${DB_FILE} > ${DB_FILE}.tmp; mv ${DB_FILE}.tmp ${DB_FILE}
+            local ERR=true
+            echo "Fixing path for ${flac}"  > ${STDERR}
+            gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){$4=path}{print $0}}' ${DB_FILE}
         fi
+        [[ "${ERR}" == "true" ]] && cat ${STDERR} || { _ansi up 2; echo -en '\033[K'; }
     done
 
 }

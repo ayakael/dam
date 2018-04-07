@@ -25,4 +25,5 @@ chk_metadata() {
         [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; } || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
+    [[ "${ERR}" == "true" ]] && { _msg EXEC "Metadata check completed with errors"; _msg WARN; } || { _msg EXEC "Metadata check completed succesfully"; _msg OK; }
 }
