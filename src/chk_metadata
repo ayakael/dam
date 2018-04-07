@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# doc chk_metadata {
+#
+# DESCRIPTION
+#   chk_metadata - Checks metadata of TRACKIDs in TARGET
+#
+# USAGE
+#   chk_metadata </path/to/git/dir> </path/to/target> </path/to/db/file> [<IMAGEID>] [<...>]
+#
+# }
+
+chk_metadata() {
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${3}"; shift 3
+    local imageidList=(${@})
+
+    [[ -z "${imageidList[@]}" ]] && local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4!="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
+
+    for imageid in ${imageidList[@]}; do
+        _msg EXEC "Checking ${imageid}"
+        deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
+        [[ $? -eq 0 ]] && _msg OK || _msg WARN
+
+    done
+}
