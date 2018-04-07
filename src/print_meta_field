@@ -16,5 +16,10 @@ print_meta_field() {
     local TRACK_NO="${2}"
     local FIELD="${3}"
 
-     awk -v track=${TRACK_NO} 'BEGIN {RS="\n * }"}{if(NR<=track){print $0}}' ${FILE} |  awk -v field="\"${FIELD}\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}' | tail -n 1 | sed -e 's/^"//' -e 's/"$//'
+    # The first awk command prints out all the FIELD information for every TRACK preceeding TRACK_NO. The second
+    # awk command then keeps only the lines that match the FIELD we want, then using tail and sed, we keep only
+    # the last line (Thus the only relevant value). This permits us to use the MTAG's specs where tracks inherit
+    # the values of its previous tracks when not set. Thus, one needs only to define the ALBUM once on the first
+    # track for all other TRACKs to inherit it.
+    awk -v track=${TRACK_NO} 'BEGIN {RS="\n * }"}{if(NR<=track){print $0}}' ${FILE} |  awk -v field="\"${FIELD}\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}' | tail -n 1 | sed -e 's/^"//' -e 's/"$//'
 }
