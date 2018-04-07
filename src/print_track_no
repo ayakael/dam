@@ -15,7 +15,7 @@ print_track_no() {
     local IMAGEID="${2}"
     local TRACKID="${3}"
 
-    local TOTALTRACKS=$(grep TITLE ${GIT_DIR}/${IMAGEID}.tags | wc -l)
+    local TOTALTRACKS=$(grep \"@\" ${GIT_DIR}/${IMAGEID}.tags | wc -l)
 
     local COUNT=1
     while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do    
