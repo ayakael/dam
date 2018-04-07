@@ -13,6 +13,7 @@
 cmd_deploy() {
     local GIT_DIR="${1}"
     local TARGET="${2}"; shift 2
+    local ERR=false
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
     [[ ! -f "${DB_FILE}" ]] && return 1
 
@@ -35,19 +36,30 @@ cmd_deploy() {
     [[ ${DU} -ge ${DF} ]] && { _msg ECHO "Target does not have enough space for deployable IMAGEID. Need ${DU}, has ${DF}."; return 2; }
 
     # Cleans target of removable TRACKID
+    local COUNT=1
     for removableid in ${removableidList[@]}; do
-        deploy_rm "${TARGET}" "${DB_FILE}" ${removableid}
+        echo "[ ${COUNT} / ${#removableidList[@]} ] Removing ${removableid} from ${TARGET}" 
+        deploy_rm "${TARGET}" "${DB_FILE}" ${removableid} >${STDERR} 2>&1
+        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; }  || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        local COUNT=$(( ${COUNT} + 1 ))
     done
     
+    local COUNT=0
     for imageid in ${updateableidList[@]}; do
+        local COUNT=$(( ${COUNT} + 1 ))
+        echo "[ ${COUNT} / ${#updateableidList[@]} ] Deploying ${imageid} to ${TARGET}"
         # Processes deployableids (IMAGEIDs that have TRACKIDs that are not present in target, but are selected)
         if _if_array_contains ${imageid} ${deployableidList[@]}; then
-            deploy_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid}
+            deploy_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
+            [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; continue; } 
         fi
+        
 
-        # Processed metadata changes
-        deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid}
+        # Processes metadata changes
+        deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
+        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; } || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
     done
 
-    [[ ${ERR} ]] && return 1 || { gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_DEPLOY"){$2=newcommit}{print $0}}' ${DB_FILE}; return 0; }
+    [[ "${ERR}" == "true" ]] && return 1 || { gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_DEPLOY"){$2=newcommit}{print $0}}' ${DB_FILE}; return 0; }
+
 }
