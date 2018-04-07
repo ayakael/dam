@@ -20,27 +20,27 @@ deploy_cp() {
 
     
     ## Splits IMAGEID into TRACKIDs
-    _msg EXEC "Splitting ${imageid}"
-    deploy_gen "${GIT_DIR}" ${imageid} >${STDERR} 2>&1
+    _msg EXEC "Splitting ${IMAGEID}"
+    deploy_gen "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
     [[ $? -ne 0 ]] && _msg WARN
-    deploy_mv "${GIT_DIR}" ${imageid} >${STDERR} 2>&1
+    deploy_mv "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
     [[ $? -eq 0 ]] && _msg OK || _msg WARN
 
     ## Transfers selected TRACKIDs to TARGET
-    trackidList=($(awk -v imageid=${imageid} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid && $4=="null"){print $3}}' "${DB_FILE}"))
+    trackidList=($(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid && $4=="null"){print $3}}' "${DB_FILE}"))
     for trackid in ${trackidList[@]}; do
         _msg EXEC "Deploying ${trackid}"
-        cp "${GIT_DIR}/${imageid}-${trackid}.flac" "${TARGET}/${imageid}-${trackid}.flac"
+        cp "${GIT_DIR}/${IMAGEID}-${trackid}.flac" "${TARGET}/${IMAGEID}-${trackid}.flac"
         if [[ $? -eq 0 ]]; then
             _msg OK
-            gawk -i inplace -v trackid=${trackid} -v value="${imageid}-${trackid}.flac" 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}
+            gawk -i inplace -v trackid=${trackid} -v value="${IMAGEID}-${trackid}.flac" 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}
         else    
             _msg WARN
         fi
     done
     
     ## Cleans GIT_DIR of split IMAGEIDs
-    _msg EXEC "Cleaning ${imageid}"
-    find ${GIT_DIR}/ -name "${imageid}-" -exec rm '{}' \;
+    _msg EXEC "Cleaning ${IMAGEID}"
+    find ${GIT_DIR}/ -name "${IMAGEID}-" -exec rm '{}' \;
     [[ $? -eq 0 ]] && _msg OK || _msg WARN
 }
