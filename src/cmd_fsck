@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# doc cmd_fsck {
+#
+# DESCRIPTION
+#   cmd_fsck - Does series of tests on target's database file
+#
+# USAGE
+#   cmd_fsck </path/to/git/dir> </path/to/target/dir> 
+#
+# }
+
+cmd_fsck() {
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
+
+    chk_deployed_ids "${TARGET}" "${DB_FILE}"
+    chk_nonexistent_ids "${TARGET}" "${DB_FILE}"
+    chk_metadata "${GIT_DIR}" "${TARGET}" "${DB_FILE}"
+
+}

@@ -29,5 +29,10 @@ case "${1}" in
         shift
         cmd_du "${@}"
     ;;
+   
+    fsck)
+        shift
+        cmd_fsck "${@}"
+    ;;
 esac
 
