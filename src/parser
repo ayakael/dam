@@ -62,6 +62,8 @@ case "${1}" in
         shift
         cmd_deploy "${GIT_DIR}" ${@}
         EXIT=$?
+        [[ ${EXIT} -eq 0 ]] && echo "Deployment completed successfully"
+        [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with erros"
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
    ;;
@@ -70,6 +72,8 @@ case "${1}" in
         shift
         cmd_update "${GIT_DIR}" ${@}
         EXIT=$?
+        [[ ${EXIT} -eq 0 ]] && echo "Update completed successfully"
+        [[ ${EXIT} -eq 1 ]] && echo "Update completed with erros"
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
   ;;
