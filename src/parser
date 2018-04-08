@@ -52,7 +52,7 @@ case "${1}" in
 
     include)
         shift
-        cmd_include$ "${GIT_DIR}" ${@}
+        cmd_include "${GIT_DIR}" ${@}
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
