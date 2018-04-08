@@ -29,8 +29,12 @@ cmd_update() {
     local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_UPDATE"){print $2}}' ${DB_FILE})
     local imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
     
-    _msg EXEC "Updating database from ${OLD_COMMIT} to ${NEW_COMMIT}" 
-    db_update "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageidList[@]}
-    [[ $? -ne 0 ]] && { _msg WARN; local ERR=true; } || _msg OK
+    local COUNT=1
+    for imageid in ${imageidList[@]}; do
+        echo "[ ${COUNT} / ${#imageidList[@]} ] Processing ${imageid}" 
+        db_update "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
+        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
     [[ ${ERR} ]] && return 1 || { gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_UPDATE"){$2=newcommit}{print $0}}' ${DB_FILE}; return 0; }
 }
