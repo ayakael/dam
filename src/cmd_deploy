@@ -29,6 +29,9 @@ cmd_deploy() {
     local changedidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
     local updateableidList=($(printf "%s\n" ${deployableidList[@]} ${changedidList[@]} | awk '!seen[$0]++'))
 
+    # Checks if something needs doing 
+    if [[ -z "${removableidList[@]}" ]] && [[ -z "${updateableidList[@]}" ]]; then echo "Nothing to do"; fi
+
     # Checks if target has enough space
     local futureidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
     local presentidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4!="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
@@ -48,20 +51,21 @@ cmd_deploy() {
     local COUNT=0
     for imageid in ${updateableidList[@]}; do
         local COUNT=$(( ${COUNT} + 1 ))
-        echo "[ ${COUNT} / ${#updateableidList[@]} ] Deploying ${imageid} to ${TARGET}"
+        echo "[ ${COUNT} / ${#updateableidList[@]} ] Deploying ${imageid}"
         # Processes deployableids (IMAGEIDs that have TRACKIDs that are not present in target, but are selected)
         if _if_array_contains ${imageid} ${deployableidList[@]}; then
             deploy_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
-            [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; continue; } 
+            [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
         fi
         
 
         # Processes metadata changes
         deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Deployment of ${imageid} completed successfully"; } 
+        [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Application of metadata of ${imageid} completed with errors"; cat ${STDERR}; } 
     done
 
-    if [[ -z "${removableidList[@]}" ]] && [[ -z "${updateableidList[@]}" ]]; then echo "Nothing to do"; fi
-    [[ "${ERR}" == "true" ]] && return 1 || { gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_DEPLOY"){$2=newcommit}{print $0}}' ${DB_FILE}; return 0; }
 
+    gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_DEPLOY"){$2=newcommit}{print $0}}' ${DB_FILE}
+    [[ "${ERR}" == "true" ]] && return 1 || return 0
 }
