@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# doc file_name {
+#
+# DESCRIPTION
+#   file_name - Echoes file name to be used
+#
+# USAGE
+#   file_name <SOURCE> <SHA256 sum of FLAC>
+# }
+
+file_name() {
+    local SOURCE="${1}"
+    local SHA256="${2}"
+    echo "SHA256-${SOURCE}-${SHA256}"
+}
+

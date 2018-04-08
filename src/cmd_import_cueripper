@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# doc cmd_import_cueripper {
+#
+# DESCRIPTION
+#   cmd_import_cueripper - Imports output files from cueripper into GIT_DIR
+#
+# USAGE
+#   cmd_import_cueripper </path/to/batch> [<...>]
+#
+# }
+
+cmd_import_cueripper() {
+    local dirList=("${@}")
+
+    for dir in ${dirList[@]}; do
+        folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
+        for folder in ${folderList[@]}; do
+            gen "${folder}"
+        done
+    done
+}

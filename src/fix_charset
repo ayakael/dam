@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# fix_charset {
+#
+# DESCRIPTIOn
+#   fix_charset - Fixes charset of files coming from Windows' cueripper
+#
+# USAGE
+#   fix_charset <FILE_1> [<...>]
+# 
+# }
+
+fix_charset() {
+    local fileList=("${@}")
+    for file in ${fileList[@]}; do
+        sed -i 's/\xc2\x92/\x27/g' "${file}"
+        sed -i 's/\xc2\x85/\x2e\x2e\x2e/g' "${file}"
+        sed -i 's/\xc2\x96/\x2d/g' "${file}"
+    done
+    return 0
+}
+

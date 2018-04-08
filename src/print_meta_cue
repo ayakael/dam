@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# doc print_meta_cue {
+#
+# DESCRIPTION
+#   print_meta_cue - Parses cue file and prints metadata in standard metadata format
+#
+# USAGE
+#   print_meta_cue </path/to/flac/file> </path/to/cue/file>
+#
+# }
+
+print_meta_cue() {
+    local FLAC="${1}"
+    local CUE="${2}"
+    dos2unix -q -R  "${CUE}"
+
+    local trackmetaList=($( sed -n '/TRACK 01/,$p' ${CUE} | tr -d '\n' | awk 'BEGIN {RS="TRACK"}{print $0}' | tail -n +2))
+    local trackidList=($(gen_trackid ${FLAC} ${CUE}))
+
+    # [Output] variable generator
+    echo -n "PERFORMER=\"$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g')\";"
+    echo -n "ALBUM=\"$(sed 's|\ \ .*||' "${CUE}" | grep  -a "TITLE" | sed 's|TITLE ||' | sed 's|\"||g')\";"
+    echo -n "DATE=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DATE" | sed 's|REM DATE ||');"
+    echo -n "DISCNUMBER=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCNUMBER" | sed 's|REM DISCNUMBER ||');"
+    echo -n "TOTALDISCS=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM TOTALDISCS" | sed 's|REM TOTALDISCS ||');"
+    local COUNT=0
+    for trackmeta in ${trackmetaList[@]}; do
+        echo -n "titleList[${COUNT}]=\"$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a TITLE | sed 's|TITLE ||' | sed 's|\"||g')\";"
+        echo -n "performerList[${COUNT}]=\"$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a PERFORMER | sed 's|PERFORMER ||' | sed 's|\"||g')\";"
+        echo -n "trackidList[${COUNT}]=\"${trackidList[${COUNT}]}\";"
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+}
+
+

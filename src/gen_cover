@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# doc gen_cover {
+#
+# DESCRIPTION
+#   gen_cover - Generate cover image 
+#
+# USAGE
+#   gen_cover </path/to/import/folder>
+#
+# }
+
+gen_cover() {
+    local FOLDER="${1}"
+    [[ -f "${FOLDER}/folder.jpg" ]] && convert "${FOLDER}/folder.jpg" "${FOLDER}/folder.png" || { convert -size 480x480 xc:white "${FOLDER}/folder.png"; local ERROR=1; }
+    cat "${FOLDER}/folder.png"
+    [[ ${ERROR} -eq 1 ]] && return 1
+    local IMG_SIZE="$(identify -format "%wx%h" "${FOLDER}/folder.jpg")"
+    local IMG_WIDTH=$(echo ${IMG_SIZE} | cut -dx -f1)
+    local IMG_HEIGHT=$(echo ${IMG_SIZE} | cut -dx -f2)
+    if [[ ${IMG_WIDTH} -lt 480 ]] && [[ ${IMG_HEIGHT} -lt 480 ]]; then return 2; fi
+    return 0
+}
+

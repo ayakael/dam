@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# doc gen_mtag() {
+#
+# DESCRIPTION
+#   gen_mtag - Generates mtag output based on output from print_meta_cue
+#
+# USAGE
+#   gen_mtag <output from file_name> <output from print_meta_cue>
+#
+# }
+
+gen_mtag() {
+    local FILE_NAME="${1}"
+    local METADATA="${2}"
+
+    # Metadata Parsing
+    metadataList=($(echo ${METADATA} | sed 's|;|    |g'))
+    for metadata in ${metadataList[@]}; do
+        eval local ${metadata} 
+    done
+
+    for file in ${fileList[@]}; do
+        local trackList=(${trackList[@]}    $(echo ${file} | sed 's|.*/||' | cut -d- -f2 | sed 's| ||' | sed 's|\.flac||'))
+    done
+    echo "["
+    local COUNT=0
+    while [[ ${COUNT} -lt ${#titleList[@]} ]]; do
+        [[ ${COUNT} -ne 0 ]] && echo "    },"
+        echo "   {"
+        echo "      \"@\" : \"${FILE_NAME}.cue|$(( ${COUNT} + 1 ))\","
+        if [[ ${COUNT} -eq 0 ]]; then
+            [[ ! -z "${ALBUM+x}" ]] && echo "      \"ALBUM\" : \"${ALBUM}\","
+            [[ ! -z "${PERFORMER+x}" ]] && echo "      \"ARTIST\" : \"${PERFORMER}\","
+            [[ ! -z "${META_COMPOSER+x}" ]] && echo "      \"COMPOSER\" : \"${META_COMPOSER}\","
+            [[ ! -z "${META_CONDUCTOR+x}" ]] && echo "      \"CONDUCTOR\" : \"${META_CONDUCTOR}\","
+            [[ ! -z "${META_ORCHESTRA+x}" ]] && echo "      \"ORCHESTRA\" : \"${META_ORCHESTRA}\","
+            [[ ! -z "${DATE+x}" ]] && echo "      \"DATE\" : \"${DATE}\","
+            [[ ! -z "${DISCNUMBER+x}" ]] && echo "      \"DISCNUMBER\" : \"${DISCNUMBER}\","
+            [[ ! -z "${TOTALDISCS+x}" ]] && echo "      \"TOTALDISCS\" : \"${TOTALDISCS}\","
+            [[ ! -z "${BATCHNUMBER+x}" ]] && echo "      \"BATCHNUMBER\" : \"${BATCHNUMBER}\","
+            echo "      \"TOTALTRACKS\" : \"${#titleList[@]}\","
+        fi
+        [[ ! -z "${performerList[${COUNT}]+x}" ]] && echo "      \"PERFORMER\" : \"${performerList[${COUNT}]}\","
+        echo "      \"TITLE\" : \"${titleList[${COUNT}]}\","
+        echo "      \"TRACKID\" : \"${trackidList[${COUNT}]}\","
+        echo "      \"TRACKNUMBER\" : \"$(( ${COUNT} + 1 ))\""
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    echo "    }"
+    echo "]"
+    return 0
+}
+

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# doc add_bom {
+#
+# DESCRIPTION
+#   add_bom - Adds BOM at every newline for proper rendition in foobar2000
+#
+# USAGE
+#   add_bom <FILE_1> [<...>]
+#
+# }
+
+add_bom() {
+    local fileList=("${@}")
+    for file in ${fileList[@]}; do
+        sed -i '1s/^\(\xef\xbb\xbf\)\?/\xef\xbb\xbf/' "${file}"
+    done
+    return 0
+}

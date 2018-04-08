@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# doc import_cueripper {
+#
+# DESCRIPTION
+#   import_cueripper - Imports files output from cueripper. Expects cueripper to output using
+#   the following format:  %artist% - %album%\if(%unique%,%unique%,0), so that every album
+#   is outputted in its own folder, first disc image is labeled 0.<ext>, and second disc image
+#   is labeled 1.<ext>, and the cover is named folder.jpg
+#
+# USAGE
+#   import_cueripper </path/to/album>
+#
+# }
+
+
+import_cueripper() {
+    local FOLDER="${1}"
+    _msg EXEC "Processing ${FOLDER}"
+    local flacList=($(find "${FOLDER}" -name '*.flac' | sed 's|.flac||'))
+    [[ ${#flacList[@]} -eq 0 ]] && { _msg FAIL "No such file or directory"; return 1; }
+
+    for flac in ${flacList[@]}; do
+        # Sanity check
+        [[ -f "${flac}.cue" ]] || { _msg FAIL "No cue file present"; return 1; }
+        [[ -f "${flac}.accurip" ]] || { _msg FAIL "No accurip file present"; return 1; }
+        [[ -f "${flac}.log" ]] || { _msg FAIL "No EAC log file present"; return 1; }
+
+        # Determines file name based on image's CHKSUM and acts accordingly
+        cat ${flac}.flac > output.flac 2>/dev/null
+        metaflac --remove-all --dont-use-padding "output.flac"
+        local SHA256=$(sha256sum ${flac}.flac 2>/dev/null | cut -d' ' -f1)
+        local SOURCE=$(grep "CTDB TOCID:" ${flac}.accurip 2>/dev/null | cut -d' ' -f3 | sed 's|]||')
+        local FILE_NAME=$(file_name ${SOURCE} ${SHA256})
+        mv "output.flac" ${FILE_NAME}.flac > /dev/null 2>&1
+        cat "${flac}.cue" | iconv -f ISO-8859-1 -t UTF-8 | sed '1s/^\(\xef\xbb\xbf\)\?/\xef\xbb\xbf/' |  awk "!/FILE/{print} /FILE/{print \"FILE ${FILE_NAME}.flac WAVE\"}" > ${FILE_NAME}.cue 2> /dev/null
+        cat "${flac}.accurip" | iconv -f ISO-8859-1 -t UTF-8  > ${FILE_NAME}.accurip
+        cat "${flac}.log" | iconv -f ISO-8859-1 -t UTF-8  > ${FILE_NAME}.log
+        add_bom ${FILE_NAME}.cue
+
+        # Generates METADATA and MTAG
+        local METADATA="$(cueparser ${FILE_NAME}.flac ${FILE_NAME}.cue);BATCHNUMBER=$(echo "${FOLDER}" | awk 'BEGIN{RS="/";}{print $0}' | grep batch | sed 's|.*_|_|' | sed -e 's/_0*//g');"
+        print_meta_mtag "${FILE_NAME}" ${METADATA} > ${FILE_NAME}.tags
+        add_bom ${FILE_NAME}.tags
+        fix_apos ${FILE_NAME}.tags
+        gen_cover "${FOLDER}" > ${FILE_NAME}.png
+        local EXIT="$?"
+        [[ ${EXIT} -eq 1 ]] && { echo "No folder.jpg in directory. Placeholder created"; local ERR=true; }
+        [[ ${EXIT} -eq 2 ]] && { echo "folder.jpg is under 480x480 in quality"; local ERR=true; }
+
+    done
+}
+
