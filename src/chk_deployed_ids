@@ -38,7 +38,7 @@ chk_deployed_ids() {
             echo "Fixing path for ${flac}"  > ${STDERR}
             gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){$4=path}{print $0}}' ${DB_FILE}
         fi
-        [[ "${ERR}" == "true" ]] && cat ${STDERR} || { _ansi up 2; echo -en '\033[K'; }
+        [[ "${ERR}" == "true" ]] && cat ${STDERR} 
     done
 
 }

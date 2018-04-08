@@ -41,7 +41,7 @@ cmd_deploy() {
     for removableid in ${removableidList[@]}; do
         echo "[ ${COUNT} / ${#removableidList[@]} ] Removing ${removableid} from ${TARGET}" 
         deploy_rm "${TARGET}" "${DB_FILE}" ${removableid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; }  || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
     
@@ -58,7 +58,7 @@ cmd_deploy() {
 
         # Processes metadata changes
         deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; } || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
     done
 
     if [[ -z "${removableidList[@]}" ]] && [[ -z "${updateableidList[@]}" ]]; then echo "Nothing to do"; fi

@@ -29,7 +29,7 @@ chk_nonexistent_ids() {
             gawk -i inplace -v imageid=${IMAGEID} trackid=${TRACKID} 'BEGIN{FS="\t";OFS="\t"}{if($2==imageid && $3==trackid){$4="null"}{print $0}}' ${DB_FILE}
             local $?=1
         fi
-        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; } || { echo "[>>>>>>] Error reported"; echo "${TRACKID} of ${IMAGEID} points to non-existent file"}; local ERR=true; }
+        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; echo "${TRACKID} of ${IMAGEID} points to non-existent file"}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
     [[ "${ERR}" == "true" ]] && { _msg EXEC "Nonexistent files check completed with errors"; _msg WARN; } || { _msg EXEC "Nonexistent files check completed succesfully"; _msg OK; }
