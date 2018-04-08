@@ -20,3 +20,8 @@
 ### v0.2.1
 * Deploy now proper cleans up after itself in git directory
 * Exit code for missing database file is now 3 instead of 1
+
+### v0.2.2
+* Further improvement to CLI UI
+* Fixed critical bug with database update, where selection would be defined as "null"
+* Fixed bug in include command
