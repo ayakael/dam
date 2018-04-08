@@ -20,7 +20,7 @@ deploy_meta() {
     
     local trackidList=($(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid){print $3}}' ${DB_FILE}))
     for trackid in ${trackidList[@]}; do
-        local TRACKNO="$(print_track_no ${GIT_DIR} ${IMAGEID} ${trackid})"
+        local TRACKNO="$(print_mtag_trackno ${GIT_DIR} ${IMAGEID} ${trackid})"
         _msg ECHO "Checking ${trackid}"
         ## Path and metadata parsing 
         local FUTURE_META="$(print_meta_mtag ${GIT_DIR}/${IMAGEID}.tags ${TRACKNO} | tr '\\' -d)"

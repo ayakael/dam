@@ -24,12 +24,12 @@ print_meta_mtag() {
         # Finalizes output with IMAGEID
         [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"))"; continue; }
         
-        # Skips print_meta_field for field TITLE to keep it unique. Thus, if a track
+        # Skips rint_mtag_field for field TITLE to keep it unique. Thus, if a track
         # does not have a defined TITLE, it won't inherit it from previous tracks
         [[ "${tag}" == "TITLE" ]] && { [[ -z "$(awk -v track=${TRACK_NO} 'BEGIN {RS="\n * }"}{if(NR==track){print $0}}' ${FILE} |  awk -v field="\"TITLE\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}')" ]] && continue; }
 
         # Prints out VALUE of that TAG for that TRACK NO
-        echo -n "${tag}=$(print_meta_field ${FILE} ${TRACK_NO} ${tag});"
+        echo -n "${tag}=$(print_mtag_field ${FILE} ${TRACK_NO} ${tag});"
     done
 }
 

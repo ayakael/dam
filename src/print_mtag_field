@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# doc print_meta_field {
+# doc print_mtag_field {
 #
 # DESCRIPTION
 #   print_meta_field - Prints VALUE of FIELD, for specific TRACK NUMBER out of a JSON string. Expects to be used
 #   by print_meta()
 #
 # USAGE
-#   print_meta_field <file> <track_no> <field_name>
+#   print_mtag_field <file> <track_no> <field_name>
 #
 # }
 
-print_meta_field() {
+print_mtag_field() {
     local FILE="${1}"
     local TRACK_NO="${2}"
     local FIELD="${3}"
