@@ -15,7 +15,7 @@ cmd_du() {
     local TARGET="${2}"
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
     [[ ! -f "${DB_FILE}" ]] && return 1
-    [[ ! -f "${GIT_DIR}/.git" ]] && return 2
+    [[ ! -d "${GIT_DIR}/.git" ]] && return 2
 
     local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
     local DU="$(print_imageid_du ${GIT_DIR} ${imageidList[@]})"
