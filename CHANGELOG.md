@@ -17,4 +17,6 @@
 * Fixed a bug where a "[" and "]" character would crash deploy_meta
 * Added --git-dir option to defined git directory, in case working directory is now it
 
-
+### v0.2.1
+* Deploy now proper cleans up after itself in git directory
+* Exit code for missing database file is now 3 instead of 1
