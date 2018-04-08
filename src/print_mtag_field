@@ -3,7 +3,7 @@
 # doc print_mtag_field {
 #
 # DESCRIPTION
-#   print_meta_field - Prints VALUE of FIELD, for specific TRACK NUMBER out of a JSON string. Expects to be used
+#   print_mtag_field - Prints VALUE of FIELD, for specific TRACK NUMBER out of a JSON string. Expects to be used
 #   by print_meta()
 #
 # USAGE
