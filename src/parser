@@ -4,35 +4,80 @@
 # Parses arguments and commands from shell
 ###
 
+GIT_DIR="./"
+
+#Recursive argument parser
+while true; do
+	case ${1} in
+		--help)
+			help
+			exit
+		;;
+
+		--info)
+			help info
+			exit
+		;;
+
+
+        --git-dir=*)    
+            if [ -z "${1#*=}" ]; then
+                help
+            else
+                log ECHO "--git-dir called. Git directory now defined as: ${1#*=}"
+                GIT_DIR="${1#*=}"
+            fi
+
+        ;;
+		*)
+			break
+		;;
+
+	esac
+	shift
+done
+
+
+
 case "${1}" in
     exclude)
         shift
-        cmd_exclude ${@}
+        cmd_exclude "${GIT_DIR}" ${@}
+        [[ $? -eq 1 ]] && echo "Database file non-existent"
+        [[ $? -eq 2 ]] && echo "Git directory not a valid git repository"
     ;;
 
     include)
         shift
-        cmd_include ${@}
-    ;;
+        cmd_include$ "${GIT_DIR}" ${@}
+        [[ $? -eq 1 ]] && echo "Database file non-existent"
+        [[ $? -eq 2 ]] && echo "Git directory not a valid git repository"
+   ;;
 
     deploy)
         shift
-        cmd_deploy ${@}
-    ;;
+        cmd_deploy "${GIT_DIR}" ${@}
+        [[ $? -eq 1 ]] && echo "Database file non-existent"
+        [[ $? -eq 2 ]] && echo "Git directory not a valid git repository"
+   ;;
 
     update)
         shift
-        cmd_update ${@}
-    ;;
+        cmd_update "${GIT_DIR}" ${@}
+         [[ $? -eq 1 ]] && echo "Database file non-existent"
+        [[ $? -eq 2 ]] && echo "Git directory not a valid git repository"
+  ;;
 
     du)
         shift
-        cmd_du "${@}"
-    ;;
+        cmd_du "${GIT_DIR}" "${@}"
+        [[ $? -eq 1 ]] && echo "Database file non-existent"
+        [[ $? -eq 2 ]] && echo "Git directory not a valid git repository"
+   ;;
    
     fsck)
         shift
-        cmd_fsck "${@}"
+        cmd_fsck "${GIT_DIR}" "${@}"
     ;;
 esac
 
