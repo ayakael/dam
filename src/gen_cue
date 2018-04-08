@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# doc gen_cue {
+#
+# DESCRIPTION
+#   gen_cue - Generates cue file from print_meta function
+#
+# USAGE
+#   gen_cue <output from file_name> <output from print_meta_tracks> <file_1> [<file_2>] [<...>]
+#
+# }
+
+gen_cue() {
+    local FILE_NAME="${1}"
+    local METADATA="${2}"; shift 2
+    local fileList=("${@}")
+
+    # Metadata Parsing
+    metadataList=($(echo ${METADATA} | sed 's|;|    |g'))
+    for metadata in ${metadataList[@]}; do
+        eval local ${metadata} 
+    done
+
+    for file in ${fileList[@]}; do
+        local trackList=(${trackList[@]}    $(echo ${file} | sed 's|.*/||' | awk 'BEGIN{ FS="-"; OFS=":"}{$1=""}{print $0}' | sed 's|: ||'))
+    done
+
+    # Generates breaklist
+    breakList=($(gen_breaklist ${fileList[@]}))
+
+    [[ ! -z "${META_DATE+x}" ]] && echo "REM DATE ${META_DATE}"
+    [[ ! -z "${META_COMPOSER+x}" ]] && echo "PERFORMER \"${META_COMPOSER}\""
+    [[ ! -z "${META_CONDUCTOR+x}" ]] && echo "REM CONDUCTOR \"${META_CONDUCTOR}\""
+    [[ ! -z "${META_ORCHESTRA+x}" ]] && echo "REM ORCHESTRA \"${META_ORCHESTRA}\""
+    [[ ! -z "${META_ARTIST+x}" ]] && echo "PERFORMER \"${META_ARTIST}\""
+    [[ ! -z "${META_ALBUM+x}" ]] && echo "TITLE \"${META_ALBUM}\""
+    echo "FILE \"${FILE_NAME}.flac\" WAVE"
+    local COUNT=0
+    while [[ ${COUNT} -lt ${#breakList[@]} ]]; do
+        [[ ${COUNT} -le 8 ]] && local TRACK_NO="0$(( ${COUNT} + 1 ))" || local TRACK_NO="$(( ${COUNT} + 1 ))"
+        echo "  TRACK ${TRACK_NO} AUDIO" 
+        echo "    TITLE \"${trackList[${COUNT}]}\""
+        echo "    INDEX 01 ${breakList[${COUNT}]}"
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    return 0
+}
+

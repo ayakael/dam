@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# doc ismp3 {
+#
+# DESCRIPTION
+#   ismp3 - Returns true if any file present is an mp3
+#
+# USAGE
+#   ismp3 <files>
+#
+# }
+
+ismp3() {
+    local fileList=("${@}")
+    for file in ${fileList[@]}; do
+        local FILE_EXT="$(echo "${file}" | sed 's|.*\.||')"
+        [[ "${FILE_EXT}" == "mp3" ]] && local MP3=0 || local MP3=1
+    done
+    [[ ${MP3} -eq 0 ]] && return 0 || return 1
+}
+

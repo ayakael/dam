@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# doc med_convert {
+#
+# DESCRIPTION
+#   med_convert - Convers files from one format to another
+#
+# USAGE
+#   med_convert <output format> <file_1> [<...>]
+#
+# }
+
+med_convert() {
+    local EXT="${1}"; shift 1
+    local fileList=("${@}")
+    for file in ${fileList[@]}; do
+        local FILE_EXT="$(echo "${file}" | sed 's|.*\.||')"
+        ffmpeg -loglevel 24 -y -i "${file}" "$(echo ${file} | sed "s|${FILE_EXT}|${EXT}|")" >${STDERR} 2>&1
+        [[ $? -ne 0 ]] && local ERROR=true
+    done
+    [[ ${ERROR} ]] && return 1 || return 0
+}

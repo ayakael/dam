@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# doc print_sec_to_min
+#
+# DESCRIPTION
+#   print_sec_to_min - Prints minutes out of seconds in min:sec:micro format usable
+#   by cuetools
+#
+# USAGE
+#   print_sec_to_min <value> [<...>]
+#
+
+print_sec_to_min() {
+    local secList=("${@}")
+    for sec in ${secList[@]}; do
+        MIN=$(($sec%3600/60))
+        SEC=$(($sec%60))
+        [[ ${sec} -ge 3600 ]] && MIN=$(( ${MIN} + 60 ))
+        printf '%02d:%02d:%02d\n' ${MIN} ${SEC} 00
+    done
+}
+

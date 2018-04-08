@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# doc print_tracks_cdcount {
+#
+# DESCRIPTIONS
+#   print_tracks_cdcount - Prints number of CDs
+#
+# USAGE
+#   print_tracks_cdcount </path/to/album>
+#
+# }
+
+print_tracks_cdcount() {
+    local FOLDER="${1}"
+    local tracknoList=($(find "${1}"/* -type f -follow -not -name '*cover*' -not -name '*.pdf' -printf '%f\n' | cut -d' ' -f1))
+
+    for trackno in ${tracknoList[@]}; do
+        if [[ ${trackno} == *.* ]]; then
+            local CDCOUNT=$(echo ${trackno} | cut -d. -f1)
+        else
+            local CDCOUNT=1
+        fi
+    done
+    echo ${CDCOUNT}
+}
+

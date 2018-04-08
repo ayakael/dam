@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# doc print_meta_tracks
+#
+# DESCRIPTION
+#   print_meta_tracks - Parses track files and prints out metadata
+#
+# USAGE
+#   print_meta_tracks </path/to/album> <disc_no> <Number of total discs>
+#
+# }
+
+gen_metadata() {
+    local FOLDER="${1}"
+    local DISC_NO="${2}"
+    local META_DISCTOT="${3}"
+    local META_GENRE=$(echo ${FOLDER} | cut -d/ -f1)
+    echo -n "META_GENRE=\"${META_GENRE}\";"
+    echo -n "META_DISCTOT=${META_DISCTOT};"
+    echo -n "META_DISCNUM=${DISC_NO};"
+    if [[ "${META_GENRE}" == "Classical" ]] && [[ "$(echo ${FOLDER} | cut -d/ -f5 | cut -d- -f2 |  sed 's| ||')" != "" ]]; then
+        echo -n "META_COMPOSER=\"$(echo ${FOLDER} | cut -d/ -f2)\";"
+        echo -n "META_ALBUM=\"$(echo ${FOLDER} | cut -d/ -f3)\";"
+        echo -n "META_CONDUCTR=\"$(echo ${FOLDER} | cut -d/ -f4)\";"
+        echo -n "META_DATE=\"$(echo ${FOLDER} | cut -d/ -f5 | cut -d- -f1 | rev | sed 's| ||' | rev)\";"
+        echo -n "META_ORCHESTRA=\"$(echo ${FOLDER} | cut -d/ -f5 | cut -d- -f2 |  sed 's| ||')\";"
+    elif [[ "${META_GENRE}" == "Soundtrack" ]]; then
+        echo -n "META_ALBUM=\"$(echo ${FOLDER} | cut -d/ -f2)\""
+    else
+        echo -n "META_ARTIST=\"$(echo ${FOLDER} | cut -d/ -f2)\";"
+        echo -n "META_DATE=\"$(echo ${FOLDER} | cut -d/ -f3 | cut -d- -f1 | rev | sed 's| ||' | rev)\";"
+        echo -n "META_ALBUM=\"$(echo ${FOLDER} | cut -d/ -f3 | sed 's|.*\ -\ ||')\";"
+    fi
+    return 0
+}
+

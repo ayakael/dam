@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# doc print_cue_breaklist {
+#
+# DESCRIPTION
+#   print_cue_breaklist - Prints breaklist from files
+#
+# USAGE
+#   print_cue_breaklist <file_1> [<...>]
+#
+# }
+
+print_cue_breaklist() {
+    local fileList=("${@}")
+    local breakList=(0:00:00)
+    if shntool cue ${fileList[@]} >/dev/null 2>&1; then
+        shntool cue ${fileList[@]} > joined.cue
+        local breakList=(${breakList[@]}  $(cuebreakpoints joined.cue | sed 's|\.|:|g'))
+        rm joined.cue
+    else
+        local durList=($(soxi -D "${fileList[@]}"))
+        local breaksecList=(0)
+        local COUNT=0
+        while [[ $(( ${COUNT} + 1 )) -lt ${#durList[@]} ]]; do
+            local breaksecList=(${breaksecList[@]}  $(awk "BEGIN {printf ${breaksecList[-1]} + ${durList[${COUNT}]}}" ))
+            local COUNT=$(( ${COUNT} + 1 ))
+        done
+        local breaksecList=($(printf "%s\n" ${breaksecList[@]} | sed 's|\..*||g'))
+        local breakList=($(sec2min ${breaksecList[@]}))
+    fi
+    printf '%s\n' ${breakList[@]}
+}
+
