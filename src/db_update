@@ -18,7 +18,7 @@ db_update() {
 
     [[ -f "${DB_FILE}" ]] || touch "${DB_FILE}"
     trackidList=($(awk 'BEGIN{FS="\" : \"";RS="\",\n * \""}{if($1=="TRACKID"){print $2}}' ${GIT_DIR}/${IMAGEID}.tags))
-    if [[ -f ${GIT_DIR}/${IMAGEID}.tags ]]; then
+    if [[ ! -f ${GIT_DIR}/${IMAGEID}.tags ]]; then
         _msg ECHO "Removing ${IMAGEID} from database file"
         gawk -i inplace -v imageid="${IMAGEID}" 'BEGIN{FS="\t";OFS="\t"}{if($2=imageid){$1="null"}{print $0}}' ${DB_FILE}
         continue
