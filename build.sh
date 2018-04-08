@@ -1,11 +1,40 @@
 #!/bin/bash
 
 EXEC=dam
+gen_help() {
+    for file in $(find help/ -type f -printf "%P\n"); do
+        echo -e "
+            # ${file} help
+            help_${file}() {
+                echo -e \""
+                cat help/${file} 
+        echo -e "\"
+            }"
+    done
 
-echo -e "#!/bin/bash\n" > ${EXEC}
+}
 
-for file in src/env $(find bunc/src -type f) $(find src/ -type f -not -name env -not -name parser) src/parser; do
-    awk '!/^ *#/ && NF' ${file} >> ${EXEC}
-done
+gen_env() {
+    echo -e "#!/bin/bash\n" 
+    echo "VERSION=$(git describe --tags)"
+    awk '!/^ *#/ && NF' src/env
+}
+
+gen_function() {
+    functionList=(${@})    
+    for function in ${functionList[@]}; do
+        awk '!/^ *#/ && NF' ${function} 
+    done
+}
+
+gen_parser() {
+    awk '!/^ *#/ && NF' src/parser
+}
+
+gen_env > ${EXEC}
+gen_help >> ${EXEC}
+gen_function $(find src/ -type f -not -name env -not -name parser) >> ${EXEC}
+gen_function $(find bunc/src/ -type f) >> ${EXEC}
+gen_parser >> ${EXEC}
 
 chmod +x ${EXEC}

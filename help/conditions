@@ -1,0 +1,17 @@
+Conditions
+
+Note
+   Conditions are defined using the following format:
+   <metadatafield>=<value>
+   The metadta field can be anything that can be injected as metadta in a Vorbis tag.
+
+Example
+    You want to exclude everything from "GENRE" "Pop":
+    dam exclude "GENRE=Pop"
+    
+    ...but want to keep Lady Gaga, just because
+    dam include "ARTIST=Lady Gaga"
+
+    ...but not THAT album
+    dam exclude "ALBUM=THAT"
+

@@ -10,12 +10,15 @@ GIT_DIR="./"
 while true; do
 	case ${1} in
 		--help)
-			help
+            shift
+            HELP="${1}"
+            [[ -z "${HELP}" ]] && HELP=general
+			eval help_${HELP}
 			exit
 		;;
 
 		--info)
-			help info
+            help_info
 			exit
 		;;
 
