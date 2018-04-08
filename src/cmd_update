@@ -33,7 +33,9 @@ cmd_update() {
     for imageid in ${imageidList[@]}; do
         echo "[ ${COUNT} / ${#imageidList[@]} ] Processing ${imageid}" 
         db_update "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        local EXIT=$?
+        [[ ${EXIT} -eq 0 ]] && { _ansi up 2; echo -en '\033[K';  echo "[ ${COUNT} / ${#imageidList[@]} ] Added ${imageid}"; }
+        [[ ${EXIT} -eq 1 ]] && { _ansi up 2; echo -en '\033[K';  echo "[ ${COUNT} / ${#imageidList[@]} ] Removed  ${imageid}"; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
     [[ ${ERR} ]] && return 1 || { gawk -i inplace -v newcommit=${NEW_COMMIT} 'BEGIN{FS="\t";OFS="\t"}{if($1=="LAST_UPDATE"){$2=newcommit}{print $0}}' ${DB_FILE}; return 0; }
