@@ -20,7 +20,7 @@ cmd_include() {
     local TARGET="${2}"
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"; shift 2
     local conditionList=("${@}")
-    [[ ! -f "${DB_FILE}" ]] && return 1
+    [[ ! -f "${DB_FILE}" ]] && return 3
     [[ ! -d "${GIT_DIR}/.git" ]] && return 2
 
     for condition in ${conditionList[@]}; do
