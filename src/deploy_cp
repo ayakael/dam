@@ -41,6 +41,6 @@ deploy_cp() {
     
     ## Cleans GIT_DIR of split IMAGEIDs
     _msg EXEC "Cleaning ${IMAGEID}"
-    find ${GIT_DIR}/ -name "${IMAGEID}-" -exec rm '{}' \;
+    find ${GIT_DIR}/ \( -name "${IMAGEID}-*" -or -name "split-track*" \) -exec rm '{}' \;
     [[ $? -eq 0 ]] && _msg OK || _msg WARN
 }
