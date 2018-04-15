@@ -25,3 +25,6 @@
 * Further improvement to CLI UI
 * Fixed critical bug with database update, where selection would be defined as "null"
 * Fixed bug in include command
+
+### v0.2.3
+* Fixed bug where dam update would only add one track to the database per image
