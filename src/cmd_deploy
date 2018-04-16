@@ -24,7 +24,7 @@ cmd_deploy() {
 
     local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
     local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_DEPLOY"){print $2}}' ${DB_FILE})
-    local removableidList=($(awk 'BEGIN{FS="\t"}{if(($1=="false" && $1=="null") && $4!="null"){print $2"--"$3}}' "${DB_FILE}"))
+    local removableidList=($(awk 'BEGIN{FS="\t"}{if($1=="null" && $4!="null"){print $2"--"$3}}' "${DB_FILE}"))
     local deployableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
     local changedidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
     local updateableidList=($(printf "%s\n" ${deployableidList[@]} ${changedidList[@]} | awk '!seen[$0]++'))
