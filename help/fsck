@@ -1,0 +1,13 @@
+Usage: dam [<options>] fsck </path/to/target>
+
+Performs a series of tests on target's database file. When no options specified, it goes through all tests.
+
+
+Options
+   --nonexistent-ids
+      Performs test that checks for tracks row that point to non-existent path
+   --deployed-ids
+      Performs test that checks if all flac files present in target is accounted for in database
+   --metadata
+      Performs test that checks if metadata is up to date with git directory
+

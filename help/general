@@ -15,5 +15,5 @@ Commands
       Include tracks based on conditions (see dam --help conditions for more information)
    du </path/to/target>
       Prints total projected disk usage of currently selected tracks
-   fsck </path/to/target>
-      Does a series of tests on target's database file
+   fsck [<options>] </path/to/target>
+      Performs a series of tests on target's database file
