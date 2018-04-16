@@ -26,7 +26,7 @@ chk_nonexistent_ids() {
         echo "[ ${COUNT} / ${#rowList[@]} ] Checking path of ${TRACKID}"
 
         if [[ ! -f "${TARGET}/${FILE}" ]] && [[ ${FILE} != "null" ]]; then
-            gawk -i inplace -v imageid=${IMAGEID} trackid=${TRACKID} 'BEGIN{FS="\t";OFS="\t"}{if($2==imageid && $3==trackid){$4="null"}{print $0}}' ${DB_FILE}
+            gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t";OFS="\t"}{if($2==imageid && $3==trackid){$4="null"}{print $0}}' ${DB_FILE}
             local $?=1
         fi
         [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; echo "${TRACKID} of ${IMAGEID} points to non-existent file"}; local ERR=true; }
