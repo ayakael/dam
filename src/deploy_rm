@@ -20,6 +20,6 @@ deploy_rm() {
     ## Removes trackids from TARGET
     _msg EXEC "Removing ${TRACKID} from ${TARGET}"
     rm "${TARGET}/$(print_present_path "${DB_FILE}" ${IMAGEID} ${TRACKID})" >${STDERR} 2>&1
-    [[ $? -eq 0 ]] && { _msg OK; gawk -i inplace -v trackid=${TRACKID} -v value=null 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}; return 1; } || { _msg WARN; return 1; } 
+    [[ $? -eq 0 ]] && { _msg OK; gawk -i inplace -v trackid=${TRACKID} -v value=null 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}; return 0; } || { _msg WARN; return 1; } 
 }
 
