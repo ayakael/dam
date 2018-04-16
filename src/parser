@@ -88,7 +88,33 @@ case "${1}" in
    
     fsck)
         shift
-        cmd_fsck "${GIT_DIR}" "${@}"
+        while true; do
+            case ${1} in
+                --nonexistent-ids)
+                    cmdList=(${cmdList[@]} nonexistent-ids)
+                    shift
+                ;;
+
+                --deployed-ids)
+                    cmdList=(${cmdList[@]} deployed-ids)
+                    shift
+                ;;
+
+                --metadata)
+                    cmdList=(${cmdList[@]} metadata)
+                    shift
+                ;;
+
+                *)
+                    break 2
+                ;;
+            
+            esac
+        done
+        
+        [[ -z ${cmdList[@]} ]] && cmdList=(deployed-ids nonexistent-ids metadata)
+
+        cmd_fsck "${GIT_DIR}" "${@}" ${cmdList[@]}
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"

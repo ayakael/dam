@@ -18,23 +18,19 @@ cmd_fsck() {
     [[ ! -f "${DB_FILE}" ]] && return 3
     [[ ! -d "${GIT_DIR}/.git" ]] && return 2
 
-    if [[ -z "${cmdList[@]}" ]]; then
-        chk_deployed_ids "${TARGET}" "${DB_FILE}"
-        chk_nonexistent_ids "${TARGET}" "${DB_FILE}"
-        chk_metadata "${GIT_DIR}" "${TARGET}" "${DB_FILE}"
-    fi
-
-    case ${cmdList[@]} in
-        --deployed-ids)
-            chk_deployed_ids "${TARGET}" "${DB_FILE}"
-        ;;
+    for cmd in ${cmdList[@]}; do
+        case ${cmd} in
+            deployed-ids)
+                chk_deployed_ids "${TARGET}" "${DB_FILE}"
+            ;;
     
-        --nonexistent-ids)
-            chk_nonexistent_ids "${TARGET}" "${DB_FILE}"
-        ;;
+            nonexistent-ids)
+                chk_nonexistent_ids "${TARGET}" "${DB_FILE}"
+            ;;
 
-        --metadata)
-            chk_metadata "${GIT_DIR}" "${TARGET}" "${DB_FILE}"
-        ;;
-    esac 
+            metadata)
+                chk_metadata "${GIT_DIR}" "${TARGET}" "${DB_FILE}"
+            ;;
+        esac 
+    done
 }
