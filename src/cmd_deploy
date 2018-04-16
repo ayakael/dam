@@ -55,8 +55,11 @@ cmd_deploy() {
         # Processes deployableids (IMAGEIDs that have TRACKIDs that are not present in target, but are selected)
         if _if_array_contains ${imageid} ${deployableidList[@]}; then
             local GIT_GET=false
-            [[ ! -f "${GIT_DIR}/${imageid}.flac" ]] && { git -C  "${GIT_DIR}" annex get "${imageid}.flac" >${STDERR} 2>&1; local GIT_GET=true; }
-            [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
+            if [[ ! -f "${GIT_DIR}/${imageid}.flac" ]]; then
+                git -C  "${GIT_DIR}" annex get "${imageid}.flac" >${STDERR} 2>&1
+                local GIT_GET=true
+                [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
+            fi
             deploy_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
             [[ "${GIT_GET}" == "true" ]] && git -C "${GIT_DIR}" annex drop ${imageid}.flac >/dev/null 2>&1
             [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
