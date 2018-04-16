@@ -93,7 +93,7 @@ case "${1}" in
             esac
         done
 
-        cmd_update "${GIT_DIR}" "${TATGET}" "${OLD_COMMIT}"
+        cmd_update "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Update completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Update completed with errors"
