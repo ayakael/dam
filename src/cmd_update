@@ -6,13 +6,14 @@
 #   cmd_update - Updates database of TARGET from git HEAD to last commit hash.
 #
 # USAGE
-#   cmd_update </path/to/git/dir> </path/to/target/dir>
+#   cmd_update </path/to/git/dir> </path/to/target/dir> [<old git commit>]
 #
 # }
 
 cmd_update() {
     local GIT_DIR="${1}"
     local TARGET="${2}"
+    local OLD_COMMIT="${3}"
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
     [[ ! -f "${DB_FILE}" ]] && return 3
     [[ ! -d "${GIT_DIR}/.git" ]] && return 2
@@ -26,7 +27,7 @@ cmd_update() {
     # Defines what imageids needs updating by determining what files has changed since last
     # update via git diff --name-only.
     local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
-    local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_UPDATE"){print $2}}' ${DB_FILE})
+    [[ -z "${OLD_COMMIT}" ]] && local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_UPDATE"){print $2}}' ${DB_FILE})
     local imageidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
     
     local COUNT=1

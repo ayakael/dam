@@ -6,13 +6,14 @@
 #   cmd_deploy - Command that deploys IMAGEIDs using deploy_imageid function
 #
 # USAGE
-#   cmd_deploy - </path/to/git/dir> </path/to/target> 
+#   cmd_deploy - </path/to/git/dir> </path/to/target> [<old git commit>] 
 #
 # }
 
 cmd_deploy() {
     local GIT_DIR="${1}"
-    local TARGET="${2}"; shift 2
+    local TARGET="${2}"
+    local OLD_COMMIT="${3}"
     local ERR=false
     local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
     [[ ! -f "${DB_FILE}" ]] && return 3
@@ -23,7 +24,7 @@ cmd_deploy() {
     fi
 
     local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
-    local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_DEPLOY"){print $2}}' ${DB_FILE})
+    [[ -z "${OLD_COMMIT}" ]] && local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_DEPLOY"){print $2}}' ${DB_FILE})
     local removableidList=($(awk 'BEGIN{FS="\t"}{if(($1=="null" || $1=="false") && $4!="null"){print $2"--"$3}}' "${DB_FILE}"))
     local deployableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
     local changedidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))

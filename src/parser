@@ -7,7 +7,7 @@
 GIT_DIR="./"
 
 #Recursive argument parser
-while true; do
+while [[ -z "${1}" ]]; do
 	case ${1} in
 		--help)
             shift
@@ -23,17 +23,11 @@ while true; do
 		;;
 
 
-        --git-dir=*)    
-            if [ -z "${1#*=}" ]; then
-                help
-            else
-                GIT_DIR="${1#*=}"
-            fi
-
+        --git-dir)    
+            shift
+            GIT_DIR="${1}"
+            shift
         ;;
-		*)
-			break
-		;;
 
 	esac
 	shift
@@ -60,7 +54,21 @@ case "${1}" in
 
     deploy)
         shift
-        cmd_deploy "${GIT_DIR}" ${@}
+        while [[ -n "${1}" ]]; do
+            case ${1} in
+                --from)
+                    shift
+                    OLD_COMMIT=${1}
+                    shift    
+                ;;
+                
+                *)
+                    TARGET="${1}"
+                    shift
+                ;;
+            esac
+        done
+        cmd_deploy "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Deployment completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with errors"
@@ -70,7 +78,22 @@ case "${1}" in
 
     update)
         shift
-        cmd_update "${GIT_DIR}" ${@}
+        while [[ -n "${1}" ]]; do
+            case ${1} in
+                --from)
+                    shift
+                    OLD_COMMIT=${1}
+                    shift
+                ;;
+
+                *)
+                    TARGET="${1}"
+                    shift
+                ;;
+            esac
+        done
+
+        cmd_update "${GIT_DIR}" "${TATGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Update completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Update completed with errors"
