@@ -42,7 +42,7 @@ cmd_deploy() {
     # Cleans target of removable TRACKID
     local COUNT=1
     for removableid in ${removableidList[@]}; do
-        echo "[ ${COUNT} / ${#removableidList[@]} ] Removing ${removableid} from ${TARGET}" 
+        echo "[ ${COUNT} / ${#removableidList[@]} ] Removing ${removableid}" 
         deploy_rm "${TARGET}" "${DB_FILE}" ${removableid} >${STDERR} 2>&1
         [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
