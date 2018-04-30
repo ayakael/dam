@@ -13,15 +13,14 @@ while [[ -z "${1}" ]]; do
             shift
             HELP="${1}"
             [[ -z "${HELP}" ]] && HELP=general
-			eval help_${HELP}
-			exit
-		;;
+            eval help_${HELP}
+            exit
+        ;;
 
-		--info)
+        --info)
             help_info
-			exit
-		;;
-
+            exit
+        ;;
 
         --git-dir)    
             shift
@@ -29,8 +28,8 @@ while [[ -z "${1}" ]]; do
             shift
         ;;
 
-	esac
-	shift
+    esac
+    shift
 done
 
 
