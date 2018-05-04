@@ -62,8 +62,9 @@ cmd_deploy() {
                 [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
             fi
             deploy_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
+            [[ $? -ne 0 ]] && local CP_ERR=true
             [[ "${GIT_GET}" == "true" ]] && git -C "${GIT_DIR}" annex drop ${imageid}.flac >/dev/null 2>&1
-            [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
+            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
         fi
         
 

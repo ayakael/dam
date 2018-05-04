@@ -39,3 +39,7 @@
 * Added help menu for fsck, update and deploy commands
 * Fixed bug in nonexistent id test where non-standard rows would be tests on
 * Changed --git-dir option to not necessitate "=" sign when defining git directory
+
+### v0.2.5
+* Fixed bug with command parser not parsing options correctly
+* Fixed bug where deploy would fail with errors that didn't exist
