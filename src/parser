@@ -27,7 +27,10 @@ while true; do
             shift
             GIT_DIR="${1}"
             shift
-            return
+        ;;
+
+        *)
+            return 2
         ;;
 
 	esac
