@@ -26,11 +26,10 @@ while true; do
         --git-dir)    
             shift
             GIT_DIR="${1}"
-            shift
         ;;
 
         *)
-            break 2
+            break
         ;;
 
 	esac
