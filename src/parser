@@ -30,7 +30,7 @@ while true; do
         ;;
 
         *)
-            return 2
+            break 2
         ;;
 
 	esac
