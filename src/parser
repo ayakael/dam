@@ -7,7 +7,7 @@
 GIT_DIR="./"
 
 #Recursive argument parser
-while [[ -z "${1}" ]]; do
+while true; do
 	case ${1} in
 		--help)
             shift
@@ -27,6 +27,7 @@ while [[ -z "${1}" ]]; do
             shift
             GIT_DIR="${1}"
             shift
+            return
         ;;
 
 	esac
