@@ -23,17 +23,14 @@ while true; do
 		;;
 
 
-        --git-dir=*)    
-            if [ -z "${1#*=}" ]; then
-                help
-            else
-                GIT_DIR="${1#*=}"
-            fi
-
+        --git-dir)    
+            shift
+            GIT_DIR="${1}"
         ;;
-		*)
-			break
-		;;
+
+        *)
+            break
+        ;;
 
 	esac
 	shift
@@ -60,20 +57,49 @@ case "${1}" in
 
     deploy)
         shift
-        cmd_deploy "${GIT_DIR}" ${@}
+        while [[ -n "${1}" ]]; do
+            case ${1} in
+                --from)
+                    shift
+                    OLD_COMMIT=${1}
+                    shift    
+                ;;
+                
+                *)
+                    TARGET="${1}"
+                    shift
+                ;;
+            esac
+        done
+        cmd_deploy "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Deployment completed successfully"
-        [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with erros"
+        [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with errors"
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
    ;;
 
     update)
         shift
-        cmd_update "${GIT_DIR}" ${@}
+        while [[ -n "${1}" ]]; do
+            case ${1} in
+                --from)
+                    shift
+                    OLD_COMMIT=${1}
+                    shift
+                ;;
+
+                *)
+                    TARGET="${1}"
+                    shift
+                ;;
+            esac
+        done
+
+        cmd_update "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Update completed successfully"
-        [[ ${EXIT} -eq 1 ]] && echo "Update completed with erros"
+        [[ ${EXIT} -eq 1 ]] && echo "Update completed with errors"
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
   ;;
@@ -88,7 +114,34 @@ case "${1}" in
    
     fsck)
         shift
-        cmd_fsck "${GIT_DIR}" "${@}"
+        while [[ -n "${1}" ]]; do
+            case ${1} in
+                --nonexistent-ids)
+                    cmdList=(${cmdList[@]} nonexistent-ids)
+                    shift
+                ;;
+
+                --deployed-ids)
+                    cmdList=(${cmdList[@]} deployed-ids)
+                    shift
+                ;;
+
+                --metadata)
+                    cmdList=(${cmdList[@]} metadata)
+                    shift
+                ;;
+
+                *)
+                    TARGET="${1}"
+                    shift
+                ;;
+            
+            esac
+        done
+        
+        [[ -z ${cmdList[@]} ]] && cmdList=(deployed-ids nonexistent-ids metadata)
+
+        cmd_fsck "${GIT_DIR}" "${TARGET}" ${cmdList[@]}
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"

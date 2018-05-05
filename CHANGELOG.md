@@ -25,3 +25,21 @@
 * Further improvement to CLI UI
 * Fixed critical bug with database update, where selection would be defined as "null"
 * Fixed bug in include command
+
+### v0.2.3
+* Fixed bug where dam update would only add one track to the database per image
+
+### v0.2.4
+* DAM now downloads image from server if not present
+* Now properly removes tracks that have been removed in the git directory
+* A few UI changes
+* Added options to "fsck" command to allow specific tests to be performed
+* Fixed bug in nonexistent id test with changing the database
+* Added --from options to deploy and update to define manually from what git commit hash to update from
+* Added help menu for fsck, update and deploy commands
+* Fixed bug in nonexistent id test where non-standard rows would be tests on
+* Changed --git-dir option to not necessitate "=" sign when defining git directory
+
+### v0.2.5
+* Fixed bug with command parser not parsing options correctly
+* Fixed bug where deploy would fail with errors that didn't exist

@@ -1,13 +1,13 @@
 Usage: dam [--help] [--info] [<options>] <command> <args>
 
 Options
-   --git-dir=</path/to/git/dir>
+   --git-dir </path/to/git/dir>
       Defines path to git directory that contains the music collection. Defaults to current directory when not set.
 
 Commands
-   update </path/to/target>
+   update [<options>] </path/to/target>
       Populates database present in target folder with new images.
-   deploy </path/to/target>
+   deploy [<options>] </path/to/target>
       Deploys tracks to target folder, with applies metadata and cover image
    exclude </path/to/target> <condition> [<additional condition>]
       Exclude tracks based on conditions (see dam --help conditions for more information)
@@ -15,5 +15,5 @@ Commands
       Include tracks based on conditions (see dam --help conditions for more information)
    du </path/to/target>
       Prints total projected disk usage of currently selected tracks
-   fsck </path/to/target>
-      Does a series of tests on target's database file
+   fsck [<options>] </path/to/target>
+      Performs a series of tests on target's database file

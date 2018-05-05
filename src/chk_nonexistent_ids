@@ -15,24 +15,25 @@ chk_nonexistent_ids() {
     local DB_FILE="${2}"
 
     local ERR=false
-    local rowList=($(awk 'BEGIN{RS="\n";FS="\t";OFS="="}{print $2,$3,$4}' "${DB_FILE}"))
+    local rowList=($(awk 'BEGIN{RS="\n";FS="\t";OFS="="}{if($1!="LAST_UPDATE" && $1!="LAST_DEPLOY"){print $2,$3,$4}}' "${DB_FILE}"))
 
     local COUNT=1
     for row in ${rowList[@]}; do
         local IMAGEID="$(cut -d"=" -f1 <<< ${row})"
         local TRACKID="$(cut -d"=" -f2 <<< ${row})"
         local FILE="$(cut -d"=" -f3 <<< ${row})"
+        local NONEXISTENT=false
          
         echo "[ ${COUNT} / ${#rowList[@]} ] Checking path of ${TRACKID}"
 
         if [[ ! -f "${TARGET}/${FILE}" ]] && [[ ${FILE} != "null" ]]; then
-            gawk -i inplace -v imageid=${IMAGEID} trackid=${TRACKID} 'BEGIN{FS="\t";OFS="\t"}{if($2==imageid && $3==trackid){$4="null"}{print $0}}' ${DB_FILE}
-            local $?=1
+            gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t";OFS="\t"}{if($2==imageid && $3==trackid){$4="null"}{print $0}}' ${DB_FILE}
+            local NONEXISTENT=true
         fi
-        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; echo "${TRACKID} of ${IMAGEID} points to non-existent file"}; local ERR=true; }
+        [[ "${NONEXISTENT}" == "true" ]] && { echo "[>>>>>>] Error reported"; echo "${TRACKID} of ${IMAGEID} points to non-existent file"}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
-    [[ "${ERR}" == "true" ]] && { _msg EXEC "Nonexistent files check completed with errors"; _msg WARN; } || { _msg EXEC "Nonexistent files check completed succesfully"; _msg OK; }
+    [[ "${ERR}" == "true" ]] && return 1 || return 0
 
 }
 
