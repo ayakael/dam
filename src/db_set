@@ -21,6 +21,11 @@ db_set() {
     local SELECTED="${3}"; shift 3
     local CONDITION="${@}"
     
+    if [[ "${CONDITION}" == "all" ]]; then
+        gawk -i inplace -v selected=${SELECTED} 'BEGIN{FS="\t";}{$1=selected}{print $0}' "${DB_FILE}"
+        return 0
+    fi
+
     # Defines what imageids are imported into database, as we're only going to act on those
     local FIELD="$(echo ${CONDITION} | cut -d'=' -f1 | tr '[:lower:]' '[:upper:]' )"
     local VALUE="$(echo ${CONDITION} | cut -d'=' -f2 | tr '[:lower:]' '[:upper:]' )"
