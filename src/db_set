@@ -23,6 +23,7 @@ db_set() {
     
     if [[ "${CONDITION}" == "all" ]]; then
         gawk -i inplace -v selected=${SELECTED} 'BEGIN{FS="\t";OFS="\t";}{$1=selected}{print $0}' "${DB_FILE}"
+        cat "${DB_FILE}"
         return 0
     fi
 
