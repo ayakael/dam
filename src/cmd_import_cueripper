@@ -11,12 +11,13 @@
 # }
 
 cmd_import_cueripper() {
+    local GIT_DIR="${1}"; shift
     local dirList=("${@}")
 
     for dir in ${dirList[@]}; do
         folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
         for folder in ${folderList[@]}; do
-            gen "${folder}"
+            import_cueripper "${GIT_DIR}" "${folder}"
         done
     done
 }

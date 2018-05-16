@@ -28,8 +28,5 @@ cmd_import() {
     local GIT_DIR="${2}"; shift 2
     local dirList=(${@})
 
-    
-    [[ "${CMD}" == "cueripper" ]] && import_cueripper ${@}
-    [[ "${CMD}" == "eac" ]] && import_eac ${@}
-    [[ "${CMD}" == "tracks" ]] && import_tracks ${@}
+    eval import_${CMD} "${GIT_DIR}" ${@}
 }

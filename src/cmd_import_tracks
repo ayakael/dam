@@ -10,13 +10,13 @@
 #
 # }
 
-cmd_import_tracks {
+cmd_import_tracks() {
     local ROOT="${1}"; shift 1
     local dirList=("${@}")
     for dir in ${dirList[@]}; do
         folderList=($(find ${ROOT}/${dir} -name '*cover*' -printf '%h\n' | awk '!seen[$0]++' | sed "s|${ROOT}/||g"))
         for folder in ${folderList[@]}; do
-            gen ${ROOT} "${folder}"
+            import_tracks ${ROOT} "${folder}"
         done
     done
 }
