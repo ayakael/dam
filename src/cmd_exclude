@@ -27,7 +27,7 @@ cmd_exclude() {
         _msg EXEC "Excluding all tracks that match the following condition: ${condition}"
         local MATCHES=$(db_set ${GIT_DIR} ${DB_FILE} false "${condition}" 2>${STDERR} | wc -l )
         _msg ECHO "${MATCHES} matches"
-        [[ $? -ne 0 ]] && { _msg WARN 2; } || { _msg OK 2; }
+        [[ $? -ne 0 ]] && { _msg WARN 1; } || { _msg OK 1; }
     done
     local imageidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
     local DU="$(print_imageid_du ${GIT_DIR} ${imageidList[@]})"
