@@ -1,0 +1,24 @@
+#!/bin/bash
+  
+# doc cmd_init {
+#
+# DESCRIPTION
+#   cmd_init - Initialized target directory with database file
+#
+# USAGE
+#   cmd_init </path/to/git/dir> </path/to/target> 
+#
+# }
+
+cmd_init() {
+    local GIT_DIR="${1}"
+    local TARGET="${2}"
+    local DB_FILE="${TARGET}/${_OPT_DB_FILE}"
+    
+    [[ -f "${DB_FILE}" ]] && return 1
+
+    _msg EXEC "Initializing ${TARGET}"
+    echo -e "REPO_ID\t$(git -C "${GIT_DIR}" rev-list HEAD | tail -n 1)" > ${DB_FILE} 2>${STDERR}
+    [[ $? -ne 0 ]] && { _msg WARN; return 2 }
+    _msg OK
+}
