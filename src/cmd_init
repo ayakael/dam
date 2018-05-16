@@ -19,6 +19,6 @@ cmd_init() {
 
     _msg EXEC "Initializing ${TARGET}"
     echo -e "REPO_ID\t$(git -C "${GIT_DIR}" rev-list HEAD | tail -n 1)" > ${DB_FILE} 2>${STDERR}
-    [[ $? -ne 0 ]] && { _msg WARN; return 2 }
+    [[ $? -ne 0 ]] && { _msg WARN; return 2; }
     _msg OK
 }
