@@ -13,8 +13,8 @@
 print_imageid_du() {
     local GIT_DIR="${1}"; shift
     local imageidList=(${@})
-    [[ -z "${imageidList[@]}" ]] && return 0
+    [[ -z "${imageidList[@]}" ]] && { echo 0; return 0; }
     local bytesList=($(awk 'BEGIN{RS=",";FS=":"}{if($1=="\"size\""){print $2}}' <<<$(git -C "${GIT_DIR}" annex info --bytes --json $(printf "%s.flac\t" ${imageidList[@]}))))
-    [[ -z "${bytesList[@]}" ]] && return 0
+    [[ -z "${bytesList[@]}" ]] && { echo 0; return 0; }
      dc <<< '[+]sa[z2!>az2!>b]sb'"$(sed 's/"//g' <<< "${bytesList[@]}")lbxp"
 }
