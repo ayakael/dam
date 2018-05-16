@@ -22,7 +22,7 @@ db_set() {
     local CONDITION="${@}"
     
     if [[ "${CONDITION}" == "all" ]]; then
-        gawk -i inplace -v selected=${SELECTED} 'BEGIN{FS="\t";OFS="\t";}{if($1!="LAST_DEPLOY" && $1!="LAST_UPDATE" && $1!="null"){$1=selected}{print $0}}' "${DB_FILE}"
+        gawk -i inplace -v selected=${SELECTED} 'BEGIN{FS="\t";OFS="\t";}{if($1!="LAST_DEPLOY" && $1!="LAST_UPDATE" && $1!="REPO_ID" && $1!="null"){$1=selected}{print $0}}' "${DB_FILE}"
         cat "${DB_FILE}"
         return 0
     fi
@@ -33,7 +33,7 @@ db_set() {
        
     # Determines which IMAGEIDs present in the DB_FILE match the CONDITION
     local COUNT=1
-    local dbimageidList=$(awk 'BEGIN{FS="\t"}{if($1!="LAST_DEPLOY" && $1!="LAST_UPDATE" && $1!="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++')
+    local dbimageidList=$(awk 'BEGIN{FS="\t"}{if($1!="LAST_DEPLOY" && $1!="LAST_UPDATE" && $1!="REPO_ID" && $1!="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++')
     for dbimageid in ${dbimageidList[@]}; do
         local MTAG="$(printf "${GIT_DIR}/%s.tags" ${dbimageid})"
         local MATCH="$(grep -i -l "\"${FIELD}\" : \"${VALUE}\""  "${MTAG}")"
