@@ -24,7 +24,7 @@ db_update() {
     fi
     for trackid in ${trackidList[@]}; do
         if [[ -z $(awk -v imageid="${IMAGEID}" -v trackid="${trackid}" 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE}) ]]; then
-            echo -e "true\t${IMAGEID}\t${trackid}\tnull" >> ${DB_FILE}
+            echo -e "false\t${IMAGEID}\t${trackid}\tnull" >> ${DB_FILE}
         fi
     done
     return 0
