@@ -43,3 +43,8 @@
 ### v0.2.5
 * Fixed bug with command parser not parsing options correctly
 * Fixed bug where deploy would fail with errors that didn't exist
+
+### v0.2.6
+* Added "all" condition to apply exclude or include to all database
+* Fixed bug where disk usage calculator would ungracefully exit when database had no selected tracks
+* Added REPO_ID field to database to make sure that the provided GIT directory is the right git repo
