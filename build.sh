@@ -1,6 +1,18 @@
 #!/bin/bash
 
 EXEC=dam
+
+test_function() {
+    functionList=(${@})
+    for function in ${functionList[@]}; do
+        echo -e "#!/bin/bash\n" > .test.sh
+        awk '!/^ *#/ && NF' src/env >> .test.sh
+        awk '!/^ *#/ && NF' ${function} >> .test.sh
+        bash .test.sh
+        rm .test.sh
+    done
+}
+
 gen_help() {
     for file in $(find help/ -type f -printf "%P\n"); do
         echo -e "
@@ -30,6 +42,8 @@ gen_function() {
 gen_parser() {
     awk '!/^ *#/ && NF' src/parser
 }
+
+test_function  $(find src/ -type f -not -name env -not -name parser) >> ${EXEC}
 
 gen_env > ${EXEC}
 gen_help >> ${EXEC}
