@@ -10,7 +10,7 @@
 # USAGE
 #   print_meta_mtag </path/to/mtag/file> <track no> [<field_1> <field_2> <...>]
 #
-# DEPENDENCIES print_mtag_field
+# DEPENDENCIES src/print_mtag_field
 #
 # }
 
