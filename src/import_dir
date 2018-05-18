@@ -16,8 +16,4 @@ import_dir() {
 
     local trackList=($(find ${TRACK_DIR} -maxdepth=1 -name *.flac -print '%p\t'))
     
-    for track in ${trackList[@]}; do
-        
-    done
-    
 }

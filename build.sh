@@ -3,9 +3,13 @@
 EXEC=dam
 
 test_function() {
-    functionList=(${@})
+    local functionList=(${@})
     source src/env
     for function in ${functionList[@]}; do
+        local dependencyList=($(grep "# DEPENDENCIES" ${function} | sed 's|# DEPENDENCIES||'))
+        for dependency in ${dependencyList[@]}; do
+            eval source ${dependency}
+        done
         bash ${function}
     done
 }
@@ -30,7 +34,7 @@ gen_env() {
 }
 
 gen_function() {
-    functionList=(${@})    
+    local functionList=(${@})    
     for function in ${functionList[@]}; do
         awk '!/^ *#/ && NF' ${function} 
     done
@@ -41,6 +45,7 @@ gen_parser() {
 }
 
 test_function  $(find src/ -type f -not -name env -not -name parser)
+# test_function src/import_track
 
 gen_env > ${EXEC}
 gen_help >> ${EXEC}
