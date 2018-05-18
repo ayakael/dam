@@ -6,13 +6,14 @@
 #   gen_image - Generates image from list of lossless audio files
 #
 # USAGE
-#   gen_image <file_1> [<file_1>] [<...>]
+#   gen_image </path/to/output/dir> <file_1> [<file_1>] [<...>]
 #
 # DEPENDENCIES src/med_convert
 #
 # }
 
 gen_image() {
+    local TARGET_DIR="${1}"; shift
     local fileList=("${@}")
     if [[ ${#fileList[@]} -eq 1 ]]; then
         cat ${fileList[@]} > joined.flac
@@ -24,7 +25,7 @@ gen_image() {
             echo ${fileList[@]}
             fileList=($(printf '%s\n' ${fileList[@]} | sed 's|flac|wav|'))
             echo ${fileList[@]}
-            shntool join -O always ${fileList[@]} -o flac
+            shntool join -O always ${fileList[@]} -d "${TARGET_DIR}" -o flac
             [[ $? -ne 0 ]] && return 1
             return 2
         fi
