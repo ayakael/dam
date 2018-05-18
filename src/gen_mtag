@@ -12,51 +12,51 @@
 
 gen_mtag() {
     local metadata_trackList=(${@})
-
+    
     # Generates list of tags to be parsed
     local COUNT=0
     for metadata_track in ${metadata_trackList[@]}; do
-        local tagList[${COUNT}]=$(awk 'BEGIN{RS=";";FS="="}{print $1";"}' <<< ${metadata_track})
+        local tagList[${COUNT}]=$(awk 'BEGIN{RS=";";FS="=";ORS=";";}{print $1}' <<< ${metadata_track})
         local COUNT=$(( ${COUNT} + 1 ))
     done
-    local tagList=($(tr ';' \\n <<< ${tagList[@]} | awk '!seen[$0]++'))
-
-
+    local tagList=($( sed -e 's| ; ||g' -e 's|; ;||' <<< ${tagList[@]} |  tr ';' \\n | awk '!seen[$0]++' ))
+   
     # Header echo
     echo "["
     
     # Track echo
     local COUNT=0
-    for metadata_trackList in ${metadata_trackList[@]}; do
+    for metadata_track in ${metadata_trackList[@]}; do
 
         # Track header and file name
-        local FILE_NAME=$(awk -v tag="IMAGEID" 'BEGIN{RS=";";FS="=";}{if($1=tag){print $2}}' <<< ${metadata_track})
-        echo -e "   {\n      \"@\" : \"${FILE_NAME}.cue|$(( ${COUNT} + 1 ))\","
+        local FILE_NAME=$(awk -v tag="IMAGEID" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        echo -en "   {\n      \"@\" : \"${FILE_NAME}.cue|$(( ${COUNT} + 1 ))\""
 
         # Tag loop
         for tag in ${tagList[@]}; do
 
             # Determines current tag value
-            local CUR_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1=tag){print $2}}' <<< ${metadata_track})
+            local CUR_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
 
             # Determines previous tag value
-            local PREV_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1=tag){print $2}}' <<< ${metadata_trackList[$(( ${COUNT} - 1 ))]})
+            local PREV_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_trackList[$(( ${COUNT} - 1 ))]})
         
             # Compares previous tag value and current tag value. If there is a difference or we're dealing with the first track,
             # print the value in MTAG format
             if [[ "${CUR_TAG}" != "${PREV_TAG}" ]] || [[ ${COUNT} -eq 0 ]]; then
+                echo "," 
                 echo -n "      \"${tag}\" : \"${CUR_TAG}\""
-                [[ "${tag}" != "${tagList[-1]}" ]] && echo ";" || echo 
             fi
         done
         # Track footer
-        echo "   }"
-
+        echo -en "\n   }"
+        [[ "$(( ${COUNT} + 1 ))" != "${#metadata_trackList[@]}" ]] && echo "," || echo
+    
         local COUNT=$(( ${COUNT} + 1 ))
     done    
 
     # Footer echo
-    echo -e "    }\n]"
+    echo "]"
     return 0
 }
 
