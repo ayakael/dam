@@ -26,12 +26,6 @@ cmd_import_tracks() {
         local fileList=($(find "${src}" -name '*.flac' -o -name '*.mp3'))
 
         for file in ${fileList}; do
-            if ismp3 ${file}; then
-                _msg EXEC "Converting ${file} to FLAC format"
-                med_convert flac ${file}
-                local EXIT=$?
-                [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Conversion of ${file} failed, continuing"; continue; }
-            fi
             _msg EXEC "Consolidating ${file}"
             import_track "${GIT_DIR}" "${file}"
             local EXIT=$?

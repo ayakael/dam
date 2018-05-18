@@ -19,7 +19,8 @@ import_track() {
     local GIT_DIR="${1}"
     local TRACK="${2}"
     local DIR_NAME="$(dirname \"${TRACK}\")"
-
+    local SOURCE="FLAC"
+   
     # Cover image finder
     local coverList=($(find "${DIR_NAME}" -maxdepth 1 -name '*.jpg' -o -name '*.png' -print '%p\t'))
 
@@ -29,7 +30,7 @@ import_track() {
         eval local ${metadata} 
     done
 
-    # Setting TARGET_DIT
+    # Setting TARGET_DIR
     [[ -z "${DISCNUMBER}" ]] && local DISCNUMBER=1    
     local TARGET_DIR="${GIT_DIR}/.import/${ARTIST}--${ALBUM}--$(printf '%02d' ${DISCNUMBER})"
     mkdir -p ${TARGET_DIR}
@@ -41,8 +42,19 @@ import_track() {
         convert ${coverList[@]} "${TARGET_DIR}/folder.png"
     fi
 
+    # Converting to FLAC if need me
+    local TRACK_EXT="$(echo "${TRACK}" |  sed 's|.*\.||' | tr "[a-z]" "[A-Z]")" 
+    if [[ "${TRACK_EXT}" != "FLAC" ]]; then
+        echo "Converting ${TRACK} to FLAC format"
+        med_convert flac ${TRACK}
+        local EXIT=$?
+        [[ ${EXIT} -eq 0 ]] || return 1
+        local SOURCE="${TRACK_EXT}"
+    fi
+
     # Moving track to TARGET_DIR
-    mv "${TRACK}" "${TARGET_DIR}/$(printf %02d ${TRACKNUMBER}).flac" >${STDERR} 2>&1
+    echo "Moving ${TRACK} to ${TARGET_DIR}" 
+    mv "${TRACK}" "${TARGET_DIR}/$(printf %02d ${TRACKNUMBER}).${SOURCE}.flac"
     local EXIT=$?
     [[ ${EXIT} -eq 0 ]] && return 0 || return 1 
 }
