@@ -1,25 +1,25 @@
 #!/bin/bash
 
-# doc cmd_import_cueripper {
+# doc cmd_import_images {
 #
 # DESCRIPTION
-#   cmd_import_cueripper - Imports output files from cueripper into GIT_DIR
+#   cmd_import_images - Imports CD images into GIT_DIR
 #
 # USAGE
-#   cmd_import_cueripper </path/to/batch> [<...>]
+#   cmd_import_images </path/to/image/folder> [<...>]
 #
-# DEPENDENCIES import_cueripper
+# DEPENDENCIES import_images
 #
 # }
 
-cmd_import_cueripper() {
+cmd_import_images() {
     local GIT_DIR="${1}"; shift
     local dirList=("${@}")
 
     for dir in ${dirList[@]}; do
         folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
         for folder in ${folderList[@]}; do
-            import_cueripper "${GIT_DIR}" "${folder}"
+            import_images "${GIT_DIR}" "${folder}"
         done
     done
 }
