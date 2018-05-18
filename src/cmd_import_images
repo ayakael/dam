@@ -8,7 +8,7 @@
 # USAGE
 #   cmd_import_images </path/to/image/folder> [<...>]
 #
-# DEPENDENCIES import_images
+# DEPENDENCIES src/import_images
 #
 # }
 
