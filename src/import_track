@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# doc import_track {
+#
+# DESCRIPTION
+#   import_track - Consolidates track of .import subdirectory in git repository
+#   in ARTIST--ALBUM--DISCNUMBER subfolder, to then import later. This is done
+#   to allow the possibility of importing tracks that are a part of the same
+#   album, but are found in different directories..
+#
+# USAGE
+#   import_track </path/to/git/dir> </path/to/track>
+#
+# }
+
+import_track() {
+    local GIT_DIR="${1}"
+    local TRACK="${2}"
+    local DIR_NAME="$(dirname \"${TRACK}\")"
+
+    # Cover image finder
+    local coverList=($(find "${DIR_NAME}" -maxdepth 1 -name '*.jpg' -o -name '*.png' -print '%p\t'))
+
+    # Metadata parsing
+    local metadataList=($(print_meta_flac ${TRACK}) | sed 's|;|	|g' )
+    for metadata in ${metadataList[@]}; do
+        eval local ${metadata} 
+    done
+
+    # Setting TARGET_DIT
+    [[ -z "${DISCNUMBER}" ]] && local DISCNUMBER=1    
+    local TARGET_DIR="${GIT_DIR}/.import/${ARTIST}--${ALBUM}--$(printf '%02d' ${DISCNUMBER})"
+    mkdir -p ${TARGET_DIR}
+    [[ ${EXIT} -eq 0 ]] || return 1
+
+
+    # Moving cover to TARGET_DIR
+    if [[ ${#coverList[@]} -eq 1 ]] && [[ ! -f "${TARGET_DIR}/folder.png" ]]; then
+        convert ${coverList[@]} "${TARGET_DIR}/folder.png"
+    fi
+
+    # Moving track to TARGET_DIR
+    mv "${TRACK}" "${TARGET_DIR}/$(printf %02d ${TRACKNUMBER}).flac" >${STDERR} 2>&1
+    local EXIT=$?
+    [[ ${EXIT} -eq 0 ]] && return 0 || return 1 
+}

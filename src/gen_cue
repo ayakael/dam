@@ -28,12 +28,12 @@ gen_cue() {
     # Generates breaklist
     breakList=($(gen_breaklist ${fileList[@]}))
 
-    [[ ! -z "${META_DATE+x}" ]] && echo "REM DATE ${META_DATE}"
-    [[ ! -z "${META_COMPOSER+x}" ]] && echo "PERFORMER \"${META_COMPOSER}\""
-    [[ ! -z "${META_CONDUCTOR+x}" ]] && echo "REM CONDUCTOR \"${META_CONDUCTOR}\""
-    [[ ! -z "${META_ORCHESTRA+x}" ]] && echo "REM ORCHESTRA \"${META_ORCHESTRA}\""
-    [[ ! -z "${META_ARTIST+x}" ]] && echo "PERFORMER \"${META_ARTIST}\""
-    [[ ! -z "${META_ALBUM+x}" ]] && echo "TITLE \"${META_ALBUM}\""
+    [[ ! -z "${DATE+x}" ]] && echo "REM DATE ${DATE}"
+    [[ ! -z "${COMPOSER+x}" ]] && echo "PERFORMER \"${COMPOSER}\""
+    [[ ! -z "${CONDUCTOR+x}" ]] && echo "REM CONDUCTOR \"${CONDUCTOR}\""
+    [[ ! -z "${ORCHESTRA+x}" ]] && echo "REM ORCHESTRA \"${ORCHESTRA}\""
+    [[ ! -z "${ARTIST+x}" ]] && echo "PERFORMER \"${ARTIST}\""
+    [[ ! -z "${ALBUM+x}" ]] && echo "TITLE \"${ALBUM}\""
     echo "FILE \"${FILE_NAME}.flac\" WAVE"
     local COUNT=0
     while [[ ${COUNT} -lt ${#breakList[@]} ]]; do

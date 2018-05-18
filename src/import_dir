@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# doc import_dir {
+#
+# DESCRIPTION
+#   import_dir - Imports consolidated tracks into git repository
+#
+# USAGE
+#   import_dir </path/to/git/dir> </path/to/track/dir>
+#
+# }
+
+import_dir() {
+    local GIT_DIR="${1}"
+    local TRACK_DIR="${2}"
+
+    local trackList=($(find ${TRACK_DIR} -maxdepth=1 -name *.flac -print '%p\t'))
+    
+    for track in ${trackList[@]}; do
+        
+    done
+    
+}

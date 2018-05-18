@@ -6,17 +6,43 @@
 #   cmd_import_tracks - Wrapper for import_tracks
 #
 # USAGE
-#   cmd_import_tracks </path/to/work/dir> <subpath/to/album>
+#   cmd_import_tracks </path/to/git/dir> </path/to/dir_or_archive>
 #
 # }
 
 cmd_import_tracks() {
-    local ROOT="${1}"; shift 1
-    local dirList=("${@}")
-    for dir in ${dirList[@]}; do
-        folderList=($(find ${ROOT}/${dir} -name '*cover*' -printf '%h\n' | awk '!seen[$0]++' | sed "s|${ROOT}/||g"))
-        for folder in ${folderList[@]}; do
-            import_tracks ${ROOT} "${folder}"
+    local GIT_DIR="${1}"; shift
+    local srcList=(${@})
+
+    for src in ${srcList}; do
+        if iszip ${src}; then
+            _msg EXEC "Uncompressing ${archive}"
+            7z x "${src}" -o"${_OPT_TMP}/${src}/" >${STDERR} 2>&1
+            local EXIT=$?
+            [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/${src}"; } || _msg WARN
+        fi    
+        local fileList=($(find "${src}" -name '*.flac' -o -name '*.mp3'))
+
+        for file in ${fileList}; do
+            if ismp3 ${file}; then
+                _msg EXEC "Converting ${file} to FLAC format"
+                med_convert flac ${file}
+                local EXIT=$?
+                [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Conversion of ${file} failed, continuing"; continue; }
+            fi
+            _msg EXEC "Consolidating ${file}"
+            import_track "${GIT_DIR}" "${file}"
+            local EXIT=$?
+            [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Consolidation of ${file} failed, continuing"; continue; }
         done
     done
+
+    local importList=($(find ${GIT_DIR}/.import/ -maxdepth 1 -type d -print '%p\t'))
+    for import in ${importList[@]}; do
+        _msg EXEC "Importing ${import}"
+        import_dir "${GIT_DIR}" "${import}"
+        local EXIT=$?
+        [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Importation of ${import} failed, continuing"; continue; }
+    done
+
 }

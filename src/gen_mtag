@@ -6,49 +6,57 @@
 #   gen_mtag - Generates mtag output based on output from print_meta_cue
 #
 # USAGE
-#   gen_mtag <output from file_name> <output from print_meta_cue>
+#   gen_mtag <print_meta_flac-output-track-1> <print_meta_flac-output-track-2> <...>
 #
 # }
 
 gen_mtag() {
-    local FILE_NAME="${1}"
-    local METADATA="${2}"
+    local metadata_trackList=(${@})
 
-    # Metadata Parsing
-    metadataList=($(echo ${METADATA} | sed 's|;|    |g'))
-    for metadata in ${metadataList[@]}; do
-        eval local ${metadata} 
-    done
-
-    for file in ${fileList[@]}; do
-        local trackList=(${trackList[@]}    $(echo ${file} | sed 's|.*/||' | cut -d- -f2 | sed 's| ||' | sed 's|\.flac||'))
-    done
-    echo "["
+    # Generates list of tags to be parsed
     local COUNT=0
-    while [[ ${COUNT} -lt ${#titleList[@]} ]]; do
-        [[ ${COUNT} -ne 0 ]] && echo "    },"
-        echo "   {"
-        echo "      \"@\" : \"${FILE_NAME}.cue|$(( ${COUNT} + 1 ))\","
-        if [[ ${COUNT} -eq 0 ]]; then
-            [[ ! -z "${ALBUM+x}" ]] && echo "      \"ALBUM\" : \"${ALBUM}\","
-            [[ ! -z "${PERFORMER+x}" ]] && echo "      \"ARTIST\" : \"${PERFORMER}\","
-            [[ ! -z "${META_COMPOSER+x}" ]] && echo "      \"COMPOSER\" : \"${META_COMPOSER}\","
-            [[ ! -z "${META_CONDUCTOR+x}" ]] && echo "      \"CONDUCTOR\" : \"${META_CONDUCTOR}\","
-            [[ ! -z "${META_ORCHESTRA+x}" ]] && echo "      \"ORCHESTRA\" : \"${META_ORCHESTRA}\","
-            [[ ! -z "${DATE+x}" ]] && echo "      \"DATE\" : \"${DATE}\","
-            [[ ! -z "${DISCNUMBER+x}" ]] && echo "      \"DISCNUMBER\" : \"${DISCNUMBER}\","
-            [[ ! -z "${TOTALDISCS+x}" ]] && echo "      \"TOTALDISCS\" : \"${TOTALDISCS}\","
-            [[ ! -z "${BATCHNUMBER+x}" ]] && echo "      \"BATCHNUMBER\" : \"${BATCHNUMBER}\","
-            echo "      \"TOTALTRACKS\" : \"${#titleList[@]}\","
-        fi
-        [[ ! -z "${performerList[${COUNT}]+x}" ]] && echo "      \"PERFORMER\" : \"${performerList[${COUNT}]}\","
-        echo "      \"TITLE\" : \"${titleList[${COUNT}]}\","
-        echo "      \"TRACKID\" : \"${trackidList[${COUNT}]}\","
-        echo "      \"TRACKNUMBER\" : \"$(( ${COUNT} + 1 ))\""
+    for metadata_track in ${metadata_trackList[@]}; do
+        local tagList[${COUNT}]=($(awk 'BEGIN{RS=";";FS="="}{print $1";"}' <<< ${metadata_track}))
         local COUNT=$(( ${COUNT} + 1 ))
     done
-    echo "    }"
-    echo "]"
+    local tagList=($(tr ';' \\n <<< ${tagList[@]} | awk '!seen[$0]++'))
+
+
+    # Header echo
+    echo "["
+    
+    # Track echo
+    local COUNT=0
+    for metadata_trackList in ${metadata_trackList[@]}; do
+
+        # Track header and file name
+        local FILE_NAME=$(awk -v tag="IMAGEID" 'BEGIN{RS=";";FS="=";}{if($1=tag){print $2}}' <<< ${metadata_track})
+        echo -e "   {\n      \"@\" : \"${FILE_NAME}.cue|$(( ${COUNT} + 1 ))\","
+
+        # Tag loop
+        for tag in ${tagList[@]}; do
+
+            # Determines current tag value
+            local CUR_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1=tag){print $2}}' <<< ${metadata_track})
+
+            # Determines previous tag value
+            local PREV_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1=tag){print $2}}' <<< ${metadata_trackList[$(( ${COUNT} - 1 ))]})
+        
+            # Compares previous tag value and current tag value. If there is a difference or we're dealing with the first track,
+            # print the value in MTAG format
+            if [[ "${CUR_TAG}" != "${PREV_TAG}" ]] || [[ ${COUNT} -eq 0 ]]; then
+                echo -n "      \"${tag}\" : \"${CUR_TAG}\""
+                [[ "${tag}" != "${tagList[-1]}" ]] && echo ";" || echo 
+            fi
+        done
+        # Track footer
+        echo "   }"
+
+        local COUNT=$(( ${COUNT} + 1 ))
+    done    
+
+    # Footer echo
+    echo -e "    }\n]"
     return 0
 }
 

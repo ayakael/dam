@@ -18,15 +18,15 @@ gen_image() {
         shntool join -O always ${fileList[@]} -o flac
         if [[ $? -ne 0 ]]; then
             med_convert wav ${fileList[@]}
-            [[ $? -ne 0 ]] && { echo "Image generation failed with fatal errors"; return 1; }
+            [[ $? -ne 0 ]] && return 1
             echo ${fileList[@]}
             fileList=($(printf '%s\n' ${fileList[@]} | sed 's|flac|wav|'))
             echo ${fileList[@]}
             shntool join -O always ${fileList[@]} -o flac
-            [[ $? -ne 0 ]] && { echo "Image generation failed with fatal errors"; return 1; }
-            echo "Image generated with non-fatal error"; return 2
+            [[ $? -ne 0 ]] && return 1
+            return 2
         fi
     fi
-    echo "Image generated with no errors"; return 0
+    return 0
 }
 

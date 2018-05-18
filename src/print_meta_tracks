@@ -10,6 +10,8 @@
 #
 # }
 
+print_meta_tracks
+
 gen_metadata() {
     local FOLDER="${1}"
     local DISC_NO="${2}"

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# doc iszip {
+#
+# DESCRIPTION
+#   iszip - Returns true if any file present is a zip file.
+#
+# USAGE
+#   iszip <files>
+#
+# }
+
+iszip() {
+    local fileList=("${@}")
+    for file in ${fileList[@]}; do
+        local FILE_EXT="$(echo "${file}" | sed 's|.*\.||')"
+        [[ "${FILE_EXT}" == "zip" ]] && local ZIP=0 || local ZIP=1
+    done
+    [[ ${ZIP} -eq 0 ]] && return 0 || return 1
+}
+
