@@ -13,15 +13,14 @@ while true; do
             shift
             HELP="${1}"
             [[ -z "${HELP}" ]] && HELP=general
-			eval help_${HELP}
-			exit
-		;;
+            eval help_${HELP}
+            exit
+        ;;
 
-		--info)
+        --info)
             help_info
-			exit
-		;;
-
+            exit
+        ;;
 
         --git-dir)    
             shift
@@ -32,13 +31,21 @@ while true; do
             break
         ;;
 
-	esac
-	shift
+    esac
+    shift
 done
 
 
 
 case "${1}" in
+    init)
+        shift
+        cmd_init "${GIT_DIR}" ${@}
+        EXIT=$?
+        [[ ${EXIT} -eq 1 ]] && echo "Database file already present"
+        [[ ${EXIT} -eq 2 ]] && echo "Init had errors"
+    ;;
+
     exclude)
         shift
         cmd_exclude "${GIT_DIR}" ${@}

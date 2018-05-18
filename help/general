@@ -5,6 +5,8 @@ Options
       Defines path to git directory that contains the music collection. Defaults to current directory when not set.
 
 Commands
+   init [<options>] </path/to/target>
+      Initializes target with database file
    update [<options>] </path/to/target>
       Populates database present in target folder with new images.
    deploy [<options>] </path/to/target>

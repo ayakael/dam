@@ -22,6 +22,7 @@ cmd_include() {
     local conditionList=("${@}")
     [[ ! -f "${DB_FILE}" ]] && return 3
     [[ ! -d "${GIT_DIR}/.git" ]] && return 2
+    [[ "$(git -C "${GIT_DIR}" rev-list HEAD | tail -n 1)" != "$(awk 'BEGIN{FS="\t"}{if($1=="REPO_ID"){print $2}}' "${DB_FILE}")" ]] && return 2
 
     for condition in ${conditionList[@]}; do
         _msg EXEC "Including all tracks that match the following condition: ${condition}"
