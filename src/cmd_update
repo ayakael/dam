@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_update </path/to/git/dir> </path/to/target/dir> [<old git commit>]
 #
+# DEPENDENCIES src/db_update 
+#
 # }
 
 cmd_update() {

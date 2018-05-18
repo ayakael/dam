@@ -8,6 +8,8 @@
 # USAGE
 #   print_mtag_trackno <path/to/git/dir> <IMAGEID> <TRACKID>
 #
+# DEPENDENCIES src/print_mtag_field
+#
 # }
 
 print_mtag_trackno() {

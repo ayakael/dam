@@ -9,6 +9,8 @@
 # USAGE
 #   deploy_cp </path/to/git/dir> </path/to/target> </path/to/db/file> <IMAGEID> 
 #
+# DEPENDENCIES bunc/src/* src/deploy_gen src/deploy_mv
+#
 # }
 
 deploy_cp() {

@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_deploy - </path/to/git/dir> </path/to/target> [<old git commit>] 
 #
+# DEPENDENCIES bunc/src/* src/print_imageid_du src/deploy_rm src/deploy_cp src/deploy_meta
+#
 # }
 
 cmd_deploy() {

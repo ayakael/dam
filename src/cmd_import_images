@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_import_cueripper </path/to/batch> [<...>]
 #
+# DEPENDENCIES import_cueripper
+#
 # }
 
 cmd_import_cueripper() {

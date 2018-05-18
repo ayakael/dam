@@ -13,6 +13,8 @@
 #       <metadata field>=<value>
 #   The metadata field can be anything that can be injected as metadata in a Vorbis or id3tag. 
 #
+# DEPENDENCIES bunc/src/* src/print_imageid_du
+#
 # }
 
 cmd_include() {

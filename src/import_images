@@ -11,6 +11,8 @@
 # USAGE
 #   import_cueripper </path/to/album>
 #
+# DEPENDENCIES src/print_meta_mtag src/add_bom src/fix_apos src/gen_cover src/file_name src/cueparser
+#
 # }
 
 

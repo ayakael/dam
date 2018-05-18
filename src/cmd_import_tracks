@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_import_tracks </path/to/git/dir> </path/to/dir_or_archive>
 #
+# DEPENDENCIES bunc/src/* src/import_track src/import_dir src/ismp3 src/iszip
+# 
 # }
 
 cmd_import_tracks() {

@@ -8,6 +8,8 @@
 # USAGE
 #   gen_trackid </path/to/flac/file> </path/to/cue/fule>
 #
+# DEPENDENCIES src/deploy_split
+#
 # }
 
 gen_trackid() {

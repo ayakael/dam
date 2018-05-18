@@ -8,6 +8,8 @@
 # USAGE
 #   gen_cue <output from file_name> <output from print_meta_tracks> <file_1> [<file_2>] [<...>]
 #
+# DEPENDENCIES src/gen_breaklist
+#
 # }
 
 gen_cue() {

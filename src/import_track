@@ -11,6 +11,8 @@
 # USAGE
 #   import_track </path/to/git/dir> </path/to/track>
 #
+# DEPENDENCIES src/print_meta_flac
+#
 # }
 
 import_track() {

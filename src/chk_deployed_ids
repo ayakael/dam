@@ -8,6 +8,8 @@
 # USAGE
 #   chk_deployed_ids </path/to/target/dir> </path/to/db/file/>
 #
+# DEPENDENCIES src/print_meta_flac 
+# 
 # }
 
 chk_deployed_ids() {

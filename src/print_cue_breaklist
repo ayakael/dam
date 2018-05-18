@@ -8,6 +8,8 @@
 # USAGE
 #   print_cue_breaklist <file_1> [<...>]
 #
+# DEPENDENCIES src/sec2min
+#
 # }
 
 print_cue_breaklist() {

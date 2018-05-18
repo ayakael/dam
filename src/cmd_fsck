@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_fsck </path/to/git/dir> </path/to/target/dir> 
 #
+# DEPENDENCIES src/chk_deployed_ids src/chk_nonexistent_ids src/chk_metadata
+#
 # }
 
 cmd_fsck() {

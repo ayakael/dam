@@ -8,6 +8,8 @@
 # USAGE
 #   chk_metadata </path/to/git/dir> </path/to/target> </path/to/db/file> [<IMAGEID>] [<...>]
 #
+# DEPENDENCIES bunc/src/* src/deploy_meta
+#
 # }
 
 chk_metadata() {

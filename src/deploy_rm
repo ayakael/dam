@@ -8,6 +8,8 @@
 # USAGE
 #   deploy_rm </path/to/target> </path/to/db/file> <TRACKID>
 #
+# DEPENDENCIES bunc/src/* src/print_present_path
+#
 # }
 
 deploy_rm() {

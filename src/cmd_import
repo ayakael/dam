@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# doc cmd_import
+# doc cmd_import {
 #
 # DESCRIPTION
 #   cmd_import - Wrapper for import functions
@@ -16,6 +16,9 @@
 #
 #   tracks      Import tracks, or archive containing tracks, into git directory
 #
+# DEPENDENCIES src/import_tracks src/import_images
+#
+# }
 
 cmd_import() {
     local CMD="${1}"

@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_du </path/to/git/dir> </path/to/target/dir>
 #
+# DEPENDENCIES bunc/src/* src/print_imageid_du
+#
 # }
 
 cmd_du() {

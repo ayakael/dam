@@ -8,6 +8,8 @@
 # USAGE
 #   cmd_init </path/to/git/dir> </path/to/target> 
 #
+# DEPENDENCIES bunc/src/*
+#
 # }
 
 cmd_init() {

@@ -8,6 +8,8 @@
 # USAGE
 #   gen_image <file_1> [<file_1>] [<...>]
 #
+# DEPENDENCIES src/med_convert
+#
 # }
 
 gen_image() {

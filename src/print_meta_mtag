@@ -10,6 +10,8 @@
 # USAGE
 #   print_meta_mtag </path/to/mtag/file> <track no> [<field_1> <field_2> <...>]
 #
+# DEPENDENCIES print_mtag_field
+#
 # }
 
 
@@ -18,8 +20,12 @@ print_meta_mtag() {
     local TRACK_NO="${2}"; shift 2
     local tagList=(${@})
    
+    # If list of Tags isn't giving, assumes that we want to output all tags, and thus this
+    # generates all tags present in MTAG file
     [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="[,]?\n";FS=" : "}{if($1!~"@"){print $1}}' ${FILE} | tr -d '[]{}" ' | awk '!seen[$0]++' | tail -n +3) IMAGEID)
     
+
+    # Goes through every tag, determines it's original value, and then prints out.
     for tag in ${tagList[@]}; do
         # Finalizes output with IMAGEID
         [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"))"; continue; }
