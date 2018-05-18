@@ -24,7 +24,7 @@ import_track() {
     local coverList=($(find "${DIR_NAME}" -maxdepth 1 -name '*.jpg' -o -name '*.png' -print '%p\t'))
 
     # Metadata parsing
-    local metadataList=($(print_meta_flac ${TRACK}) | sed 's|;|	|g' )
+    local metadataList=($(print_meta_flac ${TRACK} | sed 's|;|	|g' ))
     for metadata in ${metadataList[@]}; do
         eval local ${metadata} 
     done
