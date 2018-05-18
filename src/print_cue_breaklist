@@ -8,7 +8,7 @@
 # USAGE
 #   print_cue_breaklist <file_1> [<...>]
 #
-# DEPENDENCIES src/sec2min
+# DEPENDENCIES src/print_sec_to_min
 #
 # }
 
@@ -28,7 +28,7 @@ print_cue_breaklist() {
             local COUNT=$(( ${COUNT} + 1 ))
         done
         local breaksecList=($(printf "%s\n" ${breaksecList[@]} | sed 's|\..*||g'))
-        local breakList=($(sec2min ${breaksecList[@]}))
+        local breakList=($(print_sec_to_min ${breaksecList[@]}))
     fi
     printf '%s\n' ${breakList[@]}
 }
