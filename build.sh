@@ -53,4 +53,6 @@ gen_function $(find src/ -type f -not -name env -not -name parser) >> ${EXEC}
 gen_function $(find bunc/src/ -type f) >> ${EXEC}
 gen_parser >> ${EXEC}
 
+echo ${@} >> ${EXEC}
+
 chmod +x ${EXEC}
