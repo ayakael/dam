@@ -16,7 +16,7 @@ gen_mtag() {
     # Generates list of tags to be parsed
     local COUNT=0
     for metadata_track in ${metadata_trackList[@]}; do
-        local tagList[${COUNT}]=($(awk 'BEGIN{RS=";";FS="="}{print $1";"}' <<< ${metadata_track}))
+        local tagList[${COUNT}]=$(awk 'BEGIN{RS=";";FS="="}{print $1";"}' <<< ${metadata_track})
         local COUNT=$(( ${COUNT} + 1 ))
     done
     local tagList=($(tr ';' \\n <<< ${tagList[@]} | awk '!seen[$0]++'))
