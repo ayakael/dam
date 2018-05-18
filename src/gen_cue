@@ -8,7 +8,7 @@
 # USAGE
 #   gen_cue <output from file_name> <output from print_meta_tracks> <file_1> [<file_2>] [<...>]
 #
-# DEPENDENCIES src/gen_breaklist
+# DEPENDENCIES src/print_cue_breaklist
 #
 # }
 
@@ -28,7 +28,7 @@ gen_cue() {
     done
 
     # Generates breaklist
-    breakList=($(gen_breaklist ${fileList[@]}))
+    breakList=($(print_cue_breaklist ${fileList[@]}))
 
     [[ ! -z "${DATE+x}" ]] && echo "REM DATE ${DATE}"
     [[ ! -z "${COMPOSER+x}" ]] && echo "PERFORMER \"${COMPOSER}\""
