@@ -16,7 +16,7 @@
 #
 #   tracks      Import tracks, or archive containing tracks, into git directory
 #
-# DEPENDENCIES src/import_tracks src/import_images
+# DEPENDENCIES src/cmd_import_tracks src/cmd_import_images
 #
 # }
 
@@ -25,5 +25,5 @@ cmd_import() {
     local GIT_DIR="${2}"; shift 2
     local dirList=(${@})
 
-    eval import_${CMD} "${GIT_DIR}" ${@}
+    eval cmd_import_${CMD} "${GIT_DIR}" ${@}
 }
