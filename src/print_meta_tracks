@@ -10,9 +10,7 @@
 #
 # }
 
-print_meta_tracks
-
-gen_metadata() {
+print_meta_tracks() {
     local FOLDER="${1}"
     local DISC_NO="${2}"
     local META_DISCTOT="${3}"
