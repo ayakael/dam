@@ -27,7 +27,7 @@ cmd_import_tracks() {
 
         for file in ${fileList}; do
             _msg EXEC "Consolidating ${file}"
-            import_track "${GIT_DIR}" "${file}"
+            import_track "${GIT_DIR}" "${file}" >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Consolidation of ${file} failed, continuing"; continue; }
         done
@@ -36,9 +36,11 @@ cmd_import_tracks() {
     local importList=($(find ${GIT_DIR}/.import/ -maxdepth 1 -type d -print '%p\t'))
     for import in ${importList[@]}; do
         _msg EXEC "Importing ${import}"
-        import_dir "${GIT_DIR}" "${import}"
+        import_dir "${GIT_DIR}" "${import}" >${STDERR} 2>&1
         local EXIT=$?
         [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Importation of ${import} failed, continuing"; continue; }
     done
+
+    
 
 }

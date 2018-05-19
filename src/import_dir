@@ -42,8 +42,19 @@ import_dir() {
     done
 
     # Generate cuesheet
+    _msg EXEC "Generating cue file"
     gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
+    local EXIT=$?
+    [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
     
     # Generate tags file
+    _msg EXEC "Generating tags file"
     gen_mtag $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
+    local EXIT=$?
+    [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
+
+
+    # Move joined.flac to GIT_DIR
+    mv "${TARGET_DIR}/joined.flac" "${GIT_DIR}/${IMAGEID}.flac"
+    return 0
 }
