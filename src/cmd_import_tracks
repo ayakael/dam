@@ -33,7 +33,7 @@ cmd_import_tracks() {
         done
     done
 
-    local importList=($(find ${GIT_DIR}/.import/ -maxdepth 1 -type d -print '%p\t'))
+    local importList=($(find ${GIT_DIR}/.import/ -maxdepth 1 -type d -printf '%p\t'))
     for import in ${importList[@]}; do
         _msg EXEC "Importing ${import}"
         import_dir "${GIT_DIR}" "${import}" >${STDERR} 2>&1
