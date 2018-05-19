@@ -59,5 +59,9 @@ import_dir() {
 
     # Move joined.flac to GIT_DIR
     mv "${TRACK_DIR}/joined.flac" "${GIT_DIR}/${IMAGEID}.flac"
+
+    # Generate cover images
+    gen_cover ${TRACK_DIR} > ${GIT_DIR}/${IMAGEID}.png
+    gen_small_cover ${TRACK_DIR} > ${GIT_DIR}/${IMAGEID}.jpg
     return 0
 }
