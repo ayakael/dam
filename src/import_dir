@@ -49,12 +49,14 @@ import_dir() {
     gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
     local EXIT=$?
     [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
+    add_bom "${GIT_DIR}/${IMAGEID}.cue"
     
     # Generate tags file
     _msg EXEC "Generating tags file"
     gen_mtag $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
     local EXIT=$?
     [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
+    add_bom "${GIT_DIR}/${IMAGEID}.tags"
 
 
     # Move joined.flac to GIT_DIR
