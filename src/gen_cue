@@ -6,37 +6,42 @@
 #   gen_cue - Generates cue file from print_meta function
 #
 # USAGE
-#   gen_cue <output from file_name> <output from print_meta_tracks> <file_1> [<file_2>] [<...>]
+#   gen_cue <print_meta_flac-output-track-1> <print_meta_flac-output-track-2> <...>
 #
 # DEPENDENCIES src/print_cue_breaklist
 #
 # }
 
 gen_cue() {
-    local FILE_NAME="${1}"
-    local METADATA="${2}"; shift 2
-    local fileList=("${@}")
+    local TARGET_DIR="${1}"; shift
+    local metadata_trackList=(${@})
 
-    # Metadata Parsing
-    metadataList=($(echo ${METADATA} | sed 's|;|    |g'))
-    for metadata in ${metadataList[@]}; do
-        eval local ${metadata} 
+    # Generates list of tags to be parsed 
+    local COUNT=0
+    for metadata_track in ${metadata_trackList[@]}; do
+        local tagList[${COUNT}]=$(awk 'BEGIN{RS=";";FS="=";ORS=";";}{print $1}' <<< ${metadata_track})
+        local COUNT=$(( ${COUNT} + 1 ))
     done
-
-    for file in ${fileList[@]}; do
-        local trackList=(${trackList[@]}    $(echo ${file} | sed 's|.*/||' | awk 'BEGIN{ FS="-"; OFS=":"}{$1=""}{print $0}' | sed 's|: ||'))
-    done
-
+    local tagList=($( sed -e 's| ; ||g' -e 's|; ;||' <<< ${tagList[@]} |  tr ';' \\n | awk '!seen[$0]++' ))
+    
     # Generates breaklist
-    breakList=($(print_cue_breaklist ${fileList[@]}))
+    local fileList=($(find ${TARGET_DIR} -name *.flac -print '%p\t'))
+    local breakList=($(print_cue_breaklist ${fileList[@]}))
 
-    [[ ! -z "${DATE+x}" ]] && echo "REM DATE ${DATE}"
-    [[ ! -z "${COMPOSER+x}" ]] && echo "PERFORMER \"${COMPOSER}\""
-    [[ ! -z "${CONDUCTOR+x}" ]] && echo "REM CONDUCTOR \"${CONDUCTOR}\""
-    [[ ! -z "${ORCHESTRA+x}" ]] && echo "REM ORCHESTRA \"${ORCHESTRA}\""
-    [[ ! -z "${ARTIST+x}" ]] && echo "PERFORMER \"${ARTIST}\""
-    [[ ! -z "${ALBUM+x}" ]] && echo "TITLE \"${ALBUM}\""
-    echo "FILE \"${FILE_NAME}.flac\" WAVE"
+    # Parses metadata
+    local COUNT=0
+    for tag in ${tagList[@]}; do
+        local TAG_VALUE="$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})"
+        eval local ${tag}List[${COUNT}]="${TAG_VALUE}"
+    done
+
+    [[ ! -z "${dateList[@]+x}" ]] && echo "REM DATE ${dateList[0]}}"
+    [[ ! -z "${composerList[@]+x}" ]] && echo "PERFORMER \"${composerList[0]}}\""
+    [[ ! -z "${conductorList[@]+x}" ]] && echo "REM CONDUCTOR \"${conductorList[0]}\""
+    [[ ! -z "${orchestraList[@]+x}" ]] && echo "REM ORCHESTRA \"${orchestraList[0]}\""
+    [[ ! -z "${artistLust[@]+x}" ]] && echo "PERFORMER \"${artistList[0]}\""
+    [[ ! -z "${albumList[@]+x}" ]] && echo "TITLE \"${albumList[0]}\""
+    echo "FILE \"${imageidList[0]}.flac\" WAVE"
     local COUNT=0
     while [[ ${COUNT} -lt ${#breakList[@]} ]]; do
         [[ ${COUNT} -le 8 ]] && local TRACK_NO="0$(( ${COUNT} + 1 ))" || local TRACK_NO="$(( ${COUNT} + 1 ))"
