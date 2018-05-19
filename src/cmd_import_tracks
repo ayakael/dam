@@ -18,7 +18,7 @@ cmd_import_tracks() {
     
     rm -Rvf "${GIT_DIR}/.import" >/dev/null 2>&1
     
-    for src in ${srcList}; do
+    for src in ${srcList[@]}; do
         if iszip ${src}; then
             _msg EXEC "Uncompressing ${src}"
             7z x "${src}" -o"${_OPT_TMP}/$(basename ${src})/" -y >${STDERR} 2>&1
