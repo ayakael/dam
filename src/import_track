@@ -30,16 +30,16 @@ import_track() {
         eval local ${metadata} 
     done
 
-    # Setting TARGET_DIR
+    # Setting TRACK_DIR
     [[ -z "${DISCNUMBER}" ]] && local DISCNUMBER=1    
-    local TARGET_DIR="${GIT_DIR}/.import/${ARTIST}--${ALBUM}--$(printf '%02d' ${DISCNUMBER})"
-    mkdir -p ${TARGET_DIR}
+    local TRACK_DIR="${GIT_DIR}/.import/${ARTIST}--${ALBUM}--$(printf '%02d' ${DISCNUMBER})"
+    mkdir -p ${TRACK_DIR}
     [[ ${EXIT} -eq 0 ]] || return 1
 
 
-    # Moving cover to TARGET_DIR
-    if [[ ${#coverList[@]} -eq 1 ]] && [[ ! -f "${TARGET_DIR}/folder.png" ]]; then
-        convert ${coverList[@]} "${TARGET_DIR}/folder.png"
+    # Moving cover to TRACK_DIR
+    if [[ ${#coverList[@]} -eq 1 ]] && [[ ! -f "${TRACK_DIR}/folder.png" ]]; then
+        convert ${coverList[@]} "${TRACK_DIR}/folder.png"
     fi
 
     # Converting to FLAC if need me
@@ -52,9 +52,9 @@ import_track() {
         local SOURCE="${TRACK_EXT}"
     fi
 
-    # Moving track to TARGET_DIR
-    echo "Moving ${TRACK} to ${TARGET_DIR}" 
-    mv "${TRACK}" "${TARGET_DIR}/$(printf %02d ${TRACKNUMBER}).${SOURCE}.flac"
+    # Moving track to TRACK_DIR
+    echo "Moving ${TRACK} to ${TRACK_DIR}" 
+    mv "${TRACK}" "${TRACK_DIR}/$(printf %02d ${TRACKNUMBER}).${SOURCE}.flac"
     local EXIT=$?
     [[ ${EXIT} -eq 0 ]] && return 0 || return 1 
 }
