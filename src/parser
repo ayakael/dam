@@ -46,6 +46,25 @@ case "${1}" in
         [[ ${EXIT} -eq 2 ]] && echo "Init had errors"
     ;;
 
+    import)
+        shift
+        case "${1}" in
+            tracks)
+                shift
+                cmd_import_tracks "${GIT_DIR}" ${@}
+            ;;
+        
+            images)
+                shift
+                cmd_import_images "${GIT_DIR}" ${@}
+            ;;
+
+            *)
+                echo "${1} not a valid command"
+            ;;  
+        esac
+    ;;
+
     exclude)
         shift
         cmd_exclude "${GIT_DIR}" ${@}
@@ -152,6 +171,10 @@ case "${1}" in
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
+    ;;
+
+    *)
+        help_general
     ;;
 esac
 
