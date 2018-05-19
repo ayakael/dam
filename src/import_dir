@@ -36,7 +36,8 @@ import_dir() {
     local COUNT=0
     for track in ${trackList[@]}; do
         local TRACKID=$(metaflac --list --block-number=0 "${track}" | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')
-        local metadata_trackList[${COUNT}]="$(print_meta_flac "${track}");IMAGEID=${IMAGEID};TRACKID=${TRACKID};"
+        local DURATION=$(soxi -D "${track}")
+        local metadata_trackList[${COUNT}]="$(print_meta_flac "${track}");DURATION=${DURATION};IMAGEID=${IMAGEID};TRACKID=${TRACKID};"
         local COUNT=$(( ${COUNT} + 1 ))
     done
 
