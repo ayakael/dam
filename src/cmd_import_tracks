@@ -22,6 +22,7 @@ cmd_import_tracks() {
             7z x "${src}" -o"${_OPT_TMP}/$(basename ${src})/" -y >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/$(basename ${src})"; } || _msg WARN
+            local ZIP=true
         fi    
         local fileList=($(find "${src}" -name '*.flac' -o -name '*.mp3'))
 
@@ -32,6 +33,7 @@ cmd_import_tracks() {
             [[ ${EXIT} -eq 0 ]] || { local CONSOLE_ERROR=true; _msg WARN "Consolidation of ${file} failed, continuing"; continue; }
         done
         [[ "${CONSOLE_ERROR}" == "true" ]] || _msg OK
+        [[ "${ZIP}" == "true" ]] && rm -Rvf "${src}" >/dev/null 2>&1
     done
 
     local importList=($(find ${GIT_DIR}/.import/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
