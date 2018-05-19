@@ -12,7 +12,7 @@
 
 gen_cover() {
     local FOLDER="${1}"
-    [[ -f "${FOLDER}/folder.jpg" ]] && convert "${FOLDER}/folder.jpg" "${FOLDER}/folder.png" || { convert -size 480x480 xc:white "${FOLDER}/folder.png"; local ERROR=1; }
+    [[ -f "${FOLDER}/folder.png" ]] || { convert -size 480x480 xc:white "${FOLDER}/folder.png"; local ERROR=1; }
     cat "${FOLDER}/folder.png"
     [[ ${ERROR} -eq 1 ]] && return 1
     local IMG_SIZE="$(identify -format "%wx%h" "${FOLDER}/folder.jpg")"

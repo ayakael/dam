@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# doc gen_cover {
+#
+# DESCRIPTION
+#   gen_small_cover - Generate small version of cover image 
+#
+# USAGE
+#   gen_small_cover </path/to/image>
+#
+# }
+
+gen_cover() {
+    local FOLDER"${1}"
+    convert ${FOLDER}/folder.png -resize 480x480^ -gravity center ${FOLDER}/folder.jpg
+    local EXIT=$?
+    cat "${FOLDER}/folder.jpg"
+    [[ ${EXIT} -ne 0 ]] && return 1
+    return 0
+}
+
