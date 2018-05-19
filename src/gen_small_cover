@@ -10,8 +10,8 @@
 #
 # }
 
-gen_cover() {
-    local FOLDER"${1}"
+gen_small_cover() {
+    local FOLDER="${1}"
     convert ${FOLDER}/folder.png -resize 480x480^ -gravity center ${FOLDER}/folder.jpg
     local EXIT=$?
     cat "${FOLDER}/folder.jpg"
