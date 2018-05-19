@@ -54,7 +54,7 @@ import_track() {
 
     # Moving track to TRACK_DIR
     echo "Moving ${TRACK} to ${TRACK_DIR}" 
-    mv "${TRACK}" "${TRACK_DIR}/$(printf %02d ${TRACKNUMBER}).${SOURCE}.flac"
+    cp "${TRACK}" "${TRACK_DIR}/$(printf %02d ${TRACKNUMBER}).${SOURCE}.flac"
     local EXIT=$?
     [[ ${EXIT} -eq 0 ]] && return 0 || return 1 
 }
