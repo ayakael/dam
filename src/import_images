@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# doc import_cueripper {
+# doc import_images {
 #
 # DESCRIPTION
-#   import_cueripper - Imports files output from cueripper. Expects cueripper to output using
+#   import_images - Imports files output from cueripper. Expects cueripper to output using
 #   the following format:  %artist% - %album%\if(%unique%,%unique%,0), so that every album
 #   is outputted in its own folder, first disc image is labeled 0.<ext>, and second disc image
 #   is labeled 1.<ext>, and the cover is named folder.jpg
 #
 # USAGE
-#   import_cueripper </path/to/album>
+#   import_images </path/to/album>
 #
 # DEPENDENCIES src/print_meta_mtag src/add_bom src/fix_apos src/gen_cover src/file_name src/cueparser
 #
 # }
 
 
-import_cueripper() {
+import_images() {
     local FOLDER="${1}"
     _msg EXEC "Processing ${FOLDER}"
     local flacList=($(find "${FOLDER}" -name '*.flac' | sed 's|.flac||'))
