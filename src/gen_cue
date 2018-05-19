@@ -16,10 +16,20 @@ gen_cue() {
     local TARGET_DIR="${1}"; shift
     local metadata_trackList=(${@})
 
-    # Generates list of tags to be parsed 
+    # Generates tag arrays
     local COUNT=0
     for metadata_track in ${metadata_trackList[@]}; do
-        local tagList[${COUNT}]=$(awk 'BEGIN{RS=";";FS="=";ORS=";";}{print $1}' <<< ${metadata_track})
+        local dateList[${COUNT}]=$(awk -v tag="DATE" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local composerList[${COUNT}]=$(awk -v tag="COMPOSER" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local conductorList[${COUNT}]=$(awk -v tag="CONDUCTOR" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local orchestraList[${COUNT}]=$(awk -v tag="ORCHESTRA" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local artistList[${COUNT}]=$(awk -v tag="ARTIST" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local albumList[${COUNT}]=$(awk -v tag="ALBUM" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local imageidList[${COUNT}]=$(awk -v tag="IMAGEID" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local titleList[${COUNT}]=$(awk -v tag="TITLE" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local isrcList[${COUNT}]=$(awk -v tag="ISRC" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local commentList[${COUNT}]=$(awk -v tag="COMMENT" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+        local albumList[${COUNT}]=$(awk -v tag="ALBUM" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
         local COUNT=$(( ${COUNT} + 1 ))
     done
     local tagList=($( sed -e 's| ; ||g' -e 's|; ;||' <<< ${tagList[@]} |  tr ';' \\n | awk '!seen[$0]++' ))
@@ -28,25 +38,20 @@ gen_cue() {
     local fileList=($(find "${TARGET_DIR}" -name '*.flac' -printf '%p\t'))
     local breakList=($(print_cue_breaklist ${fileList[@]}))
 
-    # Parses metadata
-    local COUNT=0
-    for tag in ${tagList[@]}; do
-        local TAG_VALUE="$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})"
-        eval local ${tag}List[${COUNT}]="${TAG_VALUE}"
-    done
-
-    [[ ! -z "${dateList[@]+x}" ]] && echo "REM DATE ${dateList[0]}}"
-    [[ ! -z "${composerList[@]+x}" ]] && echo "PERFORMER \"${composerList[0]}}\""
-    [[ ! -z "${conductorList[@]+x}" ]] && echo "REM CONDUCTOR \"${conductorList[0]}\""
-    [[ ! -z "${orchestraList[@]+x}" ]] && echo "REM ORCHESTRA \"${orchestraList[0]}\""
-    [[ ! -z "${artistLust[@]+x}" ]] && echo "PERFORMER \"${artistList[0]}\""
-    [[ ! -z "${albumList[@]+x}" ]] && echo "TITLE \"${albumList[0]}\""
-    echo "FILE \"${imageidList[0]}.flac\" WAVE"
+    [[ ! -z "${dateList}" ]] && echo "REM DATE ${dateList}"
+    [[ ! -z "${composerList}" ]] && echo "PERFORMER \"${composerList}\""
+    [[ ! -z "${conductorList}" ]] && echo "REM CONDUCTOR \"${conductorList}\""
+    [[ ! -z "${orchestraList}" ]] && echo "REM ORCHESTRA \"${orchestraList}\""
+    [[ ! -z "${commentList}" ]] && echo "REM COMMENT \"${commentList}\""
+    [[ ! -z "${artistList}" ]] && echo "PERFORMER \"${artistList}\""
+    [[ ! -z "${albumList}" ]] && echo "TITLE \"${albumList}\""
+    echo "FILE \"${imageidList}.flac\" WAVE"
     local COUNT=0
     while [[ ${COUNT} -lt ${#breakList[@]} ]]; do
         [[ ${COUNT} -le 8 ]] && local TRACK_NO="0$(( ${COUNT} + 1 ))" || local TRACK_NO="$(( ${COUNT} + 1 ))"
         echo "  TRACK ${TRACK_NO} AUDIO" 
-        echo "    TITLE \"${trackList[${COUNT}]}\""
+        echo "    TITLE \"${titleList[${COUNT}]}\""
+        [[ ! -z "${isrcList[${COUNT}]}" ]] && echo "    ISRC ${isrcList[${COUNT}]}"
         echo "    INDEX 01 ${breakList[${COUNT}]}"
         local COUNT=$(( ${COUNT} + 1 ))
     done
