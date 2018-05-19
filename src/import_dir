@@ -20,7 +20,7 @@ import_dir() {
     
     # Join trackList 
     _msg EXEC "Generating joined image" 
-    gen_image "${TARGET_DIR}" $(printf "%s\t" ${trackList[@]})
+    gen_image "${TRACK_DIR}" $(printf "%s\t" ${trackList[@]})
     local EXIT="$?"
     [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
 
@@ -30,7 +30,7 @@ import_dir() {
         local TRACK_EXT="$(cut -d '.' -f2)"
         [[ "${TRACK_EXT}" != "FLAC" ]] && SOURCE="${TRACK_EXT}"
     done
-    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TARGET_DIR}/joined.flac")"
+    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/joined.flac")"
 
     # Generate metadata_trackList
     local COUNT=0
@@ -42,7 +42,7 @@ import_dir() {
     done
 
     # Generate cuesheet
-    gen_cue $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
+    gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
     
     # Generate tags file
     gen_mtag $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
