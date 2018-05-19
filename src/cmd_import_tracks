@@ -19,11 +19,12 @@ cmd_import_tracks() {
     for src in ${srcList}; do
         if iszip ${src}; then
             _msg EXEC "Uncompressing ${archive}"
-            7z x "${src}" -o"${_OPT_TMP}/${src}/" -y >${STDERR} 2>&1
+            7z x "${src}" -o"${_OPT_TMP}/$(basename ${src})/" -y >${STDERR} 2>&1
             local EXIT=$?
-            [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/${src}"; } || _msg WARN
+            [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/$(basename ${src})"; } || _msg WARN
         fi    
         local fileList=($(find "${src}" -name '*.flac' -o -name '*.mp3'))
+        echo ${fileList[@]}
 
         for file in ${fileList}; do
             _msg EXEC "Consolidating ${file}"
