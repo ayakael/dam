@@ -19,7 +19,7 @@ cmd_import_tracks() {
     for src in ${srcList}; do
         if iszip ${src}; then
             _msg EXEC "Uncompressing ${archive}"
-            7z x "${src}" -o"${_OPT_TMP}/${src}/" >${STDERR} 2>&1
+            7z x "${src}" -o"${_OPT_TMP}/${src}/" -y >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/${src}"; } || _msg WARN
         fi    
