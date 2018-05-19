@@ -15,7 +15,9 @@
 cmd_import_tracks() {
     local GIT_DIR="${1}"; shift
     local srcList=(${@})
-
+    
+    rm -Rvf "${GIT_DIR}/.import" >/dev/null 2>&1
+    
     for src in ${srcList}; do
         if iszip ${src}; then
             _msg EXEC "Uncompressing ${src}"
@@ -44,4 +46,5 @@ cmd_import_tracks() {
         [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Importation of ${import} failed, continuing"; continue; }
         rm -R ${import} >/dev/null 2>&1
     done
+    rm -Rvf "${GIT_DIR}/.import" >/dev/null 2>&1
 }
