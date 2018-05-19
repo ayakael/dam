@@ -24,9 +24,8 @@ cmd_import_tracks() {
             [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/$(basename ${src})"; } || _msg WARN
         fi    
         local fileList=($(find "${src}" -name '*.flac' -o -name '*.mp3'))
-        echo ${fileList[@]}
 
-        for file in ${fileList}; do
+        for file in ${fileList[@]}; do
             _msg EXEC "Consolidating ${file}"
             import_track "${GIT_DIR}" "${file}" >${STDERR} 2>&1
             local EXIT=$?
@@ -34,7 +33,7 @@ cmd_import_tracks() {
         done
     done
 
-    local importList=($(find ${GIT_DIR}/.import/ -maxdepth 1 -type d -printf '%p\t'))
+    local importList=($(find ${GIT_DIR}/.import/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
     for import in ${importList[@]}; do
         _msg EXEC "Importing ${import}"
         import_dir "${GIT_DIR}" "${import}" >${STDERR} 2>&1

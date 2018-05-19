@@ -30,6 +30,7 @@ gen_image() {
             return 2
         fi
     fi
+    metaflac --remove-all --dont-use-padding "${TARGET_DIR}/joined.flac"
     return 0
 }
 
