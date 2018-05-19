@@ -36,7 +36,6 @@ gen_cue() {
     
     # Generates breaklist
     local fileList=($(find "${TARGET_DIR}" -name '*.flac' -not -name joined.flac -printf '%p\n'| sort))
-    echo ${fileList[@]}
     local breakList=($(print_cue_breaklist ${fileList[@]}))
 
     [[ ! -z "${dateList}" ]] && echo "REM DATE ${dateList}"
