@@ -15,6 +15,7 @@
 import_dir() {
     local GIT_DIR="${1}"
     local TRACK_DIR="${2}"
+    local SOURCE=FLAC
 
     local trackList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\t'))
     
@@ -28,10 +29,10 @@ import_dir() {
     # Generates IMAGEID
     _msg EXEC "Generating IMAGEID"
     for track in ${trackList[@]}; do
-        local TRACK_EXT="$(cut -d '.' -f2  <<< ${track})"
+        local TRACK_EXT="$(basename ${track} | cut -d. -f2)"
         [[ "${TRACK_EXT}" != "FLAC" ]] && SOURCE="${TRACK_EXT}"
     done
-    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/joined.flac" | cue -d' ' -f1)"
+    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/joined.flac" | cut -d' ' -f1)"
     _msg OK
 
     # Generate metadata_trackList
@@ -57,6 +58,6 @@ import_dir() {
 
 
     # Move joined.flac to GIT_DIR
-    mv "${TARGET_DIR}/joined.flac" "${GIT_DIR}/${IMAGEID}.flac"
+    mv "${TRACK_DIR}/joined.flac" "${GIT_DIR}/${IMAGEID}.flac"
     return 0
 }
