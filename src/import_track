@@ -22,7 +22,7 @@ import_track() {
     local SOURCE="FLAC"
    
     # Cover image finder
-    local coverList=($(find "${DIR_NAME}" -maxdepth 1 -name '*.jpg' -o -name '*.png' -print '%p\t'))
+    local coverList=($(find "${DIR_NAME}" -maxdepth 1 \( -name '*.jpg' -o -name '*.png' \) -printf '%p\t'))
 
     # Metadata parsing
     local metadataList=($(print_meta_flac ${TRACK} | sed 's|;|	|g' ))
