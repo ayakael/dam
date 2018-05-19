@@ -31,7 +31,7 @@ import_dir() {
         local TRACK_EXT="$(cut -d '.' -f2  <<< ${track})"
         [[ "${TRACK_EXT}" != "FLAC" ]] && SOURCE="${TRACK_EXT}"
     done
-    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/joined.flac")"
+    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/joined.flac" | cue -d' ' -f1)"
     _msg OK
 
     # Generate metadata_trackList
