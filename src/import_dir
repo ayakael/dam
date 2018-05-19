@@ -20,17 +20,19 @@ import_dir() {
     
     # Join trackList 
     _msg EXEC "Generating joined image" 
-    gen_image "${TRACK_DIR}" $(printf "%s\t" ${trackList[@]})
+    gen_image "${TRACK_DIR}" $(printf "%s\t" ${trackList[@]}) > ${STDERR} 2>&1
     local EXIT="$?"
     [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
 
 
     # Generates IMAGEID
+    _msg EXEC "Generating IMAGEID"
     for track in ${trackList[@]}; do
-        local TRACK_EXT="$(cut -d '.' -f2)"
+        local TRACK_EXT="$(cut -d '.' -f2  <<< ${track})"
         [[ "${TRACK_EXT}" != "FLAC" ]] && SOURCE="${TRACK_EXT}"
     done
     local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/joined.flac")"
+    _msg OK
 
     # Generate metadata_trackList
     local COUNT=0
