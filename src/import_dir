@@ -16,7 +16,7 @@ import_dir() {
     local GIT_DIR="${1}"
     local TRACK_DIR="${2}"
 
-    local trackList=($(find ${TRACK_DIR} -maxdepth 1 -name *.flac -printf '%p\t'))
+    local trackList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\t'))
     
     # Join trackList 
     _msg EXEC "Generating joined image" 
