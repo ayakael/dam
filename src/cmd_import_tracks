@@ -18,19 +18,20 @@ cmd_import_tracks() {
 
     for src in ${srcList}; do
         if iszip ${src}; then
-            _msg EXEC "Uncompressing ${archive}"
+            _msg EXEC "Uncompressing ${src}"
             7z x "${src}" -o"${_OPT_TMP}/$(basename ${src})/" -y >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && { _msg OK; local src="${_OPT_TMP}/$(basename ${src})"; } || _msg WARN
         fi    
         local fileList=($(find "${src}" -name '*.flac' -o -name '*.mp3'))
 
+        _msg EXEC "Consolidating ${src}"
         for file in ${fileList[@]}; do
-            _msg EXEC "Consolidating ${file}"
             import_track "${GIT_DIR}" "${file}" >${STDERR} 2>&1
             local EXIT=$?
-            [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Consolidation of ${file} failed, continuing"; continue; }
+            [[ ${EXIT} -eq 0 ]] || { local CONSOLE_ERROR=true; _msg WARN "Consolidation of ${file} failed, continuing"; continue; }
         done
+        [[ "${CONSOLE_ERROR}" == "true" ]] || _msg OK
     done
 
     local importList=($(find ${GIT_DIR}/.import/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
