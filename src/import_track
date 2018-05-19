@@ -18,11 +18,11 @@
 import_track() {
     local GIT_DIR="${1}"
     local TRACK="${2}"
-    local DIR_NAME="$(dirname \"${TRACK}\")"
+    local DIR_NAME="$(dirname "${TRACK}")"
     local SOURCE="FLAC"
    
     # Cover image finder
-    local coverList=($(find "${DIR_NAME}" -maxdepth 1 \( -name '*.jpg' -o -name '*.png' \) -printf '%p\t'))
+    local coverList=($(find "${DIR_NAME}"/ -maxdepth 1 \( -name '*.jpg' -o -name '*.png' \) -printf '%p\t'))
 
     # Metadata parsing
     local ARTIST=$(cut -d= -f2 <<< $(print_meta_flac ${TRACK} ARTIST))
