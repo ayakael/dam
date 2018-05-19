@@ -25,10 +25,10 @@ import_track() {
     local coverList=($(find "${DIR_NAME}" -maxdepth 1 \( -name '*.jpg' -o -name '*.png' \) -printf '%p\t'))
 
     # Metadata parsing
-    local metadataList=($(print_meta_flac ${TRACK} | sed 's|;|	|g' ))
-    for metadata in ${metadataList[@]}; do
-        eval local ${metadata} 
-    done
+    local ARTIST=$(cut -d= -f2 <<< $(print_meta_flac ${TRACK} ARTIST))
+    local ALBUM=$(cut -d= -f2 <<< $(print_meta_flac ${TRACK} ALBUM))
+    local DISCNUMBER=$(cut -d= -f2 <<< $(print_meta_flac ${TRACK} DISCNUMBER))
+    local TRACKNUMBER=$(cut -d= -f2 <<< $(print_meta_flac ${TRACK} TRACKNUMBER))
 
     # Setting TRACK_DIR
     [[ -z "${DISCNUMBER}" ]] && local DISCNUMBER=1    
