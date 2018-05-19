@@ -18,14 +18,14 @@ gen_image() {
     if [[ ${#fileList[@]} -eq 1 ]]; then
         cat ${fileList[@]} > joined.flac
     else
-        shntool join -O always ${fileList[@]} -d "${TARGET_DIR}" -o flac
+        shntool join -O always ${fileList[@]} -d "${TARGET_DIR}" -o flac -q
         if [[ $? -ne 0 ]]; then
             med_convert wav ${fileList[@]}
             [[ $? -ne 0 ]] && return 1
             echo ${fileList[@]}
             fileList=($(printf '%s\n' ${fileList[@]} | sed 's|flac|wav|'))
             echo ${fileList[@]}
-            shntool join -O always ${fileList[@]} -d "${TARGET_DIR}" -o flac
+            shntool join -O always ${fileList[@]} -d "${TARGET_DIR}" -o flac -q
             [[ $? -ne 0 ]] && return 1
             return 2
         fi
