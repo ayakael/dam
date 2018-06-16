@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# doc deploy_meta {
+# doc export_meta {
 #
 # DESCRIPTION
-#   deploy_meta - Makes the deployment of metadata in TARGET consistent with GIT_DIR
+#   export_meta - Makes the deployment of metadata in TARGET consistent with GIT_DIR
 #
 # USAGE
-#   deploy_meta <path/to/git/dir> <path/to/target> <path/to/db/file> <IMAGEID>
+#   export_meta <path/to/git/dir> <path/to/target> <path/to/db/file> <IMAGEID>
 #
 # DEPENDENCIES bunc/src/* src/print_mtag_trackno src/print_meta_mtag src/print_future_path src/print_present_path src/print_meta_flac
 #
 # }
 
-deploy_meta() {
+export_meta() {
     ## Argument parsing
     local GIT_DIR="${1}"
     local TARGET="${2}"

@@ -81,7 +81,7 @@ case "${1}" in
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
    ;;
 
-    deploy)
+    export)
         shift
         while [[ -n "${1}" ]]; do
             case ${1} in
@@ -97,7 +97,7 @@ case "${1}" in
                 ;;
             esac
         done
-        cmd_deploy "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
+        cmd_export "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Deployment completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with errors"

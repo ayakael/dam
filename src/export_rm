@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# doc deploy_rm {
+# doc export_rm {
 # 
 # DESCRIPTION
-#   deploy_rm - Removes TRACKIDs from TARGET
+#   export_rm - Removes TRACKIDs from TARGET
 #
 # USAGE
-#   deploy_rm </path/to/target> </path/to/db/file> <TRACKID>
+#   export_rm </path/to/target> </path/to/db/file> <TRACKID>
 #
 # DEPENDENCIES bunc/src/* src/print_present_path
 #
 # }
 
-deploy_rm() {
+export_rm() {
     ## Argument parsing
     local TARGET="${1}"
     local DB_FILE="${2}"

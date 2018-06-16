@@ -8,7 +8,7 @@
 # USAGE
 #   cmd_export - </path/to/git/dir> </path/to/target> [<old git commit>] 
 #
-# DEPENDENCIES bunc/src/* src/print_imageid_du src/deploy_rm src/deploy_cp src/deploy_meta
+# DEPENDENCIES bunc/src/* src/print_imageid_du src/export_rm src/export_cp src/export_meta
 #
 # }
 
@@ -47,7 +47,7 @@ cmd_export() {
     local COUNT=1
     for removableid in ${removableidList[@]}; do
         echo "[ ${COUNT} / ${#removableidList[@]} ] Removing ${removableid}" 
-        deploy_rm "${TARGET}" "${DB_FILE}" ${removableid} >${STDERR} 2>&1
+        export_rm "${TARGET}" "${DB_FILE}" ${removableid} >${STDERR} 2>&1
         [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
@@ -64,7 +64,7 @@ cmd_export() {
                 local GIT_GET=true
                 [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
             fi
-            deploy_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
+            export_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
             [[ $? -ne 0 ]] && local CP_ERR=true
             [[ "${GIT_GET}" == "true" ]] && git -C "${GIT_DIR}" annex drop ${imageid}.flac >/dev/null 2>&1
             [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
@@ -72,7 +72,7 @@ cmd_export() {
         
 
         # Processes metadata changes
-        deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
+        export_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
         [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Deployment of ${imageid} completed successfully"; } 
         [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Application of metadata of ${imageid} completed with errors"; cat ${STDERR}; } 
     done

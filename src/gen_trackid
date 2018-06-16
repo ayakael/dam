@@ -8,7 +8,7 @@
 # USAGE
 #   gen_trackid </path/to/flac/file> </path/to/cue/fule>
 #
-# DEPENDENCIES src/deploy_gen
+# DEPENDENCIES src/export_gen
 #
 # }
 
@@ -16,7 +16,7 @@ gen_trackid() {
     FLAC="${1}"
     CUE="${2}"
 
-    deploy_gen ${FLAC} ${CUE} >/dev/null 2>&1
+    export_gen ${FLAC} ${CUE} >/dev/null 2>&1
     local TOTALTRACKS="$(grep -e "TRACK [0-9][0-9] AUDIO" "${CUE}" | wc -l)"
 
     local COUNT=1

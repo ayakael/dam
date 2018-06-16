@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# doc deploy_gen {
+# doc export_gen {
 # 
 # DESCRIPTION
-#   deploy_gen - Splits specified image into multiple files using a text file 
+#   export_gen - Splits specified image into multiple files using a text file 
 #   formatted under the CUE specification
 #
 # USAGE
-#   deploy_gen </path/to/git/dir> <IMAGEID>
+#   export_gen </path/to/git/dir> <IMAGEID>
 #
 # }
 
-deploy_gen() {
+export_gen() {
     local GITDIR="${1}"
     local IMAGEID="${2}"
 

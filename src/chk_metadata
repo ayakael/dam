@@ -8,7 +8,7 @@
 # USAGE
 #   chk_metadata </path/to/git/dir> </path/to/target> </path/to/db/file> [<IMAGEID>] [<...>]
 #
-# DEPENDENCIES bunc/src/* src/deploy_meta
+# DEPENDENCIES bunc/src/* src/export_meta
 #
 # }
 
@@ -23,7 +23,7 @@ chk_metadata() {
     local COUNT=1
     for imageid in ${imageidList[@]}; do
         echo "[ ${COUNT} / ${#imageidList[@]} ] Checking ${imageid} in ${TARGET}" 
-        deploy_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
+        export_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
         [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
         local COUNT=$(( ${COUNT} + 1 ))
     done

@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# doc deploy_cp {
+# doc export_cp {
 #
 # DESCRIPTION
-#   deploy_cp - Deploys IMAGEIDs to TARGET using files from GITDIR, for when TRACKID has
+#   export_cp - Deploys IMAGEIDs to TARGET using files from GITDIR, for when TRACKID has
 #   never been deployed to TARGET before.
 #
 # USAGE
-#   deploy_cp </path/to/git/dir> </path/to/target> </path/to/db/file> <IMAGEID> 
+#   export_cp </path/to/git/dir> </path/to/target> </path/to/db/file> <IMAGEID> 
 #
-# DEPENDENCIES bunc/src/* src/deploy_gen src/deploy_mv
+# DEPENDENCIES bunc/src/* src/export_gen src/export_mv
 #
 # }
 
-deploy_cp() {
+export_cp() {
     ## Argument parsing
     local GIT_DIR="${1}"
     local TARGET="${2}"
@@ -23,9 +23,9 @@ deploy_cp() {
     
     ## Splits IMAGEID into TRACKIDs
     _msg EXEC "Splitting ${IMAGEID}"
-    deploy_gen "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
+    export_gen "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
     [[ $? -ne 0 ]] && _msg WARN
-    deploy_mv "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
+    export_mv "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
     [[ $? -eq 0 ]] && _msg OK || _msg WARN
 
     ## Transfers selected TRACKIDs to TARGET

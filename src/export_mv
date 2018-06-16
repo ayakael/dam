@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# doc deploy_mv {
+# doc export_mv {
 # 
 # DESCRIPTION
-#   deploy_mv - Renames output files from deploy_gen to associated TRACKID
+#   export_mv - Renames output files from export_gen to associated TRACKID
 #
 # USAGE
-#   deploy_mv </path/to/git/dir> <IMAGEID.
+#   export_mv </path/to/git/dir> <IMAGEID.
 # }
 
-deploy_mv() {
+export_mv() {
     local GITDIR="${1}"
     local IMAGEID="${2}"
     
