@@ -9,7 +9,9 @@ Commands
       Initializes target with database file
    update [<options>] </path/to/target>
       Populates database present in target folder with new images.
-   deploy [<options>] </path/to/target>
+   import [<options>] -f <format> </path/to/files>
+      Imports audio files into repository
+   export [<options>] </path/to/target>
       Deploys tracks to target folder, with applies metadata and cover image
    exclude </path/to/target> <condition> [<additional condition>]
       Exclude tracks based on conditions (see dam --help conditions for more information)
