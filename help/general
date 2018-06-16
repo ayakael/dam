@@ -12,7 +12,7 @@ Commands
    import [<options>] -f <format> </path/to/files>
       Imports audio files into repository
    export [<options>] </path/to/target>
-      Deploys tracks to target folder, with applies metadata and cover image
+      Deploys tracks to target folder, with applied metadata and cover image
    exclude </path/to/target> <condition> [<additional condition>]
       Exclude tracks based on conditions (see dam --help conditions for more information)
    include </path/to/target> <condition> [<additional condition>]
