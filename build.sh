@@ -29,7 +29,8 @@ gen_help() {
 
 gen_env() {
     echo -e "#!/bin/bash\n" 
-    echo "VERSION=$(git describe --tags)"
+    [[ $(git describe --tags) ]] && VERSION=$(git describe --tags) || VERSION=$(cat VERSION)
+    echo "VERSION=${VERSION}"
     awk '!/^ *#/ && NF' src/env
 }
 
