@@ -20,8 +20,9 @@ export_mv() {
     local COUNT=1
     for trackid in ${trackidList[@]}; do
         mv "${GITDIR}/$(printf 'split-track%02d.flac' ${COUNT})" "${GITDIR}/${IMAGEID}-${trackid}.flac"
+        [[ $? -ne 0 ]]; local ERROR=true
         local COUNT=$(( ${COUNT} + 1 ))
     done
-    return 0
+    [[ "${ERROR}" == "true" ]] && return 1 || return 0
 }
     
