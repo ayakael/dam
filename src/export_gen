@@ -24,8 +24,8 @@ export_gen() {
     [[ -z "${breakpointList[@]}" ]] && { cat "${GITDIR}/${IMAGEID}.flac" > ${GITDIR}/split-track01.flac; return 0; }
     
     # Attempts first split. If fails because of lack of CD quality file, retries with modified breakpointList
-    if ! printf '%s\n' ${breakpointList[@]} | shntool split "${GITDIR}/${IMAGEID}.flac" -o flac -O always -d "${GITDIR}"; then 
-        printf '%s\n' ${breakpointList[@]} | sed s/$/0/ | shntool split "${GITDIR}/${IMAGEID}.flac" -o flac -O always -d "${GITDIR}" 
+    if ! printf '%s\n' ${breakpointList[@]} | shntool split -o flac -O always -d "${GITDIR}" "${GITDIR}/${IMAGEID}.flac" ; then 
+        printf '%s\n' ${breakpointList[@]} | sed s/$/0/ | shntool split -o flac -O always -d "${GITDIR}" "${GITDIR}/${IMAGEID}.flac" 
         [[ $? -ne 0 ]] && return 1 || return 0
     fi
 
