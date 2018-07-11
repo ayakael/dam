@@ -15,6 +15,7 @@
 cmd_import_tracks() {
     local GIT_DIR="${1}"; shift
     local srcList=(${@})
+    local SOURCE=FLAC
     
     rm -Rvf "${GIT_DIR}/.import" >/dev/null 2>&1
     
@@ -30,7 +31,7 @@ cmd_import_tracks() {
 
         _msg EXEC "Consolidating ${src}"
         for file in ${fileList[@]}; do
-            import_track "${GIT_DIR}" "${file}" >${STDERR} 2>&1
+            import_track "${GIT_DIR}" "${file}" "${SOURCE}" >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] || { local CONSOLE_ERROR=true; _msg WARN "Consolidation of ${file} failed, continuing"; continue; }
         done
@@ -41,7 +42,7 @@ cmd_import_tracks() {
     local importList=($(find ${GIT_DIR}/.import/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
     for import in ${importList[@]}; do
         _msg EXEC "Importing ${import}"
-        import_dir "${GIT_DIR}" "${import}" >${STDERR} 2>&1
+        import_dir "${GIT_DIR}" "${import}" ${SOURCE}  >${STDERR} 2>&1
         local EXIT=$?
         [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Importation of ${import} failed, continuing"; continue; }
         rm -R ${import} >/dev/null 2>&1
