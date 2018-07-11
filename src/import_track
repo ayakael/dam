@@ -19,7 +19,7 @@ import_track() {
     local GIT_DIR="${1}"
     local TRACK="${2}"
     local DIR_NAME="$(dirname "${TRACK}")"
-    local SOURCE="FLAC"
+    local SOURCE="${3}"
    
     # Cover image finder
     local coverList=($(find "${DIR_NAME}"/ -maxdepth 1 \( -name '*.jpg' -o -name '*.png' \) -printf '%p\t'))
