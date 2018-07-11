@@ -16,7 +16,7 @@ print_meta_cue() {
     dos2unix -q -R  "${CUE}"
 
     local trackmetaList=($( sed -n '/TRACK 01/,$p' ${CUE} | tr -d '\n' | awk 'BEGIN {RS="TRACK"}{print $0}' | tail -n +2))
-    local trackidList=($(gen_trackid ${FLAC} ${CUE}))
+    local trackidList=($(gen_metatrack ${_OPT_TMP} ${FLAC} ${CUE}))
 
     # [Output] variable generator
     echo -n "PERFORMER=\"$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g')\";"

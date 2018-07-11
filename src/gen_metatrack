@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# doc gen_trackid {
+# doc gen_metatrack {
 #
 # DESCRIPTION
-#   gen_trackid - Generates list of TRACKIDs for specified FLAC file
+#   gen_metatrack - Generates track specific metadata using image file
 #
 # USAGE
-#   gen_trackid </path/to/flac/file> </path/to/cue/fule>
+#   gen_metatrack </path/to/flac/file> </path/to/cue/file>
 #
 # DEPENDENCIES src/gen_tracks
 #
 # }
 
-gen_trackid() {
+gen_metatrack() {
     WRK_DIR="${1}"
     FLAC="${2}"
     CUE="${3}"
@@ -23,7 +23,8 @@ gen_trackid() {
     local COUNT=1
     while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
         local TRACKID="$(metaflac --list --block-number=0 $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}) | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')"
-        printf "%s\t" ${TRACKID}
+        local DURATION="$(soxi -D $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}))" 
+        printf "%s;" ${TRACKID} ${DURATION}
         rm $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT})
         local COUNT=$(( ${COUNT} + 1 ))
     done
