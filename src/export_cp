@@ -9,7 +9,7 @@
 # USAGE
 #   export_cp </path/to/git/dir> </path/to/target> </path/to/db/file> <IMAGEID> 
 #
-# DEPENDENCIES bunc/src/* src/export_gen src/export_mv
+# DEPENDENCIES bunc/src/* src/gen_tracks src/export_mv
 #
 # }
 
@@ -23,7 +23,7 @@ export_cp() {
     
     ## Splits IMAGEID into TRACKIDs
     _msg EXEC "Splitting ${IMAGEID}"
-    export_gen "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
+    gen_tracks "${GIT_DIR}" "${GIT_DIR}/${IMAGEID}.flac" "${GIT_DIR}/${IMAGEID}.cue" >${STDERR} 2>&1
     [[ $? -ne 0 ]] && _msg WARN
     export_mv "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
     [[ $? -eq 0 ]] && _msg OK || _msg WARN

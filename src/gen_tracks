@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# doc gen_tracks {
+# 
+# DESCRIPTION
+#   gen_tracks - Splits specified image into multiple files using a text file 
+#   formatted under the CUE specification
+#
+# USAGE
+#   gen_tracks </path/to/git/dir> </path/to/image> </path/to/cue/file>
+#
+# }
+
+gen_tracks() {
+    local GITDIR="${1}"
+    local IMAGE="${2}"
+    local CUE="${3}"
+
+    ## breakpointList generator
+    # Generates list with cuebreakpoints utility
+    local breakpointList=($(cuebreakpoints "${CUE}" 2>/dev/null))
+
+    # In the event that breakpointList is empty because image represents only one track, 
+    # no split occurs, and returns a 0.
+    [[ -z "${breakpointList[@]}" ]] && { cat "${IMAGE}" > ${GITDIR}/split-track01.flac; return 0; }
+    
+    # Attempts first split. If fails because of lack of CD quality file, retries with modified breakpointList
+    if ! printf '%s\n' ${breakpointList[@]} | shntool split -o flac -O always -d "${GITDIR}" "${IMAGE}.flac" ; then 
+        printf '%s\n' ${breakpointList[@]} | sed s/$/0/ | shntool split -o flac -O always -d "${GITDIR}" "${IMAGE}.flac" 
+        [[ $? -ne 0 ]] && return 1 || return 0
+    fi
+
+}
+    

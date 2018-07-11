@@ -3,7 +3,7 @@
 # doc export_mv {
 # 
 # DESCRIPTION
-#   export_mv - Renames output files from export_gen to associated TRACKID
+#   export_mv - Renames output files from gen_tracks to associated TRACKID
 #
 # USAGE
 #   export_mv </path/to/git/dir> <IMAGEID.
