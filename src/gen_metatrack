@@ -24,7 +24,7 @@ gen_metatrack() {
     while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
         local TRACKID="$(metaflac --list --block-number=0 $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}) | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')"
         local DURATION="$(soxi -D $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}))" 
-        printf "%s\t" ${TRACKID};${DURATION};
+        printf "%s;" ${TRACKID} ${DURATION}
         rm $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT})
         local COUNT=$(( ${COUNT} + 1 ))
     done
