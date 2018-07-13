@@ -32,7 +32,7 @@ import_track() {
 
     # Setting TRACK_DIR
     [[ -z "${DISCNUMBER}" ]] && local DISCNUMBER=1    
-    local TRACK_DIR="${GIT_DIR}/.import/${ARTIST}--${ALBUM}--$(printf '%02d' ${DISCNUMBER})"
+    local TRACK_DIR="${GIT_DIR}/.import/${SOURCE}/${ARTIST}--${ALBUM}--$(printf '%02d' ${DISCNUMBER})"
     mkdir -p ${TRACK_DIR}
     [[ ${EXIT} -eq 0 ]] || return 1
 
