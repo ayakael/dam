@@ -6,7 +6,7 @@
 #   print_meta_cue - Parses cue file and prints metadata in standard metadata format
 #
 # USAGE
-#   print_meta_cue </path/to/flac/file> </path/to/cue/file>
+#   print_meta_cue </path/to/cue/file>
 #
 # }
 
