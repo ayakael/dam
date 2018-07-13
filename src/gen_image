@@ -6,14 +6,15 @@
 #   gen_image - Generates image from list of lossless audio files
 #
 # USAGE
-#   gen_image </path/to/output/dir> <file_1> [<file_1>] [<...>]
+#   gen_image </path/to/output/file> <file_1> [<file_2>] [<...>]
 #
 # DEPENDENCIES src/med_convert
 #
 # }
 
 gen_image() {
-    local TARGET_DIR="${1}"; shift
+    local TARGET="${1}"; shift
+    local TARGET_DIR=$(dirname "${TARGET}")
     local fileList=("${@}")
     if [[ ${#fileList[@]} -eq 1 ]]; then
         cat ${fileList[@]} > joined.flac
@@ -31,6 +32,7 @@ gen_image() {
         fi
     fi
     metaflac --remove-all --dont-use-padding "${TARGET_DIR}/joined.flac"
+    mv "${TARGET_DIR}/joined.flac" "${TARGET}"
     return 0
 }
 
