@@ -1,38 +1,43 @@
 #!/bin/bash
 
-# doc import_dir {
+# doc import_src {
 #
 # DESCRIPTION
-#   import_dir - Imports consolidated tracks into git repository
+#   import_src - Imports source into git directory
 #
 # USAGE
-#   import_dir </path/to/git/dir> </path/to/track/dir>
+#   import_src </path/to/git/dir> </path/to/track/dir>
 #
 # DEPENDENCIES src/gen_mtag
 #
 # }
 
-import_dir() {
+import_src() {
     local GIT_DIR="${1}"
     local TRACK_DIR="${2}"
-    local SOURCE="${3}"
+    local SOURCE=$(basename "${2}")
+    local supportedsrcList=$(FLAC CUETOOLS EAC)
+
+    # Checks if source supported
+    if ! _if_array_contains ${SOURCE} ${supportedsrcList[@]}; then return 1; fi
+
 
     local trackList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
     
     # Join trackList 
-    _msg EXEC "Processing audio files"
+    echo "Processing audio files"
     gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${trackList[@]}) > ${STDERR} 2>&1
     local EXIT="$?"
-    [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
+    [[ $? -eq 0 ]] || return 2
 
 
     # Generates IMAGEID
-    _msg EXEC "Generating IMAGEID"
+    echo "Generating IMAGEID"
     [[ "${SOURCE}" == "CUETOOLS" ]] && local SOURCE=$(grep "CTDB TOCID:" ${TRACK_DIR}/accurip)
     local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/flac" | cut -d' ' -f1)"
-    _msg OK
 
     # Generate metadata_trackList
+    echo "Generating metadata"
     local COUNT=0
     for track in ${trackList[@]}; do
         if [[ "${SOURCE}" == "FLAC" ]]; then
@@ -47,17 +52,17 @@ import_dir() {
     done
 
     # Generate cuesheet
-    _msg EXEC "Generating cue file"
+    echo "Generating cue file"
     gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
     local EXIT=$?
-    [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
+    [[ $? -eq 0 ]] || return 3
     add_bom "${GIT_DIR}/${IMAGEID}.cue"
     
     # Generate tags file
     _msg EXEC "Generating tags file"
     gen_mtag $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
     local EXIT=$?
-    [[ $? -eq 0 ]] && _msg OK || { _msg WARN; return 1; }
+    [[ $? -eq 0 ]] || return 4
     add_bom "${GIT_DIR}/${IMAGEID}.tags"
 
 
