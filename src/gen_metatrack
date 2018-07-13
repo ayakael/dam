@@ -18,13 +18,21 @@ gen_metatrack() {
     CUE="${3}"
 
     gen_tracks "${WRK_DIR}" "${FLAC}" "${CUE}" >/dev/null 2>&1
+
     local TOTALTRACKS="$(grep -e "TRACK [0-9][0-9] AUDIO" "${CUE}" | wc -l)"
+    local replaygainList=($(metaflac --scan-replay-gain $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}) | awk 'BEGIN{FS=":"}{print $2}'))
+    local REPLAYGAIN_ALBUM_GAIN=${replaygainList[1]}
+    local REPLAYGAIN_ALBUM_PEAK=${replaygainList[2]}
+
+    printf "%s;" ${REPLAYGAIN_ALBUM_GAIN} ${REPLAYGAIN_ALBUM_PEAK}
 
     local COUNT=1
     while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
         local TRACKID="$(metaflac --list --block-number=0 $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}) | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')"
         local DURATION="$(soxi -D $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT}))" 
-        printf "%s;" ${TRACKID} ${DURATION}
+        local REPLAYGAIN_TRACK_GAIN=${replaygainList[$(( $(( ${COUNT} * 4 )) - 1 ))]}
+        local REPLAYGAIN_TRACK_PEAK=${replaygainList[$(( ${COUNT} * 4 ))]}
+        printf "%s;" ${TRACKID} ${DURATION} ${REPLAYGAIN_TRACK_GAIN} ${REPLAYGAIN_TRACK_PEAK}
         rm $(printf "${WRK_DIR}/split-track%02d.flac" ${COUNT})
         local COUNT=$(( ${COUNT} + 1 ))
     done
