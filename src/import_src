@@ -46,7 +46,7 @@ import_src() {
             local metadata_trackList[${COUNT}]="$(print_meta_flac "${track}");DURATION=${DURATION};IMAGEID=${IMAGEID};TRACKID=${TRACKID};"
         elif [[ "${SOURCE}" == "CUETOOLS" ]] || [[ "${SOURCE}" == "EAC" ]]; then
             local trackmetaList=$(gen_trackmeta "${TRACK_DIR}" "${FLAC}" "${CUE}")
-            local metadata_trackList=($(print_meta_cue "${TRACK_DIR}/cue")${trackmetaList}IMAGEID=${IMAGEID};)
+            local metadata_trackList=($(print_meta_cue "${TRACK_DIR}/cue")${trackmetaList}"IMAGEID=${IMAGEID};")
         fi
         local COUNT=$(( ${COUNT} + 1 ))
     done
