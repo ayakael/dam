@@ -9,7 +9,12 @@
 #   is labeled 1.<ext>, and the cover is named folder.jpg
 #
 # USAGE
-#   import_images </path/to/album>
+#   import_images </path/to/import/dir> </path/to/img> </path/to/cue> [<options>]
+#
+# OPTIONS
+#   -a </path/to/accurip/log
+#   -l </path/to/eac/log
+#   -c </path/to/cover/img
 #
 # DEPENDENCIES src/print_meta_mtag src/add_bom src/fix_apos src/gen_cover src/file_name src/cueparser
 #
@@ -17,39 +22,25 @@
 
 
 import_images() {
-    local FOLDER="${1}"
-    _msg EXEC "Processing ${FOLDER}"
-    local flacList=($(find "${FOLDER}" -name '*.flac' | sed 's|.flac||'))
-    [[ ${#flacList[@]} -eq 0 ]] && { _msg FAIL "No such file or directory"; return 1; }
+    local TRACK_DIR="${1}"
+    local IMG="${2}"
+    local CUE="${3}"; shift 3
+    while true; do
+        case ${1} in
+            (-a) local ACCURIP="${2}"; shift 2;;
+            (-c) local COVER="${2}"; shift 2;;
+            (-l) local LOG="${2}"; shift 2;;
+            (*) break ;;
+        esac
+    done
 
-    for flac in ${flacList[@]}; do
-        # Sanity check
-        [[ -f "${flac}.cue" ]] || { _msg FAIL "No cue file present"; return 1; }
-        [[ -f "${flac}.accurip" ]] || { _msg FAIL "No accurip file present"; return 1; }
-        [[ -f "${flac}.log" ]] || { _msg FAIL "No EAC log file present"; return 1; }
+    local pathList=(${IMG}	${CUE}	${ACCURIP}	${COVER}	${LOG})
+    for path in ${pathList[@]}; do
+        [[ -f ${path} ]] || return 1
+    done
 
-        # Determines file name based on image's CHKSUM and acts accordingly
-        cat ${flac}.flac > output.flac 2>/dev/null
-        metaflac --remove-all --dont-use-padding "output.flac"
-        local SHA256=$(sha256sum ${flac}.flac 2>/dev/null | cut -d' ' -f1)
-        local SOURCE=$(grep "CTDB TOCID:" ${flac}.accurip 2>/dev/null | cut -d' ' -f3 | sed 's|]||')
-        local FILE_NAME=$(file_name ${SOURCE} ${SHA256})
-        mv "output.flac" ${FILE_NAME}.flac > /dev/null 2>&1
-        cat "${flac}.cue" | iconv -f ISO-8859-1 -t UTF-8 | sed '1s/^\(\xef\xbb\xbf\)\?/\xef\xbb\xbf/' |  awk "!/FILE/{print} /FILE/{print \"FILE ${FILE_NAME}.flac WAVE\"}" > ${FILE_NAME}.cue 2> /dev/null
-        cat "${flac}.accurip" | iconv -f ISO-8859-1 -t UTF-8  > ${FILE_NAME}.accurip
-        cat "${flac}.log" | iconv -f ISO-8859-1 -t UTF-8  > ${FILE_NAME}.log
-        add_bom ${FILE_NAME}.cue
-
-        # Generates METADATA and MTAG
-        local METADATA="$(cueparser ${FILE_NAME}.flac ${FILE_NAME}.cue);BATCHNUMBER=$(echo "${FOLDER}" | awk 'BEGIN{RS="/";}{print $0}' | grep batch | sed 's|.*_|_|' | sed -e 's/_0*//g');"
-        print_meta_mtag "${FILE_NAME}" ${METADATA} > ${FILE_NAME}.tags
-        add_bom ${FILE_NAME}.tags
-        fix_apos ${FILE_NAME}.tags
-        gen_cover "${FOLDER}" > ${FILE_NAME}.png
-        local EXIT="$?"
-        [[ ${EXIT} -eq 1 ]] && { echo "No folder.jpg in directory. Placeholder created"; local ERR=true; }
-        [[ ${EXIT} -eq 2 ]] && { echo "folder.jpg is under 480x480 in quality"; local ERR=true; }
-
+    for path in ${pathList[@]}; do
+        cp "${path}" "$(sed 's|.*/.||' <<< ${TRACK_DIR})"
     done
 }
 
