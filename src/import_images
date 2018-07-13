@@ -35,7 +35,7 @@ import_images() {
     done
 
     # Checks if ACCURIP is defined. If so, source CUETOOLS, else, SOURCE is EAC
-    [[ -z ${ACCURIP+x} ]] || local SOURCE=CUETOOLS && SOURCE=EAC
+    [[ -z ${ACCURIP+x} ]] && local SOURCE=CUETOOLS && SOURCE=EAC
 
     # Checks if path is valid
     for path in ${pathList[@]}; do
