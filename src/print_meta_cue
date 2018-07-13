@@ -11,8 +11,7 @@
 # }
 
 print_meta_cue() {
-    local FLAC="${1}"
-    local CUE="${2}"
+    local CUE="${1}"
     dos2unix -q -R  "${CUE}"
 
     local trackmetaList=($( sed -n '/TRACK 01/,$p' ${CUE} | tr -d '\n' | awk 'BEGIN {RS="TRACK"}{print $0}' | tail -n +2))
