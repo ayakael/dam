@@ -22,7 +22,7 @@
 
 
 import_images() {
-    local TRACK_DIR="${1}"
+    local GIT_DIR="${1}"
     local IMG="${2}"; local pathList[1]="${IMG}"
     local CUE="${3}"; local pathList[2]="${CUE}"; shift 3
     while true; do
@@ -35,17 +35,17 @@ import_images() {
     done
 
     # Checks if ACCURIP is defined. If so, source CUETOOLS, else, SOURCE is EAC
-    [[ -z ${ACCURIP+x} ]] && local SOURCE=CUETOOLS && SOURCE=EAC
+    [[ -z "${ACCURIP}" ]] && local SOURCE=EAC || local SOURCE=CUETOOLS
 
     # Checks if path is valid
     for path in ${pathList[@]}; do
-        [[ -f ${path} ]] || return 1
+        [[ -f "${path}" ]] || return 1
     done
 
     # Copies path to import folder
-    mkdir -p "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG})"
+    mkdir -p "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG} | sed 's|.*/||')"
     for path in ${pathList[@]}; do
-        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG})/$(sed 's|.*/.||' <<< ${TRACK_DIR})"
+        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG} | sed 's|.*/||')/$(sed 's|.*/.||' <<< ${TRACK_DIR})"
     done
 }
 
