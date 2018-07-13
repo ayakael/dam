@@ -43,8 +43,9 @@ import_images() {
     done
 
     # Copies path to import folder
+    mkdir -p "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG})"
     for path in ${pathList[@]}; do
-        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/$(sed 's|.*/.||' <<< ${TRACK_DIR})"
+        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG})/$(sed 's|.*/.||' <<< ${TRACK_DIR})"
     done
 }
 
