@@ -35,8 +35,10 @@ import_src() {
 
     # Generates IMAGEID
     echo "Generating IMAGEID"
-    [[ "${SOURCE}" == "CUETOOLS" ]] && local SOURCE=$(grep "CTDB TOCID:" ${TRACK_DIR}/accurip)
-    local IMAGEID="SHA256-${SOURCE}--$(sha256sum "${TRACK_DIR}/flac" | cut -d' ' -f1)"
+    local DISCID="${SOURCE}"
+    [[ "${SOURCE}" == "CUETOOLS" ]] && local DISCID=$(grep "CTDB TOCID:" ${TRACK_DIR}/accurip | cut -d' ' -f3 | sed 's|-]||')
+    [[ "${SOURCE}" == "EAC" ]] && local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/cue | cut -d' ' -f3)"
+    local IMAGEID="SHA256-${DISCID}--$(sha256sum "${TRACK_DIR}/flac" | cut -d' ' -f1)"
 
     # Generate metadata_trackList
     echo "Generating metadata"
