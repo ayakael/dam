@@ -17,6 +17,7 @@ print_meta_cue() {
     local trackmetaList=($( sed -n '/TRACK 01/,$p' ${CUE} | tr -d '\n' | awk 'BEGIN {RS="TRACK"}{print $0}' | tail -n +2))
 
     # [Output] variable generator
+    echo -n "DISCID=\"$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCID" | sed 's|REM DISCID ||');"
     echo -n "PERFORMER=\"$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g')\";"
     echo -n "ALBUM=\"$(sed 's|\ \ .*||' "${CUE}" | grep  -a "TITLE" | sed 's|TITLE ||' | sed 's|\"||g')\";"
     echo -n "DATE=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DATE" | sed 's|REM DATE ||');"
