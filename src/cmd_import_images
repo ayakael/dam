@@ -13,13 +13,34 @@
 # }
 
 cmd_import_images() {
-    local GIT_DIR="${1}"; shift
+    local GIT_DIR="${1}"
+    local SOURCE="${2}"; shift 2
     local dirList=("${@}")
 
     for dir in ${dirList[@]}; do
         folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
         for folder in ${folderList[@]}; do
-            import_images "${GIT_DIR}" "${folder}"
+            local fileList=($(find "${folder}" \( -name '*.flac' -o -name '*.cue' -o -name '*.accurip' -o -name '*.log' -o -name '*.jpg' -o -name '*.png' \) ))
+            for ext in flac cue accurip log jpg 
+                local fileList=($(find "${folder}" -name "*.${ext}"))
+                [[ ${#fileList[@]} -gt 1 ]] && return 1
+                case ${ext} in
+                    flac) 
+                        local IMG="${fileList}"
+                        [[ -z "${IMG}" ]] && return 2
+                    ;;
+            
+                    cue)
+                        local CUE="${fileList}"
+                        [[ -z "${CUE}" ]] && return 2
+                    ;;
+    
+                    (accurip) local ACCURIP="-a \"${fileList}\"" ;;
+                    (log) local LOG="-l \"${fileList}\"" ;;
+                    (jpg) local COVER="-c \"${fileList}\"" ;;
+                esac
+            done
+            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" ${ACCURIP} ${LOG} ${JPG}
         done
     done
 }
