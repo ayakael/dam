@@ -42,10 +42,14 @@ import_images() {
         [[ -f "${path}" ]] || return 1
     done
 
+    # Parses cue file for metadata
+    local METADATA=$(print_meta_cue "${CUE}")
+    local DISCID="$(awk 'BEGIN{RS=";";FS="="}{if($1=="DISCID"){print $2}}')"
+
     # Copies path to import folder
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG} | sed 's|.*/||')"
     for path in ${pathList[@]}; do
-        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG} | sed 's|.*/||')/$(sed 's|.*/.||' <<< ${TRACK_DIR})"
+        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/$(sed 's|.*/..||' <<< ${path})"
     done
 }
 
