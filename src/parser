@@ -54,9 +54,14 @@ case "${1}" in
                 cmd_import_tracks "${GIT_DIR}" ${@}
             ;;
         
-            images)
+            eac)
                 shift
-                cmd_import_images "${GIT_DIR}" ${@}
+                cmd_import_images "${GIT_DIR}" EAC ${@}
+            ;;
+    
+            cuetools)
+                shift
+                cmd_import_images "${GIT_DIR}" CUETOOLS ${@}
             ;;
 
             *)
