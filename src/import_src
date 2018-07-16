@@ -28,7 +28,7 @@ import_src() {
     
     # Join trackList 
     echo "Processing audio files"
-    gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${trackList[@]}) > ${STDERR} 2>&1
+    gen_image "${TRACK_DIR}/flac" ${TRACK_DIR}/cue $(printf "%s\t" ${trackList[@]}) > ${STDERR} 2>&1
     local EXIT="$?"
     [[ $? -eq 0 ]] || return 3
 
