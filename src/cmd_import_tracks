@@ -42,7 +42,7 @@ cmd_import_tracks() {
     local importList=($(find ${GIT_DIR}/.import/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
     for import in ${importList[@]}; do
         _msg EXEC "Importing ${import}"
-        import_src "${GIT_DIR}" "${import}" >${STDERR} 2>&1
+        import_src "${GIT_DIR}" "${import}" ${FLAC} >${STDERR} 2>&1
         local EXIT=$?
         [[ ${EXIT} -eq 0 ]] && _msg OK || { _msg WARN "Importation of ${import} failed, continuing"; continue; }
         rm -R ${import} >/dev/null 2>&1
