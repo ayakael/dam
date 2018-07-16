@@ -19,7 +19,10 @@ cmd_import_images() {
 
     for dir in ${dirList[@]}; do
         folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
+
+        # Consolidating all detected images
         for folder in ${folderList[@]}; do
+            _msg EXEC "Consolidating ${folder}"
             local fileList=($(find "${folder}" \( -name '*.flac' -o -name '*.cue' -o -name '*.accurip' -o -name '*.log' -o -name '*.jpg' -o -name '*.png' \) ))
             for ext in flac cue accurip log jpg; do
                 local fileList=($(find "${folder}" -name "*.${ext}"))
@@ -41,6 +44,18 @@ cmd_import_images() {
                 esac
             done
             import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" ${ACCURIP} ${LOG} ${JPG}
+            local EXIT=$?
+            [[ ${EXIT} -eq 0 ]] _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
+        done
+
+        
+        # Import folders
+        local importList=($(find ${GIT_DIR}/.import/${SOURCE}/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
+        for import in ${importList[@]}; do
+            _msg EXEC "Importing ${import}"
+            import_src "${GIT_DIR}" "${import}" 
+            local EXIT=$?
+            [[ ${EXIT} -eq 0 ]] _msg OK || _msg WARN "import_src exited with code ${EXIT}"
         done
     done
 }
