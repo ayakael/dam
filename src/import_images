@@ -48,7 +48,7 @@ import_images() {
     local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/cue | cut -d' ' -f3)"
 
     # Copies path to import folder
-    mkdir -p "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG} | sed 's|.*/||')"
+    mkdir -p "${GIT_DIR}/.import/${SOURCE}/${DISCID}"
     for path in ${pathList[@]}; do
         cp "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/$(sed 's|.*/..||' <<< ${path})"
     done
