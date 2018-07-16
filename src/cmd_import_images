@@ -45,7 +45,7 @@ cmd_import_images() {
             done
             import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" ${ACCURIP} ${LOG} ${JPG}
             local EXIT=$?
-            [[ ${EXIT} -eq 0 ]] _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
+            [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
         done
 
         
@@ -55,7 +55,7 @@ cmd_import_images() {
             _msg EXEC "Importing ${import}"
             import_src "${GIT_DIR}" "${import}" 
             local EXIT=$?
-            [[ ${EXIT} -eq 0 ]] _msg OK || _msg WARN "import_src exited with code ${EXIT}"
+            [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "import_src exited with code ${EXIT}"
         done
     done
 }
