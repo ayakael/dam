@@ -23,8 +23,9 @@
 
 import_images() {
     local GIT_DIR="${1}"
-    local IMG="${2}"; local pathList[1]="${IMG}"
-    local CUE="${3}"; local pathList[2]="${CUE}"; shift 3
+    local SOURCE="${2}"
+    local IMG="${3}"; local pathList[1]="${IMG}"
+    local CUE="${4}"; local pathList[2]="${CUE}"; shift 3
     while true; do
         case ${1} in
             (-a) local ACCURIP="${2}"; local pathList[3]="${ACCURIP}"; shift 2;;
@@ -34,17 +35,17 @@ import_images() {
         esac
     done
 
-    # Checks if ACCURIP is defined. If so, source CUETOOLS, else, SOURCE is EAC
-    [[ -z "${ACCURIP}" ]] && local SOURCE=EAC || local SOURCE=CUETOOLS
-
     # Checks if path is valid
     for path in ${pathList[@]}; do
         [[ -f "${path}" ]] || return 1
     done
 
-    # Parses cue file for metadata
-    local METADATA=$(print_meta_cue "${CUE}")
-    local DISCID="$(awk 'BEGIN{RS=";";FS="="}{if($1=="DISCID"){print $2}}')"
+    # Checks if ACCURIP should exist or not
+    if [[ -n "${ACCURIP}" ]] && [[ "${SOURCE}" == "EAC" ]]; then return 2; fi 
+    if [[ -z "${ACCURIP}" ]] && [[ "${SOURCE}" == "CUETOOLS" ]]; then return 2; fi
+
+    # Parses cue file for DISCID
+    local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/cue | cut -d' ' -f3)"
 
     # Copies path to import folder
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/$(dirname ${IMG} | sed 's|.*/||')"
