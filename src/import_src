@@ -15,11 +15,13 @@
 import_src() {
     local GIT_DIR="${1}"
     local TRACK_DIR="${2}"
-    local SOURCE=$(basename "${2}")
-    local supportedsrcList=$(FLAC CUETOOLS EAC)
+    local SOURCE=$(sed 's|.*.import/||' <<<${TRACK_DIR}| cut -d/ -f1)
+    local supportedsrcList=(FLAC CUETOOLS EAC)
 
+    echo ${TRACK_DIR}
     # Checks if source supported
     if ! _if_array_contains ${SOURCE} ${supportedsrcList[@]}; then return 1; fi
+    [[ ! -d "${TRACK_DIR}" ]] && return 2
 
 
     local trackList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
@@ -28,7 +30,7 @@ import_src() {
     echo "Processing audio files"
     gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${trackList[@]}) > ${STDERR} 2>&1
     local EXIT="$?"
-    [[ $? -eq 0 ]] || return 2
+    [[ $? -eq 0 ]] || return 3
 
 
     # Generates IMAGEID
@@ -55,14 +57,14 @@ import_src() {
     echo "Generating cue file"
     gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
     local EXIT=$?
-    [[ $? -eq 0 ]] || return 3
+    [[ $? -eq 0 ]] || return 4
     add_bom "${GIT_DIR}/${IMAGEID}.cue"
     
     # Generate tags file
     _msg EXEC "Generating tags file"
     gen_mtag $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
     local EXIT=$?
-    [[ $? -eq 0 ]] || return 4
+    [[ $? -eq 0 ]] || return 5
     add_bom "${GIT_DIR}/${IMAGEID}.tags"
 
 
