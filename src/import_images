@@ -25,7 +25,7 @@ import_images() {
     local GIT_DIR="${1}"
     local SOURCE="${2}"
     local IMG="${3}"; local pathList[1]="${IMG}"
-    local CUE="${4}"; local pathList[2]="${CUE}"; shift 3
+    local CUE="${4}"; local pathList[2]="${CUE}"; shift 4
     while true; do
         case ${1} in
             (-a) local ACCURIP="${2}"; local pathList[3]="${ACCURIP}"; shift 2;;
@@ -45,12 +45,14 @@ import_images() {
     if [[ -z "${ACCURIP}" ]] && [[ "${SOURCE}" == "CUETOOLS" ]]; then return 2; fi
 
     # Parses cue file for DISCID
-    local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/cue | cut -d' ' -f3)"
+    local METADATA=$(print_meta_cue "${CUE}")
+    local DISCID="$(awk 'BEGIN{FS="=";RS=";"}{if($1=="DISCID"){print $2}}' <<<${METADATA})"
 
     # Copies path to import folder
+    rm -Rf "${GIT_DIR}/.import/${SOURCE}/${DISCID}" >/dev/null 2>&1
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/${DISCID}"
     for path in ${pathList[@]}; do
-        cp "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/$(sed 's|.*/..||' <<< ${path})"
+        cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/$(sed 's|.*/..||' <<< ${path})"
     done
 }
 
