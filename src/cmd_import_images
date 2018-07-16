@@ -21,7 +21,7 @@ cmd_import_images() {
         folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
         for folder in ${folderList[@]}; do
             local fileList=($(find "${folder}" \( -name '*.flac' -o -name '*.cue' -o -name '*.accurip' -o -name '*.log' -o -name '*.jpg' -o -name '*.png' \) ))
-            for ext in flac cue accurip log jpg 
+            for ext in flac cue accurip log jpg; do
                 local fileList=($(find "${folder}" -name "*.${ext}"))
                 [[ ${#fileList[@]} -gt 1 ]] && return 1
                 case ${ext} in
