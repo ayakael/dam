@@ -44,21 +44,33 @@ import_src() {
     echo "Generating metadata"
     local COUNT=0
     for track in ${trackList[@]}; do
-        if [[ "${SOURCE}" == "FLAC" ]]; then
-            local TRACKID=$(metaflac --list --block-number=0 "${track}" | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')
-            local DURATION=$(soxi -D "${track}")
-            local metadata_trackList[${COUNT}]="$(print_meta_flac "${track}");DURATION=${DURATION};IMAGEID=${IMAGEID};TRACKID=${TRACKID};"
-        elif [[ "${SOURCE}" == "CUETOOLS" ]] || [[ "${SOURCE}" == "EAC" ]]; then
-            local trackmetaList=$(gen_trackmeta "${TRACK_DIR}" "${FLAC}" "${CUE}")
-            local metadata_trackList=($(print_meta_cue "${TRACK_DIR}/cue")${trackmetaList}"IMAGEID=${IMAGEID};")
-        fi
+        case ${SOURCE} in
+            FLAC)
+                local TRACKID=$(metaflac --list --block-number=0 "${track}" | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')
+                local DURATION=$(soxi -D "${track}")
+                local metadata_trackList[${COUNT}]="$(print_meta_flac "${track}");DURATION=${DURATION};IMAGEID=${IMAGEID};TRACKID=${TRACKID};"
+            ;;
+    
+            CUETOOLS|EAC)
+                local trackmetaList=$(gen_trackmeta "${TRACK_DIR}" "${FLAC}" "${CUE}")
+                local metadata_trackList=($(print_meta_cue "${TRACK_DIR}/cue")${trackmetaList}"IMAGEID=${IMAGEID};")
+            ;;
+        esac
         local COUNT=$(( ${COUNT} + 1 ))
     done
 
     # Generate cuesheet
     echo "Generating cue file"
-    gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
-    local EXIT=$?
+    case ${SOURCE} in
+        FLAC)
+            gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
+            local EXIT=$?
+        ;;
+        EAC|CUETOOLS)
+            cat "${TRACK_DIR}/cue" > "${GIT_DIR}/${IMAGEID}.cue"
+            local EXIT=$?
+        ;;
+    esac
     [[ $? -eq 0 ]] || return 4
     add_bom "${GIT_DIR}/${IMAGEID}.cue"
     
@@ -68,6 +80,7 @@ import_src() {
     local EXIT=$?
     [[ $? -eq 0 ]] || return 5
     add_bom "${GIT_DIR}/${IMAGEID}.tags"
+    fix_charset "${GIT_DIR}/${IMAGEID}.tags"
 
 
     # Move joined.flac to GIT_DIR
