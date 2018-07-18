@@ -38,12 +38,13 @@ cmd_import_images() {
                         [[ -z "${CUE}" ]] && return 2
                     ;;
     
-                    (accurip) local ACCURIP="-a \"${fileList}\"" ;;
-                    (log) local LOG="-l \"${fileList}\"" ;;
-                    (jpg) local COVER="-c \"${fileList}\"" ;;
+                    (accurip) local ACCURIP="${fileList}" ;;
+                    (log) local LOG="${fileList}" ;;
+                    (jpg) local COVER="${fileList}" ;;
                 esac
             done
-            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" ${ACCURIP} ${LOG} ${JPG}
+            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${JPG}" ]] && echo "-c") "${JPG}"
+            echo
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
         done
