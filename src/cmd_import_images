@@ -43,7 +43,7 @@ cmd_import_images() {
                     (jpg) local COVER="${fileList}" ;;
                 esac
             done
-            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${JPG}" ]] && echo "-c") "${JPG}"
+            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${COVER}" ]] && echo "-c") "${COVER}"
             echo
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
