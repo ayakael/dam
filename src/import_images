@@ -52,7 +52,7 @@ import_images() {
     rm -Rf "${GIT_DIR}/.import/${SOURCE}/${DISCID}" >/dev/null 2>&1
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/${DISCID}"
     for path in ${pathList[@]}; do
-        cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/$(sed 's|.*\.||' <<< ${path})"
+        cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/${DISCID}.$(sed 's|.*\.||' <<< ${path})"
     done
 }
 
