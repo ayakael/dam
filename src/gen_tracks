@@ -18,7 +18,7 @@ gen_tracks() {
 
     ## breakpointList generator
     # Generates list with cuebreakpoints utility
-    local breakpointList=($(cuebreakpoints "${CUE}" 2>/dev/null))
+    local breakpointList=($(print_breakpoints "${CUE}" ))
 
     # In the event that breakpointList is empty because image represents only one track, 
     # no split occurs, and returns a 0.

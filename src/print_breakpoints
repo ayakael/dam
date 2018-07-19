@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# doc print_breakpoints {
+# 
+# DESCRIPTION
+#   print_breakpoints - Prints breakpoints of cue file
+#
+# USAGE
+#   print_breakpoints </path/to/cue/file>
+#
+# }
+
+print_breakpoints() {
+    local CUE="${1}"
+
+    grep "INDEX 01" "${CUE}" | sed 's|.*INDEX 01 ||' | tail -n +2
+}
