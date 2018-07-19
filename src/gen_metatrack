@@ -21,7 +21,7 @@ gen_metatrack() {
 
     local TOTALTRACKS="$(grep -e "TRACK [0-9][0-9] AUDIO" "${CUE}" | wc -l)"
     local COUNT=1
-    for ${COUNT} -le ${TOTALTRACKS} ]]; do
+    while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
         local fileList[${COUNT}]=$(printf "\'${WRK_DIR}/split-track%02d.flac\'\t" ${COUNT})
         local COUNT=$(( ${COUNT} + 1 ))
     done
