@@ -13,18 +13,24 @@
 # }
 
 gen_metatrack() {
-    WRK_DIR="${1}"
-    FLAC="${2}"
-    CUE="${3}"
-
-    gen_tracks "${WRK_DIR}" "${FLAC}" "${CUE}" >/dev/null 2>&1
-
-    local TOTALTRACKS="$(grep -e "TRACK [0-9][0-9] AUDIO" "${CUE}" | wc -l)"
-    local COUNT=0
-    while [[ ${COUNT} -lt ${TOTALTRACKS} ]]; do
-        local fileList[${COUNT}]=$(printf "${WRK_DIR}/split-track%02d.flac\t" $(( ${COUNT} + 1 )))
-        local COUNT=$(( ${COUNT} + 1 ))
+    while true; do
+        case ${1} in
+            (-c) local CUE="${2}"; shift 2 ;;
+            (*) local fileList=(${@}); local TOTALTRACKS=${#fileList[@]}; break ;;
+        esac
     done
+  
+    
+    if [[ -n "${CUE}" ]]; then
+        gen_tracks "${_OPT_TMP}" "${fileList}" "${CUE}" >/dev/null 2>&1
+        local TOTALTRACKS="$(grep -e "TRACK [0-9][0-9] AUDIO" "${CUE}" | wc -l)"
+        local COUNT=0
+        while [[ ${COUNT} -lt ${TOTALTRACKS} ]]; do
+            local fileList[${COUNT}]=$(printf "${_OPT_TMP}/split-track%02d.flac\t" $(( ${COUNT} + 1 )))
+            local COUNT=$(( ${COUNT} + 1 ))
+        done
+    fi
+
     local replaygainList=($(metaflac --scan-replay-gain ${fileList[@]} | awk 'BEGIN{ORS=" ";FS=":"}{print $2}' | tr ' ' '\t'))
     local REPLAYGAIN_ALBUM_GAIN=${replaygainList[0]}
     local REPLAYGAIN_ALBUM_PEAK=${replaygainList[1]}
