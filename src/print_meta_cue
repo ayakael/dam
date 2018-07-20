@@ -31,11 +31,11 @@ print_meta_cue() {
         echo -n "DATE=${DATE};"
         echo -n "TITLE=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a TITLE | sed 's|TITLE ||' | sed 's|\"||g');"
         echo -n "PERFORMER=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a PERFORMER | sed 's|PERFORMER ||' | sed 's|\"||g');"
-        echo -n "DISCNUMBER=${DISCNUMBER};"
-        echo -n "TRACKNUMBER=${COUNT};"
+        echo -n "TRACKNUMBER=$(( ${COUNT} + 1 ));"
         echo -n "TOTALTRACKS=${#trackmetaList[@]};"
+        echo -n "DISCNUMBER=${DISCNUMBER};"
         echo -n "TOTALDISCS=${TOTALDISCS};"
-        echo -n "DISCID=${DISCID};"
+        echo "DISCID=${DISCID};"
 
         local COUNT=$(( ${COUNT} + 1 ))
     done
