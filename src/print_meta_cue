@@ -18,15 +18,15 @@ print_meta_cue() {
 
     # [Output] variable generator
     echo -n "DISCID=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCID" | sed 's|REM DISCID ||');"
-    echo -n "PERFORMER=\"$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g')\";"
-    echo -n "ALBUM=\"$(sed 's|\ \ .*||' "${CUE}" | grep  -a "TITLE" | sed 's|TITLE ||' | sed 's|\"||g')\";"
+    echo -n "ARTIST=$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g');"
+    echo -n "ALBUM=$(sed 's|\ \ .*||' "${CUE}" | grep  -a "TITLE" | sed 's|TITLE ||' | sed 's|\"||g');"
     echo -n "DATE=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DATE" | sed 's|REM DATE ||');"
     echo -n "DISCNUMBER=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCNUMBER" | sed 's|REM DISCNUMBER ||');"
     echo -n "TOTALDISCS=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM TOTALDISCS" | sed 's|REM TOTALDISCS ||');"
     local COUNT=0
     for trackmeta in ${trackmetaList[@]}; do
-        echo -n "titleList[${COUNT}]=\"$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a TITLE | sed 's|TITLE ||' | sed 's|\"||g')\";"
-        echo -n "performerList[${COUNT}]=\"$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a PERFORMER | sed 's|PERFORMER ||' | sed 's|\"||g')\";"
+        echo -n "TITLE=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a TITLE | sed 's|TITLE ||' | sed 's|\"||g');"
+        echo -n "PERFORMER=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a PERFORMER | sed 's|PERFORMER ||' | sed 's|\"||g');"
         local COUNT=$(( ${COUNT} + 1 ))
     done
 }
