@@ -24,13 +24,17 @@ import_src() {
     [[ ! -d "${TRACK_DIR}" ]] && return 2
 
 
-    local trackList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
+    local fileList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
     
     # Join trackList 
     echo "Processing audio files"
-    gen_image "${TRACK_DIR}/flac" ${TRACK_DIR}/cue $(printf "%s\t" ${trackList[@]}) > ${STDERR} 2>&1
-    local EXIT="$?"
-    [[ $? -eq 0 ]] || return 3
+    case ${SOURCE} in
+        TRACKS)
+            gen_image "${TRACK_DIR}/flac" ${TRACK_DIR}/cue $(printf "%s\t" ${fileList[@]}) > ${STDERR} 2>&1
+            local EXIT="$?"
+            [[ $? -eq 0 ]] || return 3
+        ;;
+    esac
 
 
     # Generates IMAGEID
@@ -40,22 +44,25 @@ import_src() {
     [[ "${SOURCE}" == "EAC" ]] && local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/cue | cut -d' ' -f3)"
     local IMAGEID="SHA256-${DISCID}--$(sha256sum "${TRACK_DIR}/flac" | cut -d' ' -f1)"
 
-    # Generate metadata_trackList
+    # Generate addmetaList and trackmetaList
     echo "Generating metadata"
+    case ${SOURCE} in 
+        (FLAC)
+            local trackList=(${fileList[@]}) 
+            local addmetaList=($(gen_metatrack ${trackList[@]}))
+            local trackmetaList=($(print_meta_flac "${trackList}"))
+        ;;
+        CUETOOLS|EAC) 
+            local trackList=($(grep TRACK ${TRACK_DIR}/cue | wc -l))
+            local addmetaList=($(gen_metatrack -c "${TRACK_DIR}/cue" "${TRACK_DIR}/flac" ))
+            local trackmetaList=($(print_meta_cue ${TRACK_DIR}/cue))
+        ;;
+    esac
     local COUNT=0
-    for track in ${trackList[@]}; do
-        case ${SOURCE} in
-            FLAC)
-                local TRACKID=$(metaflac --list --block-number=0 "${track}" | awk 'BEGIN{FS=": "}{if($1=="  MD5 signature") {print $2}}')
-                local DURATION=$(soxi -D "${track}")
-                local metadata_trackList[${COUNT}]="$(print_meta_flac "${track}");DURATION=${DURATION};IMAGEID=${IMAGEID};TRACKID=${TRACKID};"
-            ;;
-    
-            CUETOOLS|EAC)
-                local trackmetaList=$(gen_trackmeta "${TRACK_DIR}" "${FLAC}" "${CUE}")
-                local metadata_trackList=($(print_meta_cue "${TRACK_DIR}/cue")${trackmetaList}"IMAGEID=${IMAGEID};")
-            ;;
-        esac
+
+    # Conjoins trackmetaList and addmetaList into metadataList
+    while [[ ${COUNT} -lt ${trackList} ]]; do
+        local metadataList[${COUNT}]="${trackmetaList[${COUNT}]}${addmetaList[${COUNT}]}IMAGEID=${IMAGEID};"
         local COUNT=$(( ${COUNT} + 1 ))
     done
 
@@ -63,31 +70,29 @@ import_src() {
     echo "Generating cue file"
     case ${SOURCE} in
         FLAC)
-            gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
+            gen_cue "${TRACK_DIR}" $(printf '%s\t' ${metadataList[@]}) > "${GIT_DIR}/${IMAGEID}.cue"
             local EXIT=$?
         ;;
         EAC|CUETOOLS)
-            cat "${TRACK_DIR}/cue" > "${GIT_DIR}/${IMAGEID}.cue"
+            awk "!/FILE/{print} /FILE/{print \"FILE ${IMAGEID}.flac WAVE\"}" "${TRACK_DIR}/cue" > "${GIT_DIR}/${IMAGEID}.cue"
             local EXIT=$?
         ;;
     esac
     [[ $? -eq 0 ]] || return 4
-    add_bom "${GIT_DIR}/${IMAGEID}.cue"
     
     # Generate tags file
-    _msg EXEC "Generating tags file"
-    gen_mtag $(printf '%s\t' ${metadata_trackList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
+    echo "Generating tags file"
+    
+    gen_mtag $(printf '%s\t' ${metadataList[@]}) > "${GIT_DIR}/${IMAGEID}.tags"
     local EXIT=$?
     [[ $? -eq 0 ]] || return 5
-    add_bom "${GIT_DIR}/${IMAGEID}.tags"
-    fix_charset "${GIT_DIR}/${IMAGEID}.tags"
 
 
     # Move joined.flac to GIT_DIR
-    mv "${TRACK_DIR}/flac" "${GIT_DIR}/${IMAGEID}.flac"
+    cp "${TRACK_DIR}/flac" "${GIT_DIR}/${IMAGEID}.flac"
 
     # Generate cover images
-    gen_cover ${TRACK_DIR} > ${GIT_DIR}/${IMAGEID}.png
-    gen_small_cover ${TRACK_DIR} > ${GIT_DIR}/${IMAGEID}.jpg
+    gen_cover "${TRACK_DIR}/jpg" > ${GIT_DIR}/${IMAGEID}.png
+    gen_small_cover "${TRACK_DIR}/jpg" > ${GIT_DIR}/${IMAGEID}.jpg
     return 0
 }
