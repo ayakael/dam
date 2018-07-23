@@ -12,7 +12,7 @@
 
 gen_cover() {
     local COVER="${1}"
-    [[ -f "${COVER}" ]] || { convert -size 480x480 xc:white "${COVER}"; local ERROR=1; }
+    [[ ! -f "${COVER}" ]] && { convert -size 480x480 xc:white "${COVER}"; local ERROR=1; }
     cat "${COVER}"
     [[ ${ERROR} -eq 1 ]] && return 1
     local IMG_SIZE="$(identify -format "%wx%h" "${COVER}")"

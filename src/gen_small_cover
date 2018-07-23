@@ -12,9 +12,8 @@
 
 gen_small_cover() {
     local COVER="${1}"
-    convert "${COVER}" -resize 480x480^ -gravity center -extent 480x480x0x0 "$(sed 's|.png|.jpg|' <<<${COVER})"
+    convert "${COVER}" -resize 480x480^ -gravity center -extent 480x480x0x0 -
     local EXIT=$?
-    cat "$(sed 's|.png|.jpg|' <<<${COVER})"
     [[ ${EXIT} -ne 0 ]] && return 1
     return 0
 }
