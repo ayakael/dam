@@ -57,6 +57,8 @@ cmd_import_images() {
             import_src "${GIT_DIR}" "${import}" >${STDERR} 2>&1 
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "import_src exited with code ${EXIT}"
+            rm -Rf "${import}" >/dev/null 2>&1
         done
     done
+    rm -Rf "${GIT_DIR}/.import" >/dev/null 2>&1
 }
