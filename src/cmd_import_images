@@ -16,6 +16,7 @@ cmd_import_images() {
     local GIT_DIR="${1}"
     local SOURCE="${2}"; shift 2
     local dirList=("${@}")
+    
 
     for dir in ${dirList[@]}; do
         folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
@@ -43,8 +44,7 @@ cmd_import_images() {
                     (jpg) local COVER="${fileList}" ;;
                 esac
             done
-            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${COVER}" ]] && echo "-c") "${COVER}"
-            echo
+            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${COVER}" ]] && echo "-c") "${COVER}" >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
         done
@@ -54,7 +54,7 @@ cmd_import_images() {
         local importList=($(find ${GIT_DIR}/.import/${SOURCE}/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
         for import in ${importList[@]}; do
             _msg EXEC "Importing ${import}"
-            import_src "${GIT_DIR}" "${import}" 
+            import_src "${GIT_DIR}" "${import}" >${STDERR} 2>&1 
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "import_src exited with code ${EXIT}"
         done
