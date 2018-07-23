@@ -45,7 +45,7 @@ import_images() {
     if [[ -z "${ACCURIP}" ]] && [[ "${SOURCE}" == "CUETOOLS" ]]; then return 2; fi
 
     # Parses cue file for DISCID
-    local METADATA=$(print_meta_cue "${CUE}")
+    local METADATA=$(print_meta_cue "${CUE}" | tr '\n' ';')
     local discidList=($(awk 'BEGIN{FS="=";RS=";"}{if($1=="DISCID"){print $2}}' <<<${METADATA} | awk '!seen[$0]++'))
 
     [[ ${#discidList[@]} -ne 1 ]] && return 3
