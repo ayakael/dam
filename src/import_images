@@ -54,7 +54,10 @@ import_images() {
     rm -Rf "${GIT_DIR}/.import/${SOURCE}/${discidList}" >/dev/null 2>&1
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/${discidList}"
     for path in ${pathList[@]}; do
-        cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/$(sed 's|.*\.||' <<< ${path})"
+        case $(sed 's|.*\.||' <<< ${path}) in
+            (jpg) convert "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/png" ;;
+            (*) cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/$(sed 's|.*\.||' <<< ${path})" ;;
+        esac    
     done
 }
 
