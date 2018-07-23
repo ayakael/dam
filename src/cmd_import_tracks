@@ -39,7 +39,7 @@ cmd_import_tracks() {
         [[ "${ZIP}" == "true" ]] && rm -Rvf "${src}" >/dev/null 2>&1
     done
 
-    local importList=($(find ${GIT_DIR}/.import/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
+    local importList=($(find ${GIT_DIR}/.import/FLAC -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
     for import in ${importList[@]}; do
         _msg EXEC "Importing ${import}"
         import_src "${GIT_DIR}" "${import}" ${FLAC} >${STDERR} 2>&1
