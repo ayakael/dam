@@ -48,3 +48,10 @@
 * Added "all" condition to apply exclude or include to all database
 * Fixed bug where disk usage calculator would ungracefully exit when database had no selected tracks
 * Added REPO_ID field to database to make sure that the provided GIT directory is the right git repo
+
+### v0.3
+* Added import function that allows importation of lone tracks and images from EAC and CUETOOLS
+* Updated build.sh script to better debug functions
+* Command "deploy" now "export"
+* Fixed bug where on some version of shntool, the deploy process would fail
+* Deprecated need for cuebreakpoints tool
