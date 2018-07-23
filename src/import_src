@@ -26,7 +26,7 @@ import_src() {
     local fileList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
 
     # Join trackList 
-    echo "Processing audio files "
+    echo "Processing audio files"
     case ${SOURCE} in
         FLAC)
             gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${fileList[@]})
@@ -49,7 +49,7 @@ import_src() {
         (FLAC)
             local trackList=(${fileList[@]}) 
             local addmetaList=($(gen_metatrack ${trackList[@]}))
-            local trackmetaList=($(print_meta_flac "${trackList}"))
+            local trackmetaList=($(print_meta_flac ${trackList[@]}))
         ;;
         CUETOOLS|EAC) 
             local trackList=($(grep -o TRACK ${TRACK_DIR}/cue ))
@@ -64,8 +64,6 @@ import_src() {
         local metadataList[${COUNT}]="${trackmetaList[${COUNT}]};${addmetaList[${COUNT}]};IMAGEID=${IMAGEID};"
         local COUNT=$(( ${COUNT} + 1 ))
     done
-
-    echo ${metadataList[@]}
 
     # Generate cuesheet
     echo "Generating cue file"
@@ -93,7 +91,7 @@ import_src() {
     cp "${TRACK_DIR}/flac" "${GIT_DIR}/${IMAGEID}.flac"
 
     # Generate cover images
-    gen_cover "${TRACK_DIR}/jpg" > ${GIT_DIR}/${IMAGEID}.png
-    gen_small_cover "${TRACK_DIR}/jpg" > ${GIT_DIR}/${IMAGEID}.jpg
+    gen_cover "${TRACK_DIR}/png" > ${GIT_DIR}/${IMAGEID}.png
+    gen_small_cover "${TRACK_DIR}/png" > ${GIT_DIR}/${IMAGEID}.jpg
     return 0
 }
