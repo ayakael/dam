@@ -26,10 +26,10 @@ import_track() {
 
     # Metadata parsing
     local metadataList=($(print_meta_flac ${TRACK}))
-    local ARTIST=$(awk 'BEGIN{FS="=";RS=";"}{if($1==ARTIST){print $2}}')
-    local ALBUM=$(awk 'BEGIN{FS="=";RS=";"}{if($1==ALBUM){print $2}}')
-    local DISCNUMBER=$(awk 'BEGIN{FS="=";RS=";"}{if($1==DISCNUMBER){print $2}}')
-    local TRACKNUMBER=$(awk 'BEGIN{FS="=";RS=";"}{if($1==TRACKNUMBER){print $2}}')
+    local ARTIST=$(awk 'BEGIN{FS="=";RS=";"}{if($1=="ARTIST"){print $2}}' <<< ${metadataList[@]})
+    local ALBUM=$(awk 'BEGIN{FS="=";RS=";"}{if($1=="ALBUM"){print $2}}' <<< ${metadataList[@]})
+    local DISCNUMBER=$(awk 'BEGIN{FS="=";RS=";"}{if($1=="DISCNUMBER"){print $2}}' <<< ${metadataList[@]})
+    local TRACKNUMBER=$(awk 'BEGIN{FS="=";RS=";"}{if($1=="TRACKNUMBER"){print $2}}' <<< ${metadataList[@]})
 
     # Setting TRACK_DIR
     [[ -z "${DISCNUMBER}" ]] && local DISCNUMBER=1    
