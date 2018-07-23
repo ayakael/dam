@@ -18,19 +18,18 @@ import_src() {
     local SOURCE=$(sed 's|.*.import/||' <<<${TRACK_DIR}| cut -d/ -f1)
     local supportedsrcList=(FLAC CUETOOLS EAC)
 
-    echo ${TRACK_DIR}
     # Checks if source supported
     if ! _if_array_contains ${SOURCE} ${supportedsrcList[@]}; then return 1; fi
     [[ ! -d "${TRACK_DIR}" ]] && return 2
 
 
     local fileList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
-    
+
     # Join trackList 
-    echo "Processing audio files"
+    echo "Processing audio files "
     case ${SOURCE} in
-        TRACKS)
-            gen_image "${TRACK_DIR}/flac" ${TRACK_DIR}/cue $(printf "%s\t" ${fileList[@]}) > ${STDERR} 2>&1
+        FLAC)
+            gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${fileList[@]})
             local EXIT="$?"
             [[ $? -eq 0 ]] || return 3
         ;;
@@ -53,7 +52,7 @@ import_src() {
             local trackmetaList=($(print_meta_flac "${trackList}"))
         ;;
         CUETOOLS|EAC) 
-            local trackList=($(grep TRACK ${TRACK_DIR}/cue | wc -l))
+            local trackList=($(grep -o TRACK ${TRACK_DIR}/cue ))
             local addmetaList=($(gen_metatrack -c "${TRACK_DIR}/cue" "${TRACK_DIR}/flac" ))
             local trackmetaList=($(print_meta_cue ${TRACK_DIR}/cue))
         ;;
@@ -61,10 +60,12 @@ import_src() {
     local COUNT=0
 
     # Conjoins trackmetaList and addmetaList into metadataList
-    while [[ ${COUNT} -lt ${trackList} ]]; do
-        local metadataList[${COUNT}]="${trackmetaList[${COUNT}]}${addmetaList[${COUNT}]}IMAGEID=${IMAGEID};"
+    while [[ ${COUNT} -lt ${#trackList[@]} ]]; do
+        local metadataList[${COUNT}]="${trackmetaList[${COUNT}]};${addmetaList[${COUNT}]};IMAGEID=${IMAGEID};"
         local COUNT=$(( ${COUNT} + 1 ))
     done
+
+    echo ${metadataList[@]}
 
     # Generate cuesheet
     echo "Generating cue file"

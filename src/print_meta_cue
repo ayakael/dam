@@ -35,7 +35,7 @@ print_meta_cue() {
         echo -n "TOTALTRACKS=${#trackmetaList[@]};"
         echo -n "DISCNUMBER=${DISCNUMBER};"
         echo -n "TOTALDISCS=${TOTALDISCS};"
-        echo "DISCID=${DISCID};"
+        echo "DISCID=${DISCID}"
 
         local COUNT=$(( ${COUNT} + 1 ))
     done
