@@ -46,13 +46,15 @@ import_images() {
 
     # Parses cue file for DISCID
     local METADATA=$(print_meta_cue "${CUE}")
-    local DISCID="$(awk 'BEGIN{FS="=";RS=";"}{if($1=="DISCID"){print $2}}' <<<${METADATA})"
+    local discidList=($(awk 'BEGIN{FS="=";RS=";"}{if($1=="DISCID"){print $2}}' <<<${METADATA} | awk '!seen[$0]++'))
+
+    [[ ${#discidList[@]} -ne 1 ]] && return 3
 
     # Copies path to import folder
-    rm -Rf "${GIT_DIR}/.import/${SOURCE}/${DISCID}" >/dev/null 2>&1
-    mkdir -p "${GIT_DIR}/.import/${SOURCE}/${DISCID}"
+    rm -Rf "${GIT_DIR}/.import/${SOURCE}/${discidList}" >/dev/null 2>&1
+    mkdir -p "${GIT_DIR}/.import/${SOURCE}/${discidList}"
     for path in ${pathList[@]}; do
-        cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${DISCID}/$(sed 's|.*\.||' <<< ${path})"
+        cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/$(sed 's|.*\.||' <<< ${path})"
     done
 }
 
