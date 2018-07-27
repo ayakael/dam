@@ -30,6 +30,7 @@ while true; do
         --batch-id|-b)
             shift
             _BATCHID="${1}"
+        ;;
 
         *)
             break
