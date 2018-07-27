@@ -3,13 +3,15 @@ Usage: dam [--help] [--info] [<options>] <command> <args>
 Options
    --git-dir </path/to/git/dir>
       Defines path to git directory that contains the music collection. Defaults to current directory when not set.
+   -b <batch-id>
+      Defines batch id for import operation.
 
 Commands
    init [<options>] </path/to/target>
       Initializes target with database file
    update [<options>] </path/to/target>
       Populates database present in target folder with new images.
-   import [<options>] -f <format> </path/to/files>
+   import [<options>] <format> </path/to/files>
       Imports audio files into repository
    export [<options>] </path/to/target>
       Deploys tracks to target folder, with applied metadata and cover image
