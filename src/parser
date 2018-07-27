@@ -4,7 +4,7 @@
 # Parses arguments and commands from shell
 ###
 
-GIT_DIR="./"
+_GIT_DIR="./"
 
 #Recursive argument parser
 while true; do
@@ -22,10 +22,14 @@ while true; do
             exit
         ;;
 
-        --git-dir)    
+        --git-dir|-g)    
             shift
-            GIT_DIR="${1}"
+            _GIT_DIR="${1}"
         ;;
+   
+        --batch-id|-b)
+            shift
+            _BATCHID="${1}"
 
         *)
             break
@@ -38,7 +42,7 @@ done
 case "${1}" in
     init)
         shift
-        cmd_init "${GIT_DIR}" ${@}
+        cmd_init "${_GIT_DIR}" ${@}
         EXIT=$?
         [[ ${EXIT} -eq 1 ]] && echo "Database file already present"
         [[ ${EXIT} -eq 3 ]] && echo "Init had errors"
@@ -51,17 +55,17 @@ case "${1}" in
         case "${1}" in
             tracks)
                 shift
-                cmd_import_tracks "${GIT_DIR}" ${@}
+                cmd_import_tracks "${_GIT_DIR}" $([[ -n "${_BATCHID}" ]] && echo "-b") ${_BATCHID} ${@}
             ;;
         
             eac)
                 shift
-                cmd_import_images "${GIT_DIR}" EAC ${@}
+                cmd_import_images "${_GIT_DIR}" EAC $([[ -n "${_BATCHID}" ]] && echo "-b") ${_BATCHID} ${@}
             ;;
     
             cuetools)
                 shift
-                cmd_import_images "${GIT_DIR}" CUETOOLS ${@}
+                cmd_import_images "${_GIT_DIR}" CUETOOLS $([[ -n "${_BATCHID}" ]] && echo "-b") ${_BATCHID} ${@}
             ;;
 
             *)
@@ -72,7 +76,7 @@ case "${1}" in
 
     exclude)
         shift
-        cmd_exclude "${GIT_DIR}" ${@}
+        cmd_exclude "${_GIT_DIR}" ${@}
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
@@ -80,7 +84,7 @@ case "${1}" in
 
     include)
         shift
-        cmd_include "${GIT_DIR}" ${@}
+        cmd_include "${_GIT_DIR}" ${@}
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
@@ -102,7 +106,7 @@ case "${1}" in
                 ;;
             esac
         done
-        cmd_export "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
+        cmd_export "${_GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Deployment completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with errors"
@@ -127,7 +131,7 @@ case "${1}" in
             esac
         done
 
-        cmd_update "${GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
+        cmd_update "${_GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Update completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Update completed with errors"
@@ -137,7 +141,7 @@ case "${1}" in
 
     du)
         shift
-        cmd_du "${GIT_DIR}" "${@}"
+        cmd_du "${_GIT_DIR}" "${@}"
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
@@ -172,7 +176,7 @@ case "${1}" in
         
         [[ -z ${cmdList[@]} ]] && cmdList=(deployed-ids nonexistent-ids metadata)
 
-        cmd_fsck "${GIT_DIR}" "${TARGET}" ${cmdList[@]}
+        cmd_fsck "${_GIT_DIR}" "${TARGET}" ${cmdList[@]}
         EXIT=$?
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
