@@ -36,10 +36,10 @@ gen_mtag() {
         for tag in ${tagList[@]}; do
 
             # Determines current tag value
-            local CUR_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_track})
+            local CUR_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}'  <<< ${metadata_track} | sed 's|"|\\"|'g)
 
             # Determines previous tag value
-            local PREV_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_trackList[$(( ${COUNT} - 1 ))]})
+            local PREV_TAG=$(awk -v tag="${tag}" 'BEGIN{RS=";";FS="=";}{if($1==tag){print $2}}' <<< ${metadata_trackList[$(( ${COUNT} - 1 ))]} | sed 's|"|\\"|'g)
         
             # Compares previous tag value and current tag value. If there is a difference or we're dealing with the first track,
             # print the value in MTAG format
