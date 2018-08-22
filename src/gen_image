@@ -28,11 +28,11 @@ gen_image() {
             echo ${fileList[@]}
             shntool join -O always ${fileList[@]} -d "${TARGET_DIR}" -o flac -q
             [[ $? -ne 0 ]] && return 1
-            return 2
+            local WARN=true
         fi
     fi
     metaflac --remove-all --dont-use-padding "${TARGET_DIR}/joined.flac"
     mv "${TARGET_DIR}/joined.flac" "${TARGET}"
-    return 0
+    [[ ${WARN} == "true" ]] && return 2 || return 0
 }
 
