@@ -32,6 +32,10 @@ while true; do
             _BATCHID="${1}"
         ;;
 
+        --force|-f)
+            _FORCE="force"
+        ;;
+
         *)
             break
         ;;
@@ -98,21 +102,21 @@ case "${1}" in
                 --from)
                     shift
                     OLD_COMMIT=${1}
-                    shift    
                 ;;
                 
                 *)
                     TARGET="${1}"
-                    shift
                 ;;
             esac
+            shift
         done
-        cmd_export "${_GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
+        cmd_export $([[ ${_FORCE} == "force" ]] && echo '-f') "${_GIT_DIR}" "${TARGET}" ${OLD_COMMIT} 
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Deployment completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Deployment completed with errors"
         [[ ${EXIT} -eq 3 ]] && echo "Database file non-existent"
         [[ ${EXIT} -eq 2 ]] && echo "Git directory not a valid git repository"
+        [[ ${EXIT} -eq 4 ]] && echo "Not enough space on device"
    ;;
 
     update)

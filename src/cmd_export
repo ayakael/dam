@@ -13,6 +13,7 @@
 # }
 
 cmd_export() {
+    [[ "${1}" == "-f" ]] && { local FORCE="force"; shift; }
     local GIT_DIR="${1}"
     local TARGET="${2}"
     local OLD_COMMIT="${3}"
@@ -41,7 +42,11 @@ cmd_export() {
     local presentidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4!="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
     local DU="$(( $(print_imageid_du ${GIT_DIR} ${futureidList[@]}) - $(print_imageid_du "${GIT_DIR}" ${presentidList[@]}) ))"
     local DF="$(df ${TARGET} --output=avail -B1 | tail -n -1)"
-    [[ ${DU} -ge ${DF} ]] && { _msg ECHO "Target does not have enough space for deployable IMAGEID. Need ${DU}, has ${DF}."; return 2; }
+    
+    if [[ ${DU} -ge ${DF} ]] && [[ ${FORCE} != "force" ]]; then
+        _msg ECHO "Target does not have enough space for deployable IMAGEID. Need ${DU}, has ${DF}."
+        return 4
+    fi
 
     # Cleans target of removable TRACKID
     local COUNT=1
