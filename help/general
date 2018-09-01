@@ -5,6 +5,8 @@ Options
       Defines path to git directory that contains the music collection. Defaults to current directory when not set.
    --batch-id|-b <batch-id>
       Defines batch id for import operation.
+   --force|-f 
+      Forces command
 
 Commands
    init [<options>] </path/to/target>
