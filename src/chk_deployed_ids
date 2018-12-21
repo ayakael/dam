@@ -23,7 +23,7 @@ chk_deployed_ids() {
         local COUNT=$(( ${COUNT} + 1 ))
         local ERR=false
         echo "[ ${COUNT} / ${#flacList[@]} ] Checking ${flac}"
-        local metadataList=($(awk 'BEGIN{RS=";";FS="="}{if($1=="IMAGEID" || $2=="TRACKID"){print $2}' <<< $(print_meta_flac "${TARGET}/${flac}")))
+        local metadataList=($(awk 'BEGIN{RS=";";FS="="}{if($1=="IMAGEID" || $2=="TRACKID"){print $2}}' <<< $(print_meta_flac "${TARGET}/${flac}")))
         local IMAGEID=${metadataList[0]}
         local TRACKID=${metadataList[1]}
         
