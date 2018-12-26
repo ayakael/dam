@@ -60,3 +60,6 @@
 * Rewrote import images function
 * Fixed sanity check bug during fsck
 * Fixed bug where non-english characters wouldn't compare well during include and exclude command
+* Added --force option to allow override for disk usage
+* Added -b / --batch-id option to add BATCHID metadata
+* Fixed a few metadata bugs
