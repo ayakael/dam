@@ -55,3 +55,8 @@
 * Command "deploy" now "export"
 * Fixed bug where on some version of shntool, the deploy process would fail
 * Deprecated need for cuebreakpoints tool
+
+### v0.3.1
+* Rewrote import images function
+* Fixed sanity check bug during fsck
+* Fixed bug where non-english characters wouldn't compare well during include and exclude command
