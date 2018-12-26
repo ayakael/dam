@@ -34,29 +34,34 @@ import_images() {
             (*) break ;;
         esac
     done
-
+  
     # Checks if path is valid
+    echo "Checking if all paths exists" 
     for path in ${pathList[@]}; do
-        [[ -f "${path}" ]] || return 1
+        [[ ! -f "${path}" ]] && { echo "${path} - No such file or directory"; return 1; }
     done
 
+    echo "Checking existence of ACCURIP file"
     # Checks if ACCURIP should exist or not
-    if [[ -n "${ACCURIP}" ]] && [[ "${SOURCE}" == "EAC" ]]; then return 2; fi 
-    if [[ -z "${ACCURIP}" ]] && [[ "${SOURCE}" == "CUETOOLS" ]]; then return 2; fi
+    if [[ -n "${ACCURIP}" ]] && [[ "${SOURCE}" == "EAC" ]]; then echo "Accurip file specified, ignored"; unset ${ACCURIP}; fi 
+    if [[ -z "${ACCURIP}" ]] && [[ "${SOURCE}" == "CUETOOLS" ]]; then echo "CUETOOLS requires an ACCURIP file, please make sure it is generated"; return 2; fi
 
     # Parses cue file for DISCID
+    echo "Parsing cue file to determine DISCID"
     local METADATA=$(print_meta_cue "${CUE}" | tr '\n' ';')
     local discidList=($(awk 'BEGIN{FS="=";RS=";"}{if($1=="DISCID"){print $2}}' <<<${METADATA} | awk '!seen[$0]++'))
 
-    [[ ${#discidList[@]} -ne 1 ]] && return 3
+    [[ ${#discidList[@]} -ne 1 ]] && { echo "There should be only one DISCID specified in cue file"; return 3; }
 
     # Copies path to import folder
+    echo "Cleaning up .import dir"
     rm -Rf "${GIT_DIR}/.import/${SOURCE}/${discidList}" >/dev/null 2>&1
+    echo "Creating ${GIT_DIR}/.import/${SOURCE}/${discidList}"
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/${discidList}"
     for path in ${pathList[@]}; do
         case $(sed 's|.*\.||' <<< ${path}) in
-            (jpg) convert "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/png" ;;
-            (*) cp --no-preserve=mode "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/$(sed 's|.*\.||' <<< ${path})" ;;
+            (jpg) echo "Copying cover image"; convert "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/png" ;;
+            (*) local DEST="${GIT_DIR}/.import/${SOURCE}/${discidList}/$(sed 's|.*\.||' <<< ${path})"; echo "Copying ${path} to ${DEST}"; cp --no-preserve=mode "${path}"  "${DEST}" ;;
         esac    
     done
 }

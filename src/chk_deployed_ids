@@ -23,11 +23,11 @@ chk_deployed_ids() {
         local COUNT=$(( ${COUNT} + 1 ))
         local ERR=false
         echo "[ ${COUNT} / ${#flacList[@]} ] Checking ${flac}"
-        local metadataList=($(awk 'BEGIN{RS=";";FS="="}{if($1=="IMAGEID" || $2=="TRACKID"){print $2}}' <<< $(print_meta_flac "${TARGET}/${flac}")))
-        local IMAGEID=${metadataList[0]}
-        local TRACKID=${metadataList[1]}
+        local METADATA="$(print_meta_flac "${TARGET}/${flac}")"
+        local IMAGEID=$(awk 'BEGIN{RS=";";FS="="}{if($1=="IMAGEID"){print $2}}' <<< ${METADATA})
+        local TRACKID=$(awk 'BEGIN{RS=";";FS="="}{if($1=="TRACKID"){print $2}}' <<< ${METADATA})
         
-        if [[ -z "${IMAGEID}" ]] || [[ -z "${TRACKID}" ]]; then echo "${flac} does not contain IMAGEID or TRACKID metadata" > ${STDERR}; local ERR=true; fi
+        if [[ -z "${IMAGEID+x}" ]] || [[ -z "${TRACKID+x}" ]]; then echo "${flac} does not contain IMAGEID or TRACKID metadata" > ${STDERR}; local ERR=true; fi
         [[ "${ERR}" == "true" ]] && { cat ${STDERR}; continue; } 
 
         

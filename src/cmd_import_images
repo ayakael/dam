@@ -22,32 +22,30 @@ cmd_import_images() {
     
 
     for dir in ${dirList[@]}; do
-        folderList=($(find "${dir}" -name '*.cue' -printf '%h\n' | awk '!seen[$0]++'))
+        cueList=($(find "${dir}" -name '*.cue' -printf '%p\n'))
 
         # Consolidating all detected images
-        for folder in ${folderList[@]}; do
-            _msg EXEC "Consolidating ${folder}"
-            local fileList=($(find "${folder}" \( -name '*.flac' -o -name '*.cue' -o -name '*.accurip' -o -name '*.log' -o -name '*.jpg' -o -name '*.png' \) ))
+        for cue in ${cueList[@]}; do
+            _msg EXEC "Consolidating ${cue}"
+            for var in IMG CUE ACCURIP LOG COVER; do unset ${var}; done
             for ext in flac cue accurip log jpg; do
-                local fileList=($(find "${folder}" -name "*.${ext}"))
-                [[ ${#fileList[@]} -gt 1 ]] && return 1
+                local file=$(sed "s|cue|${ext}|" <<< ${cue})
+                [[ ! -f "${file}" ]] && continue
                 case ${ext} in
                     flac) 
-                        local IMG="${fileList}"
-                        [[ -z "${IMG}" ]] && return 2
+                        local IMG="${file}"
                     ;;
             
                     cue)
-                        local CUE="${fileList}"
-                        [[ -z "${CUE}" ]] && return 2
+                        local CUE="${file}"
                     ;;
     
-                    (accurip) local ACCURIP="${fileList}" ;;
-                    (log) local LOG="${fileList}" ;;
-                    (jpg) local COVER="${fileList}" ;;
+                    (accurip) local ACCURIP="${file}" ;;
+                    (log) local LOG="${file}" ;;
+                    (jpg) local COVER="${file}" ;;
                 esac
             done
-            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${COVER}" ]] && echo "-c") "${COVER}" >${STDERR} 2>&1
+            import_images "${GIT_DIR}" "${SOURCE}" "${IMG}" "${CUE}" $([[ -n "${ACCURIP}" ]] && echo "-a") "${ACCURIP}" $([[ -n "${LOG}" ]] && echo "-l") "${LOG}" $([[ -n "${COVER}" ]] && echo "-c") "${COVER}"  >${STDERR} 2>&1
             local EXIT=$?
             [[ ${EXIT} -eq 0 ]] && _msg OK || _msg WARN "Import_images exited with code ${EXIT}"
         done

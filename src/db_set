@@ -30,8 +30,8 @@ db_set() {
     fi
 
     # Defines what imageids are imported into database, as we're only going to act on those
-    local FIELD="$(echo ${CONDITION} | cut -d'=' -f1 | tr '[:lower:]' '[:upper:]' )"
-    local VALUE="$(echo ${CONDITION} | cut -d'=' -f2 | tr '[:lower:]' '[:upper:]' )"
+    local FIELD="$(echo ${CONDITION} | cut -d'=' -f1 | awk '{print toupper($0)}')"
+    local VALUE="$(echo ${CONDITION} | cut -d'=' -f2 | awk '{print toupper($0)}')"
        
     # Determines which IMAGEIDs present in the DB_FILE match the CONDITION
     local COUNT=1
