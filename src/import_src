@@ -32,12 +32,12 @@ import_src() {
         FLAC)
             med_integrity ${fileList[@]} >${STDERR} 2>&1
             [[ $? -eq 0 ]] || return 4
-            gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${fileList[@]})
+            gen_image "${TRACK_DIR}/img.flac" $(printf "%s\t" ${fileList[@]})
             local EXIT="$?"
             [[ $? -eq 0 ]] || return 3
         ;;
         CUETOOLS|EAC)
-            med_integrity "${TRACK_DIR}/flac" >${STDERR} 2>&1 
+            med_integrity "${TRACK_DIR}/img.flac" >${STDERR} 2>&1 
             [[ $? -eq 0 ]] || return 4
         ;;
     esac
@@ -46,9 +46,9 @@ import_src() {
     # Generates IMAGEID
     echo "Generating IMAGEID"
     local DISCID="${SOURCE}"
-    [[ "${SOURCE}" == "CUETOOLS" ]] && local DISCID=$(grep "CTDB TOCID:" ${TRACK_DIR}/accurip | cut -d' ' -f3 | sed 's|-]||')
-    [[ "${SOURCE}" == "EAC" ]] && local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/cue | cut -d' ' -f3)"
-    local IMAGEID="SHA256-${DISCID}--$(sha256sum "${TRACK_DIR}/flac" | cut -d' ' -f1)"
+    [[ "${SOURCE}" == "CUETOOLS" ]] && local DISCID=$(grep "CTDB TOCID:" ${TRACK_DIR}/img.accurip | cut -d' ' -f3 | sed 's|-]||')
+    [[ "${SOURCE}" == "EAC" ]] && local DISCID="$(grep "REM DISCID" ${TRACK_DIR}/img.cue | cut -d' ' -f3)"
+    local IMAGEID="SHA256-${DISCID}--$(sha256sum "${TRACK_DIR}/img.flac" | cut -d' ' -f1)"
 
     # Generate addmetaList and trackmetaList
     echo "Generating metadata"
@@ -60,8 +60,8 @@ import_src() {
         ;;
         CUETOOLS|EAC) 
             local trackList=($(grep -o TRACK ${TRACK_DIR}/cue ))
-            local addmetaList=($(gen_metatrack -c "${TRACK_DIR}/cue" "${TRACK_DIR}/flac" ))
-            local trackmetaList=($(print_meta_cue ${TRACK_DIR}/cue))
+            local addmetaList=($(gen_metatrack -c "${TRACK_DIR}/img.cue" "${TRACK_DIR}/img.flac" ))
+            local trackmetaList=($(print_meta_cue ${TRACK_DIR}/img.cue))
         ;;
     esac
     local COUNT=0
@@ -81,7 +81,7 @@ import_src() {
             local EXIT=$?
         ;;
         EAC|CUETOOLS)
-            awk "!/FILE/{print} /FILE/{print \"FILE ${IMAGEID}.flac WAVE\"}" "${TRACK_DIR}/cue" > "${GIT_DIR}/${IMAGEID}.cue"
+            awk "!/FILE/{print} /FILE/{print \"FILE ${IMAGEID}.flac WAVE\"}" "${TRACK_DIR}/img.cue" > "${GIT_DIR}/${IMAGEID}.cue"
             local EXIT=$?
         ;;
     esac
@@ -96,10 +96,10 @@ import_src() {
 
 
     # Move joined.flac to GIT_DIR
-    cp "${TRACK_DIR}/flac" "${GIT_DIR}/${IMAGEID}.flac"
+    cp "${TRACK_DIR}/img.flac" "${GIT_DIR}/${IMAGEID}.flac"
 
     # Generate cover images
-    gen_cover "${TRACK_DIR}/png" > ${GIT_DIR}/${IMAGEID}.png
-    gen_small_cover "${TRACK_DIR}/png" > ${GIT_DIR}/${IMAGEID}.jpg
+    gen_cover "${TRACK_DIR}/img.png" > ${GIT_DIR}/${IMAGEID}.png
+    gen_small_cover "${TRACK_DIR}/img.png" > ${GIT_DIR}/${IMAGEID}.jpg
     return 0
 }

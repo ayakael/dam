@@ -60,8 +60,8 @@ import_images() {
     mkdir -p "${GIT_DIR}/.import/${SOURCE}/${discidList}"
     for path in ${pathList[@]}; do
         case $(sed 's|.*\.||' <<< ${path}) in
-            (jpg) echo "Copying cover image"; convert "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/png" ;;
-            (*) local DEST="${GIT_DIR}/.import/${SOURCE}/${discidList}/$(sed 's|.*\.||' <<< ${path})"; echo "Copying ${path} to ${DEST}"; cp --no-preserve=mode "${path}"  "${DEST}" ;;
+            (jpg) echo "Copying cover image"; convert "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/img.png" ;;
+            (*) local DEST="${GIT_DIR}/.import/${SOURCE}/${discidList}/img.$(sed 's|.*\.||' <<< ${path})"; echo "Copying ${path} to ${DEST}"; cp --no-preserve=mode "${path}"  "${DEST}" ;;
         esac    
     done
 }

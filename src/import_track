@@ -39,8 +39,8 @@ import_track() {
 
 
     # Moving cover to TRACK_DIR
-    if [[ ${#coverList[@]} -eq 1 ]] && [[ ! -f "${TRACK_DIR}/png" ]]; then
-        convert ${coverList[@]} "${TRACK_DIR}/png"
+    if [[ ${#coverList[@]} -eq 1 ]] && [[ ! -f "${TRACK_DIR}/img.png" ]]; then
+        convert ${coverList[@]} "${TRACK_DIR}/img.png"
     fi
 
     # Converting to FLAC if need me
