@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# doc med_integrity {
+#
+# DESCRIPTION
+#   med_integrity - Checks integrity of audio files
+#
+# USAGE
+#   med_integrity </path/to/audio/file/1> </path/to/audio/file/2> <...>
+#
+# DEPENDENCIES bunc/src/* 
+#
+# }
+
+med_integrity() {
+    local FILE="${1}"
+
+    for file in ${fileList[@]}; do
+    	flac -wst "${file}" >${STDERR} 2>&1
+    	local EXIT=$?
+    	[[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+    done
+    [[ "${ERR}" == "true" ]] && { _msg EXEC "Integrity check completed with errors"; _msg WARN; return 1; } || { _msg EXEC "Integrity check completed succesfully"; _msg OK; return 0; }
+}
