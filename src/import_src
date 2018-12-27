@@ -68,7 +68,7 @@ import_src() {
 
     # Conjoins trackmetaList and addmetaList into metadataList
     while [[ ${COUNT} -lt ${#trackList[@]} ]]; do
-        local metadataList[${COUNT}]="${trackmetaList[${COUNT}]};${addmetaList[${COUNT}]}"
+        local metadataList[${COUNT}]="${trackmetaList[${COUNT}]};${addmetaList[${COUNT}]};IMAGEID=${IMAGEID};"
         [[ -n "${BATCHID}" ]] && local metadataList[${COUNT}]="${metadataList[${COUNT}]};BATCHID=${BATCHID};"
         local COUNT=$(( ${COUNT} + 1 ))
     done
