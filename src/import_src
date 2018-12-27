@@ -30,14 +30,14 @@ import_src() {
     echo "Processing audio files"
     case ${SOURCE} in
         FLAC)
-            chk_integrity ${fileList[@]} >${STDERR} 2>&1
+            med_integrity ${fileList[@]} >${STDERR} 2>&1
             [[ $? -eq 0 ]] || return 4
             gen_image "${TRACK_DIR}/flac" $(printf "%s\t" ${fileList[@]})
             local EXIT="$?"
             [[ $? -eq 0 ]] || return 3
         ;;
         CUETOOLS|EAC)
-            chk_integrity "${TRACK_DIR}/flac" >${STDERR} 2>&1 
+            med_integrity "${TRACK_DIR}/flac" >${STDERR} 2>&1 
             [[ $? -eq 0 ]] || return 4
         ;;
     esac
