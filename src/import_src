@@ -59,7 +59,7 @@ import_src() {
             local trackmetaList=($(print_meta_flac ${trackList[@]}))
         ;;
         CUETOOLS|EAC) 
-            local trackList=($(grep -o TRACK ${TRACK_DIR}/cue ))
+            local trackList=($(grep -o TRACK ${TRACK_DIR}/img.cue ))
             local addmetaList=($(gen_metatrack -c "${TRACK_DIR}/img.cue" "${TRACK_DIR}/img.flac" ))
             local trackmetaList=($(print_meta_cue ${TRACK_DIR}/img.cue))
         ;;
