@@ -41,6 +41,10 @@ import_images() {
         [[ ! -f "${path}" ]] && { echo "${path} - No such file or directory"; return 1; }
     done
 
+    echo "Checking existence of LOG file"
+    if [[ -z "${LOG}" ]] && [[ "${SOURCE}" == "CUETOOLS" ]]; then echo "CUETOOLS requires a LOG file, please make sure it is generated"; return 2; fi
+    if [[ -z "${LOG}" ]] && [[ "${SOURCE}" == "EAC" ]]; then echo "EAC requires a LOG file, please make sure it is generated"; return 2; fi
+
     echo "Checking existence of ACCURIP file"
     # Checks if ACCURIP should exist or not
     if [[ -n "${ACCURIP}" ]] && [[ "${SOURCE}" == "EAC" ]]; then echo "Accurip file specified, ignored"; unset ${ACCURIP}; fi 
