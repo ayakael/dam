@@ -22,20 +22,18 @@ print_meta_mtag() {
    
     # If list of Tags isn't giving, assumes that we want to output all tags, and thus this
     # generates all tags present in MTAG file
-    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="[,]?\n";FS=" : "}{if($1!~"@"){print $1}}' ${FILE} | tr -d '[]{}" ' | awk '!seen[$0]++' | tail -n +3) IMAGEID)
+    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="[,]?\n";FS=" : "}{if($1!~"@"){print $1}}' ${FILE} | tr -d '[]{}" ' | awk '!seen[$0]++' | tail -n +3))
     
 
     # Goes through every tag, determines it's original value, and then prints out.
     for tag in ${tagList[@]}; do
-        # Finalizes output with IMAGEID
-        [[ "${tag}" == "IMAGEID" ]] && { echo -n "IMAGEID=$(sed 's|.tags||g' <<< $(basename "${FILE}"))"; continue; }
-        
         # Skips rint_mtag_field for field TITLE to keep it unique. Thus, if a track
         # does not have a defined TITLE, it won't inherit it from previous tracks
         [[ "${tag}" == "TITLE" ]] && { [[ -z "$(awk -v track=${TRACK_NO} 'BEGIN {RS="\n * }"}{if(NR==track){print $0}}' ${FILE} |  awk -v field="\"TITLE\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}')" ]] && continue; }
 
         # Prints out VALUE of that TAG for that TRACK NO
-        echo -n "${tag}=$(print_mtag_field ${FILE} ${TRACK_NO} ${tag});"
+        echo -n "${tag}=$(print_mtag_field ${FILE} ${TRACK_NO} ${tag})"
+        [[ "${tag}" != "${tagList[-1]}" ]] && echo -n ";"
     done
 }
 
