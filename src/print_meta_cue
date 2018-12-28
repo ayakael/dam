@@ -17,20 +17,20 @@ print_meta_cue() {
     local trackmetaList=($( sed -n '/TRACK 01/,$p' ${CUE} | tr -d '\n' | awk 'BEGIN {RS="TRACK"}{print $0}' | tail -n +2))
 
     # [Output] variable generator
-    local DISCID=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCID" | sed 's|REM DISCID ||')
-    local ARTIST=$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g')
-    local ALBUM=$(sed 's|\ \ .*||' "${CUE}" | grep  -a "TITLE" | sed 's|TITLE ||' | sed 's|\"||g')
-    local DATE=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DATE" | sed 's|REM DATE ||')
-    local DISCNUMBER=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCNUMBER" | sed 's|REM DISCNUMBER ||')
-    local TOTALDISCS=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM TOTALDISCS" | sed 's|REM TOTALDISCS ||')
+    local DISCID=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCID" | sed 's|REM DISCID ||' | sed 's|;|:|g')
+    local ARTIST=$(sed 's|\ \ .*||' "${CUE}" | grep -a "PERFORMER" | sed 's|PERFORMER ||' | sed 's|\"||g' | sed 's|;|:|g')
+    local ALBUM=$(sed 's|\ \ .*||' "${CUE}" | grep  -a "TITLE" | sed 's|TITLE ||' | sed 's|\"||g'i | sed 's|;|:|g')
+    local DATE=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DATE" | sed 's|REM DATE ||' | sed 's|;|:|g')
+    local DISCNUMBER=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM DISCNUMBER" | sed 's|REM DISCNUMBER ||' | sed 's|;|:|g')
+    local TOTALDISCS=$(sed 's|\ \ .*||' "${CUE}" | grep -a "REM TOTALDISCS" | sed 's|REM TOTALDISCS ||') | sed 's|;|:|g'
     
     local COUNT=0
     for trackmeta in ${trackmetaList[@]}; do
         echo -n "ARTIST=${ARTIST};"
         echo -n "ALBUM=${ALBUM};"
         echo -n "DATE=${DATE};"
-        echo -n "TITLE=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a TITLE | sed 's|TITLE ||' | sed 's|\"||g');"
-        echo -n "PERFORMER=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a PERFORMER | sed 's|PERFORMER ||' | sed 's|\"||g');"
+        echo -n "TITLE=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a TITLE | sed 's|TITLE ||' | sed 's|\"||g' | sed 's|;|:|g');"
+        echo -n "PERFORMER=$(echo ${trackmeta} | awk 'BEGIN {RS="    "}{print $0}' | grep -a PERFORMER | sed 's|PERFORMER ||' | sed 's|\"||g' | sed 's|;|:|g' | sed 's|;|:|g');"
         echo -n "TRACKNUMBER=$(( ${COUNT} + 1 ));"
         echo -n "TOTALTRACKS=${#trackmetaList[@]};"
         echo -n "DISCNUMBER=${DISCNUMBER};"
