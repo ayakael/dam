@@ -24,7 +24,7 @@ import_src() {
     [[ ! -d "${TRACK_DIR}" ]] && return 2
 
 
-    local fileList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' | sort))
+    local fileList=($(find ${TRACK_DIR} -maxdepth 1 -name '*.flac' -printf '%p\n' 2>/dev/null | sort))
 
     # Join trackList 
     echo "Processing audio files"

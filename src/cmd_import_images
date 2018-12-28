@@ -54,7 +54,7 @@ cmd_import_images() {
 
         
         # Import folders
-        local importList=($(find ${GIT_DIR}/.import/${SOURCE}/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t'))
+        local importList=($(find ${GIT_DIR}/.import/${SOURCE}/ -mindepth 1 -maxdepth 1 -type d -printf '%p\t' 2>/dev/null))
         for import in ${importList[@]}; do
             _msg EXEC "Importing ${import}"
             import_src "${GIT_DIR}" "${import}" $([[ -n "${BATCHID}" ]] && echo "-b") ${BATCHID} >${STDERR} 2>&1 
