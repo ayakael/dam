@@ -101,5 +101,18 @@ import_src() {
     # Generate cover images
     gen_cover "${TRACK_DIR}/img.png" > ${GIT_DIR}/${IMAGEID}.png
     gen_small_cover "${TRACK_DIR}/img.png" > ${GIT_DIR}/${IMAGEID}.jpg
+
+    # Move misc files
+    echo "Moving misc files"
+    case ${SOURCE} in
+        EAC)
+            cp "${TRACK_DIR}/img.log" "${GIT_DIR}/${IMAGEID}.log"
+        ;;
+
+        CUETOOLS)
+            cp "${TRACK_DIR}/img.log" "${GIT_DIR}/${IMAGEID}.log"
+            cp "${TRACK_DIR}/img.accurip" "${GIT_DIR}/${IMAGEID}.accurip"
+        ;;
+    esac
     return 0
 }
