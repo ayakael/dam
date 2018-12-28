@@ -95,7 +95,9 @@ import_src() {
     [[ $? -eq 0 ]] || return 5
 
 
-    # Move joined.flac to GIT_DIR
+    # Remove metadata and move img.flac to GIT_DIR
+
+    metaflac --remove-all --dont-use-padding "${TRACK_DIR}/img.flac"
     cp "${TRACK_DIR}/img.flac" "${GIT_DIR}/${IMAGEID}.flac"
 
     # Generate cover images
