@@ -34,7 +34,7 @@ chk_deployed_ids() {
         if [[ -z "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE})" ]]; then
             local ERR=true
             echo  "Fixing accounting for ${flac}" > ${STDERR}
-            echo -e "true\t${IMAGEID}\t${TRACKID}\t${flac}" >> ${DB_FILE}
+            echo -e "true${IMAGEID}\t${TRACKID}\t${flac}" >> ${DB_FILE}
         elif [[ "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $4}}' ${DB_FILE})" != "${flac}" ]]; then
             local ERR=true
             echo "Fixing path for ${flac}"  > ${STDERR}
