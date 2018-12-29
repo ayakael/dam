@@ -1,0 +1,15 @@
+#!/bin/bash
+
+chk_duplicate_imageid() {
+    local TARGET_DIR="${1}"
+    for flac in $(find ${TARGET_DIR} -name '*.flac'); do
+        echo ${flac}
+        local METADATA="$(print_meta_flac "${flac}")"
+        imageidList=($(awk 'BEGIN{RS=";";FS="="}{if($1=="IMAGEID"){print $2}}' <<< ${METATATA}))
+        if [[ ${#imageidList[@]} -ne 1 ]]; then
+            local NEW_METADATA="$(echo ${METADATA} | sed 's|;|;\n|g' |  sed 's/.*IMAGE.*;//' | awk 'NF' | tr -d '\n')"
+            metaflac --remove-all-tags "${flac}"
+            tr ';' \\n <<< ${NEW_METADATA}| metaflac --import-tags-from=- "${flac}"
+        fi
+    done
+}
