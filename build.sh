@@ -1,6 +1,22 @@
 #!/bin/bash
-
 EXEC=dam
+while true; do
+    case ${1} in
+        --version)
+            shift
+            VERSION="${1}"
+        ;;
+
+        *)
+            break
+        ;;
+
+    esac
+    shift
+done
+
+if [[ ! -d .git ]] && [[ -z ${VERSION+x} ]]; then echo "Not in git environement, please specify version via --version argument"; exit 1; fi
+[[ -z ${VERSION+x} ]] && VERSION=$(git describe --tags)
 
 test_function() {
     local functionList=(${@})
@@ -29,7 +45,6 @@ gen_help() {
 
 gen_env() {
     echo -e "#!/bin/bash\n" 
-    [[ $(git describe --tags) ]] && VERSION=$(git describe --tags) || VERSION=$(cat VERSION)
     echo "VERSION=${VERSION}"
     echo "REPO_VERSION=1"
     awk '!/^ *#/ && NF' src/env
