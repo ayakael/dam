@@ -63,3 +63,12 @@
 * Added --force option to allow override for disk usage
 * Added -b / --batch-id option to add BATCHID metadata
 * Fixed a few metadata bugs
+
+### v0.3.2
+* Now checks audio integrity when importing to make sure it is not corrupted
+* Fixed bug where cover image from CUETOOLS and EAC sources would not get detected if wasn't the same name of the cue file
+* Fixed bug where log and accurip files would not get imported
+* Fixed bug that would cause errors when semi colons were used in cue files
+* Fixed bug that would cause multiple instances of IMAGEID to be defined in flac file after exportation
+* Image files are now stripped of metadata when importing from CUETOOLS and EAC sources
+* Changed some internals
