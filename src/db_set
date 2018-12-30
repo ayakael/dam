@@ -32,7 +32,7 @@ db_set() {
     # Defines what imageids are imported into database, as we're only going to act on those
     local FIELD="$(echo ${CONDITION} | cut -d'=' -f1 | awk '{print toupper($0)}')"
     local VALUE="$(echo ${CONDITION} | cut -d'=' -f2 | awk '{print toupper($0)}')"
-       
+
     # Determines which IMAGEIDs present in the DB_FILE match the CONDITION
     local COUNT=1
     local dbimageidList=$(awk 'BEGIN{FS="\t"}{if($1!="LAST_DEPLOY" && $1!="LAST_UPDATE" && $1!="REPO_ID" && $1!="REPO_VERSION" && $1!="null"){print $2}}' ${DB_FILE} | awk '!seen[$0]++')
@@ -42,7 +42,7 @@ db_set() {
         local imageidList[${COUNT}]="$(basename -s .tags ${MATCH} 2>/dev/null)"
         local COUNT=$(( ${COUNT} + 1 ))
     done
-
+    
     # Goes through imageidList to determine which TRACKID matches the CONDITION
     for imageid in ${imageidList[@]}; do
 
@@ -53,10 +53,10 @@ db_set() {
         local COUNT=1
         while [[ ${COUNT} -le ${TOTALTRACKS} ]]; do
 
-            local TRACK_VALUE=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD} | cut -d'=' -f2 | sed 's|.$||' | tr '[:lower:]' '[:upper:]')
+            local TRACK_VALUE=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} ${FIELD} | cut -d'=' -f2 | awk '{print toupper($0)}')
             # If print_meta_mtag extract the same VALUE from FIELD as the CONDITION, the TRACKID of this TRACK is added into trackidList
             if [[ "${TRACK_VALUE}" == "${VALUE}" ]]; then
-                local TRACKID=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} TRACKID |  cut -d'=' -f2 | sed 's|.$||')
+                local TRACKID=$(print_meta_mtag "${GIT_DIR}/${imageid}.tags" ${COUNT} TRACKID |  cut -d'=' -f2 )
                 _msg ECHO "Track ${COUNT} of ${imageid} matches condition. Adding to trackidList"
                 local trackidList[${COUNT}]="${TRACKID}"
             fi
