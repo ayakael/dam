@@ -72,3 +72,4 @@
 * Fixed bug that would cause multiple instances of IMAGEID to be defined in flac file after exportation
 * Image files are now stripped of metadata when importing from CUETOOLS and EAC sources
 * Changed some internals
+* build.sh can now accept --version argument for when building in non-git environment
