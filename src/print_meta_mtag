@@ -22,7 +22,7 @@ print_meta_mtag() {
    
     # If list of Tags isn't giving, assumes that we want to output all tags, and thus this
     # generates all tags present in MTAG file
-    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="[,]?\n";FS=" : "}{if($1!~"@"){print $1}}' ${FILE} | tr -d '[]{}" ' | awk '!seen[$0]++' | tail -n +3))
+    [[ -z "${tagList[@]}" ]] && local tagList=($(awk 'BEGIN{RS="[,]?\n";FS=" : "}{if($1!~"@"){print $1}}' ${FILE} | tr -d '[]{}" ' | awk '!seen[$0]++' | sed '/^&/d' | tail -n +2 ))
     
 
     # Goes through every tag, determines it's original value, and then prints out.
