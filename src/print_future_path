@@ -20,19 +20,19 @@ print_future_path() {
         eval local ${tag}='${CURTAG}'
     done
 
-    [[ -n "${GENRE}" ]] && echo -n "${GENRE}/"
+    [[ -n "${GENRE}" ]] && echo -n "${GENRE}/" || echo -n "Unknown/"
     if [[ -n "${CONDUCTOR}" ]]; then 
-        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/"
-        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/"
+        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/" || echo -n "Unknown Composer/"
+        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/" || echo -n "Unknown Piece/"
         [[ -n "${CONDUCTOR}" ]] && echo -n "${CONDUCTOR}/"
         [[ -n "${DATE}" ]] && echo -n "${DATE}"
         if [[ -n "${DATE}" ]] && [[ -n "${PERFORMER}" ]]; then echo -n " - "; fi
         [[ -n "${PERFORMER+x}" ]] && echo -n "${PERFORMER}/"
     else
-        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/"
+        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/" || echo -n "Unknown Artist/"
         [[ -n "${DATE}" ]] && echo -n "${DATE}"
         if [[ -n "${DATE}" ]] && [[ -n "${ALBUM}" ]]; then echo -n " - "; fi
-        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/"
+        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/" || echo -n "Unknown Album/"
     fi
     
     [[ ${TOTALDISCS} -gt 1 ]] && echo -n "${DISCNUMBER}."
