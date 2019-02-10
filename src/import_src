@@ -94,6 +94,17 @@ import_src() {
     local EXIT=$?
     [[ $? -eq 0 ]] || return 5
 
+    # Convert tags and cue to utf-8 with bom
+    local txtExtensionsList=(tags cue)
+    for txtExtensions in ${txtExtensionsList[@]}; do
+        local pathList=("${GIT_DIR}/${IMAGEID}.${txtExtensions}" ${pathList[@]})
+    done
+    fix_charset ${pathList[@]}
+    for path in ${pathList[@]}; do
+        iconv -t UTF-8//IGNORE "${path}" > "${path}.iconv"
+        mv "${path}.iconv" "${path}"
+    done
+    add_bom ${pathList[@]}
 
     # Remove metadata and move img.flac to GIT_DIR
 

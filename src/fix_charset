@@ -16,6 +16,8 @@ fix_charset() {
         sed -i 's/\xc2\x92/\x27/g' "${file}"
         sed -i 's/\xc2\x85/\x2e\x2e\x2e/g' "${file}"
         sed -i 's/\xc2\x96/\x2d/g' "${file}"
+        sed -i 's/\xe9/\xc3\xa9/g' "${file}"
+        sed -i 's/\xc9/\xc3\x89/g' "${file}"
     done
     return 0
 }

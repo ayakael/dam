@@ -65,7 +65,7 @@ import_images() {
     for path in ${pathList[@]}; do
         case $(sed 's|.*\.||' <<< ${path}) in
             (jpg) echo "Copying cover image"; convert "${path}" "${GIT_DIR}/.import/${SOURCE}/${discidList}/img.png" ;;
-            (*) local DEST="${GIT_DIR}/.import/${SOURCE}/${discidList}/img.$(sed 's|.*\.||' <<< ${path})"; echo "Copying ${path} to ${DEST}"; cp --no-preserve=mode "${path}"  "${DEST}" ;;
+            (cue|accurip|log|flac) local DEST="${GIT_DIR}/.import/${SOURCE}/${discidList}/img.$(sed 's|.*\.||' <<< ${path})"; echo "Copying ${path} to ${DEST}"; cp --no-preserve=mode "${path}"  "${DEST}" ;;
         esac    
     done
 }
