@@ -66,8 +66,9 @@ cmd_export() {
             local GIT_GET=false
             if [[ ! -f "${GIT_DIR}/${imageid}.flac" ]]; then
                 git -C  "${GIT_DIR}" annex get "${imageid}.flac" >${STDERR} 2>&1
+                local ERROR=$?
                 local GIT_GET=true
-                [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
+                [[ $ERROR -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
             fi
             export_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
             [[ $? -ne 0 ]] && local CP_ERR=true
