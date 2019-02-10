@@ -13,6 +13,7 @@
 # }
 
 cmd_update() {
+    [[ "${1}" == "--include" ]] && { local INCLUDE=true; shift; }
     local GIT_DIR="${1}"
     local TARGET="${2}"
     local OLD_COMMIT="${3}"
@@ -36,7 +37,7 @@ cmd_update() {
     local COUNT=1
     for imageid in ${imageidList[@]}; do
         echo "[ ${COUNT} / ${#imageidList[@]} ] Processing ${imageid}" 
-        db_update "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
+        db_update $([[ ${INCLUDE} ]] && echo "--include") "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
         local EXIT=$?
         [[ ${EXIT} -eq 0 ]] && { _ansi up 2; echo -en '\033[K';  echo "[ ${COUNT} / ${#imageidList[@]} ] Added ${imageid}"; }
         [[ ${EXIT} -eq 1 ]] && { _ansi up 2; echo -en '\033[K';  echo "[ ${COUNT} / ${#imageidList[@]} ] Removed  ${imageid}"; }

@@ -5,3 +5,5 @@ Deploys tracks to target folder, with applies metadata and cover image
 Options
    --from <old commit hash>
       Defines what what commit should dam deploy from. Defaults to when last succesfull deploy occured.
+   --include
+      Includes new images in next export

@@ -129,6 +129,11 @@ case "${1}" in
                     shift
                 ;;
 
+                --include)
+                    INCLUDE=true
+                    shift
+                ;;
+
                 *)
                     TARGET="${1}"
                     shift
@@ -136,7 +141,7 @@ case "${1}" in
             esac
         done
 
-        cmd_update "${_GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
+        cmd_update $([[ ${INCLUDE} ]] && echo "--include") "${_GIT_DIR}" "${TARGET}" "${OLD_COMMIT}"
         EXIT=$?
         [[ ${EXIT} -eq 0 ]] && echo "Update completed successfully"
         [[ ${EXIT} -eq 1 ]] && echo "Update completed with errors"
