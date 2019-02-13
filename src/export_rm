@@ -21,14 +21,15 @@ export_rm() {
 
     ## Removes trackids from TARGET
     _msg EXEC "Removing ${TRACKID} from ${TARGET})"
-    local pathList=($( awk -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($3==trackid && $4!="null"){print $4}})'))
+    local pathList=($( awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if(($2==imageid && $3==trackid) && $4!="null"){print $4}}' "${DB_FILE}"))
     if [[ ${#pathList[@]} -eq 1 ]]; then
         rm "${TARGET}/$(print_present_path "${DB_FILE}" ${IMAGEID} ${TRACKID})" >${STDERR} 2>&1
     else
-        echo "Detected multiple instances of ${TRACKID} with same paths, will not delete" > ${STDERR}
+        echo "Detected multiple instances of ${IMAGEID}-${TRACKID}, will not delete" > ${STDERR}
         _msg WARN
+        return 1
     fi
 
-    [[ $? -eq 0 ]] && { _msg OK; gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} -v value=null  'BEGIN{FS="\t";OFS="\t"}{if(($3==trackid && $2==imageid) && $1=="null"){$4=value}{print $0}}' ${DB_FILE}; return 0; } || { _msg WARN; return 1; } 
+    [[ -f "${TARGET}/$(print_present_path "${DB_FILE}" ${IMAGEID} ${TRACKID})" ]] || { gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} -v value=null  'BEGIN{FS="\t";OFS="\t"}{if($3==trackid && $2==imageid){$4=value}{print $0}}' ${DB_FILE}; return 0; }
 }
 
