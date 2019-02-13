@@ -112,8 +112,8 @@ import_src() {
     cp "${TRACK_DIR}/img.flac" "${GIT_DIR}/${IMAGEID}.flac"
 
     # Generate cover images
-    gen_cover "${TRACK_DIR}/img.png" > ${GIT_DIR}/${IMAGEID}.png
-    gen_small_cover "${TRACK_DIR}/img.png" > ${GIT_DIR}/${IMAGEID}.jpg
+    gen_cover "${TRACK_DIR}/img.png" > "${GIT_DIR}/${IMAGEID}.png"
+    gen_small_cover "${GIT_DIR}/${IMAGEID}.png" > "${GIT_DIR}/${IMAGEID}.jpg"
 
     # Move misc files
     echo "Moving misc files"
