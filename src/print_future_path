@@ -11,7 +11,7 @@
 #
 # }
 
-print_future_path() {
+print_future_path_raw() {
     local TAGS="${@}"
     local tagList=(GENRE COMPOSER ALBUM ARTIST CONDUCTOR PERFORMER DATE DISCNUMBER TOTALDISCS TRACKNUMBER TITLE)
 
@@ -20,24 +20,29 @@ print_future_path() {
         eval local ${tag}='${CURTAG}'
     done
 
-    [[ -n "${GENRE}" ]] && echo -n "${GENRE}/" || echo -n "Unknown/"
+    [[ -n "${GENRE}" ]] && echo -en "${GENRE}\n" || echo -en "Unknown\n"
     if [[ -n "${CONDUCTOR}" ]]; then 
-        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/" || echo -n "Unknown Composer/"
-        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/" || echo -n "Unknown Piece/"
-        [[ -n "${CONDUCTOR}" ]] && echo -n "${CONDUCTOR}/"
+        [[ -n "${ARTIST}" ]] && echo -en "${ARTIST}\n" || echo -en "Unknown Composer\n"
+        [[ -n "${ALBUM}" ]] && echo -en "${ALBUM}\n" || echo -en "Unknown Piece\n"
+        [[ -n "${CONDUCTOR}" ]] && echo -en "${CONDUCTOR}\n"
         [[ -n "${DATE}" ]] && echo -n "${DATE}"
         if [[ -n "${DATE}" ]] && [[ -n "${PERFORMER}" ]]; then echo -n " - "; fi
-        [[ -n "${PERFORMER+x}" ]] && echo -n "${PERFORMER}/"
+        [[ -n "${PERFORMER+x}" ]] && echo -en "${PERFORMER}\n"
     else
-        [[ -n "${ARTIST}" ]] && echo -n "${ARTIST}/" || echo -n "Unknown Artist/"
+        [[ -n "${ARTIST}" ]] && echo -en "${ARTIST}\n" || echo -en "Unknown Artist\n"
         [[ -n "${DATE}" ]] && echo -n "${DATE}"
         if [[ -n "${DATE}" ]] && [[ -n "${ALBUM}" ]]; then echo -n " - "; fi
-        [[ -n "${ALBUM}" ]] && echo -n "${ALBUM}/" || echo -n "Unknown Album/"
+        [[ -n "${ALBUM}" ]] && echo -en "${ALBUM}\n" || echo -en "Unknown Album\n"
     fi
     
     [[ ${TOTALDISCS} -gt 1 ]] && echo -n "${DISCNUMBER}."
     printf "%02d" ${TRACKNUMBER}
-    [[ -n "${TITLE}" ]] && echo -n " - $(sed 's|/|_|g' <<< ${TITLE})" || echo -n " - Track $(printf "%02d" ${TRACKNUMBER})"
+    [[ -n "${TITLE}" ]] && echo -n " - ${TITLE}" || echo -n " - Track $(printf "%02d" ${TRACKNUMBER})"
     echo -n ".flac"
 }
 
+print_future_path() {
+    local TAGS="${@}"
+
+    print_future_path_raw ${TAGS} | sed 's|/|-|g' | sed 's|:|_|g' | tr "\n" "/"
+}
