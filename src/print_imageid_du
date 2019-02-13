@@ -16,5 +16,5 @@ print_imageid_du() {
     [[ -z "${imageidList[@]}" ]] && { echo 0; return 0; }
     local bytesList=($(awk 'BEGIN{RS=",";FS=":"}{if($1=="\"size\""){print $2}}' <<<$(git -C "${GIT_DIR}" annex info --bytes --json $(printf "%s.flac\t" ${imageidList[@]}))))
     [[ -z "${bytesList[@]}" ]] && { echo 0; return 0; }
-     dc <<< '[+]sa[z2!>az2!>b]sb'"$(sed 's/"//g' <<< "${bytesList[@]}")lbxp"
+    printf '%s\n' ${bytesList[@]} | awk '{s+=$1} END {print s}'
 }
