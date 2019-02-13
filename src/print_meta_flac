@@ -17,6 +17,7 @@ print_meta_flac() {
         [[ ! -f ${file} ]] && return 1
     
         local METADATA=$(awk 'BEGIN{FS="]: ";ORS=";"}{if($1 ~ /comment\[/){print $2}}' <<< $(metaflac --list --block-type=VORBIS_COMMENT "${file}"))
-        echo ${METADATA} | sed 's|.$||'
+        local PICTURE="IMAGESIZE=$(metaflac --list --block-type=PICTURE ${file} | awk 'BEGIN{FS=": ";RS="\n  ";}{if($1=="data length"){print $2}}')"
+        echo ${METADATA}${PICTURE}
     done
 } 
