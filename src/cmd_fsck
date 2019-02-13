@@ -34,6 +34,10 @@ cmd_fsck() {
             metadata)
                 chk_metadata "${GIT_DIR}" "${TARGET}" "${DB_FILE}"
             ;;
+
+            duplicate-trackid)
+                chk_duplicate_trackid "${DB_FILE}"
+            ;;
         esac 
     done
 }

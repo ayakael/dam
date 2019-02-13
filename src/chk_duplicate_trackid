@@ -1,0 +1,24 @@
+#!/bin/bash
+
+chk_duplicate_trackid() {
+    local DB_FILE="${1}"
+    shift
+    local trackidList=(${@})
+    [ -z ${trackidList+x} ] && local trackidList=($(awk 'BEGIN{FS="\t"}{print $3}' ${DB_FILE} |  awk '!seen[$0]++'))
+
+    local COUNT=1
+    for trackid in ${trackidList[@]}; do
+        echo "[ ${COUNT} / ${#trackidList[@]} ] Checking duplicate ${trackid} in ${DB_FILE}" 
+        local curtrackidList=($(awk -v trackid=${trackid} 'BEGIN{FS="\t"}{if($3==trackid){print $3}}' ${DB_FILE}))
+        if [[ ${#curtrackidList[@]} -gt 1 ]]; then
+            _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#trackidList[@]} ] ${trackid} duplicate" 
+            local duplicatetrackidList=(${duplicatetrackidList[@]} ${trackid})
+            local ERR=true
+        else
+            _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#trackidList[@]} ] ${trackid} not duplicate" 
+        fi
+        local COUNT=$(( ${COUNT} + 1 ))
+    done
+    printf "Duplicate track: %s\n" ${duplicatetrackidList[@]} > ${STDERR}
+    [[ "${ERR}" == "true" ]] && { _msg EXEC "Duplicate trackid check completed with errors"; _msg WARN; } || { _msg EXEC "Duplicate trackid check completed succesfully"; _msg OK; }
+}

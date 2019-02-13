@@ -176,6 +176,11 @@ case "${1}" in
                     shift
                 ;;
 
+            --duplicate-trackid)
+                    cmdList=(${cmdList[@]} duplicate-trackid)
+                    shift
+                ;;
+
                 *)
                     TARGET="${1}"
                     shift
@@ -184,7 +189,7 @@ case "${1}" in
             esac
         done
         
-        [[ -z ${cmdList[@]} ]] && cmdList=(deployed-ids nonexistent-ids metadata)
+        [[ -z ${cmdList[@]} ]] && cmdList=(deployed-ids nonexistent-ids metadata duplicate-trackid)
 
         cmd_fsck "${_GIT_DIR}" "${TARGET}" ${cmdList[@]}
         EXIT=$?
