@@ -73,3 +73,15 @@
 * Image files are now stripped of metadata when importing from CUETOOLS and EAC sources
 * Changed some internals
 * build.sh can now accept --version argument for when building in non-git environment
+
+
+### v0.3.3
+* Update now has an --include option which includes all newly added images
+* Fixed bug where export would not catch a download failure
+* Fixed bug where tags and cue files would not get converted to UTF-8 correctly and other charset issues
+* Export now replaces unset metadata with Unknown
+* Fixed bug where small cover of default png would be empty
+* Fixed bug where database might not update correctly on image removal
+* Export now detects changes with cover picture
+* Now relies on awk instead of dc for calculations
+* Update bunc to latest version
