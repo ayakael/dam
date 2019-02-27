@@ -58,7 +58,7 @@ cmd_export() {
     for removableid in ${removableidList[@]}; do
         echo "[ ${COUNT} / ${#removableidList[@]} ] Removing ${removableid}" 
         export_rm "${TARGET}" "${DB_FILE}" ${removableid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; }
+        [[ $? -eq 0 ]] || { echo "[>>>>>>] Error reported"; cat ${STDERR}; local ERR=true; } && { if ${_DEBUG}; then cat ${STDERR}; fi; }
         local COUNT=$(( ${COUNT} + 1 ))
     done
     
@@ -75,18 +75,19 @@ cmd_export() {
                 local GIT_GET=true
                 [[ ${ERROR} -eq 255 ]] && git -C "${GIT_DIR}" annex get "${imageid}.flac" >/dev/null 2>&1
                 local ERROR=$?
-                [[ $ERROR -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
+                [[ $ERROR -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; } || { if ${_DEBUG}; then cat ${STDERR}; fi; }
             fi
             export_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
-            [[ $? -ne 0 ]] && local CP_ERR=true
+            local EXIT=$?
+            [[ ${EXIT} -ne 0 ]] && local CP_ERR=true
             [[ "${GIT_GET}" == "true" ]] && git -C "${GIT_DIR}" annex drop ${imageid}.flac >/dev/null 2>&1
-            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
+            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } || { if ${_DEBUG}; then cat ${STDERR}; fi; }
         fi
         
 
         # Processes metadata changes
         export_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Deployment of ${imageid} completed successfully"; } 
+        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Deployment of ${imageid} completed successfully"; if ${_DEBUG}; then cat ${STDERR}; fi; }
         [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Application of metadata of ${imageid} completed with errors"; cat ${STDERR}; } 
     done
 

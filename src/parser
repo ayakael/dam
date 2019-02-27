@@ -36,6 +36,11 @@ while true; do
             _FORCE="force"
         ;;
 
+        --debug)
+            _DEBUG=true
+            echo "Debug true"
+        ;;
+
         *)
             break
         ;;

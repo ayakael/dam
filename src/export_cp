@@ -24,20 +24,24 @@ export_cp() {
     ## Splits IMAGEID into TRACKIDs
     _msg EXEC "Splitting ${IMAGEID}"
     gen_tracks "${GIT_DIR}" "${GIT_DIR}/${IMAGEID}.flac" "${GIT_DIR}/${IMAGEID}.cue" >${STDERR} 2>&1
-    [[ $? -ne 0 ]] && _msg WARN
+    local EXIT=$?
+    [[ ${EXIT} -ne 0 ]] && return 1
     export_mv "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
-    [[ $? -eq 0 ]] && _msg OK || _msg WARN
+    local EXIT=$?
+    [[ ${EXIT} -ne 0 ]] && return 2
 
     ## Transfers selected TRACKIDs to TARGET
     trackidList=($(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid && $4=="null"){print $3}}' "${DB_FILE}"))
     for trackid in ${trackidList[@]}; do
         _msg EXEC "Deploying ${trackid}"
         cp "${GIT_DIR}/${IMAGEID}-${trackid}.flac" "${TARGET}/${IMAGEID}-${trackid}.flac"
-        if [[ $? -eq 0 ]]; then
+        local EXIT=$?
+        if [[ ${EXIT} -eq 0 ]]; then
             _msg OK
             gawk -i inplace -v trackid=${trackid} -v value="${IMAGEID}-${trackid}.flac" 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}
         else    
             _msg WARN
+            return 3
         fi
     done
     

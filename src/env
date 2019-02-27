@@ -8,4 +8,5 @@ IFS='
 '
 _OPT_DB_FILE=.dam.db
 _OPT_TMP=/tmp
+_DEBUG=false
 

@@ -16,6 +16,8 @@ gen_tracks() {
     local IMAGE="${2}"
     local CUE="${3}"
 
+    if [[ ! -f "${IMAGE}" ]] || [[ ! -f "${CUE}" ]]; then return 2; fi
+
     ## breakpointList generator
     # Generates list with cuebreakpoints utility
     local breakpointList=($(print_breakpoints "${CUE}" ))
