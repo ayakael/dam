@@ -30,12 +30,17 @@ cmd_export() {
     local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
     [[ -z "${OLD_COMMIT}" ]] && local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_DEPLOY"){print $2}}' "${DB_FILE}")
     local removableidList=($(awk 'BEGIN{FS="\t"}{if(($1=="null" || $1=="false") && $4!="null"){print $2"--"$3}}' "${DB_FILE}"))
-    local deployableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
+    local exportableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
+
     local changedidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
-    local updateableidList=($(printf "%s\n" ${deployableidList[@]} ${changedidList[@]} | awk '!seen[$0]++'))
+    local selectedidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
+    for changedid in ${changedidList[@]}; do
+        if _if_array_contains ${changedid} ${selectedidList[@]}; then updateableidList=(${updateableidList[@]} ${changedid}); fi
+    done
+    local exportableidList=($(printf "%s\n" ${exportableidList[@]} ${updateableidList[@]} | awk '!seen[$0]++'))
 
     # Checks if something needs doing 
-    if [[ -z "${removableidList[@]}" ]] && [[ -z "${updateableidList[@]}" ]]; then echo "Nothing to do"; fi
+    if [[ -z "${removableidList[@]}" ]] && [[ -z "${exportableidList[@]}" ]]; then echo "Nothing to do"; fi
 
     # Checks if target has enough space
     local futureidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' ${DB_FILE} | awk '!seen[$0]++'))
@@ -58,9 +63,9 @@ cmd_export() {
     done
     
     local COUNT=0
-    for imageid in ${updateableidList[@]}; do
+    for imageid in ${exportableidList[@]}; do
         local COUNT=$(( ${COUNT} + 1 ))
-        echo "[ ${COUNT} / ${#updateableidList[@]} ] Deploying ${imageid}"
+        echo "[ ${COUNT} / ${#exportableidList[@]} ] Deploying ${imageid}"
         # Processes deployableids (IMAGEIDs that have TRACKIDs that are not present in target, but are selected)
         if _if_array_contains ${imageid} ${deployableidList[@]}; then
             local GIT_GET=false
@@ -70,19 +75,19 @@ cmd_export() {
                 local GIT_GET=true
                 [[ ${ERROR} -eq 255 ]] && git -C "${GIT_DIR}" annex get "${imageid}.flac" >/dev/null 2>&1
                 local ERROR=$?
-                [[ $ERROR -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
+                [[ $ERROR -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; }
             fi
             export_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
             [[ $? -ne 0 ]] && local CP_ERR=true
             [[ "${GIT_GET}" == "true" ]] && git -C "${GIT_DIR}" annex drop ${imageid}.flac >/dev/null 2>&1
-            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
+            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } 
         fi
         
 
         # Processes metadata changes
         export_meta "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} >${STDERR} 2>&1
-        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Deployment of ${imageid} completed successfully"; } 
-        [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#updateableidList[@]} ] Application of metadata of ${imageid} completed with errors"; cat ${STDERR}; } 
+        [[ $? -eq 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Deployment of ${imageid} completed successfully"; } 
+        [[ $? -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Application of metadata of ${imageid} completed with errors"; cat ${STDERR}; } 
     done
 
 
