@@ -30,14 +30,14 @@ cmd_export() {
     local NEW_COMMIT=$(git -C "${GIT_DIR}" rev-parse HEAD)
     [[ -z "${OLD_COMMIT}" ]] && local OLD_COMMIT=$(awk 'BEGIN{FS="\t"}{if($1=="LAST_DEPLOY"){print $2}}' "${DB_FILE}")
     local removableidList=($(awk 'BEGIN{FS="\t"}{if(($1=="null" || $1=="false") && $4!="null"){print $2"--"$3}}' "${DB_FILE}"))
-    local exportableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
+    local deployableidList=($(awk 'BEGIN{FS="\t"}{if($1=="true" && $4=="null"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
 
     local changedidList=($(sed 's/\(.*\)\..*/\1/' <<< $(git -C "${GIT_DIR}" diff --name-only ${NEW_COMMIT} ${OLD_COMMIT}) | awk '!seen[$0]++' | grep SHA256))
     local selectedidList=($(awk 'BEGIN{FS="\t"}{if($1=="true"){print $2}}' "${DB_FILE}" | awk '!seen[$0]++'))
     for changedid in ${changedidList[@]}; do
         if _if_array_contains ${changedid} ${selectedidList[@]}; then updateableidList=(${updateableidList[@]} ${changedid}); fi
     done
-    local exportableidList=($(printf "%s\n" ${exportableidList[@]} ${updateableidList[@]} | awk '!seen[$0]++'))
+    local exportableidList=($(printf "%s\n" ${deployableidList[@]} ${updateableidList[@]} | awk '!seen[$0]++'))
 
     # Checks if something needs doing 
     if [[ -z "${removableidList[@]}" ]] && [[ -z "${exportableidList[@]}" ]]; then echo "Nothing to do"; fi
@@ -81,7 +81,7 @@ cmd_export() {
             local EXIT=$?
             [[ ${EXIT} -ne 0 ]] && local CP_ERR=true
             [[ "${GIT_GET}" == "true" ]] && git -C "${GIT_DIR}" annex drop ${imageid}.flac >/dev/null 2>&1
-            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Copy of ${imageid} completed with errors"; cat ${STDERR}; local ERR=true; continue; } || { if ${_DEBUG}; then cat ${STDERR}; fi; }
+            [[ "${CP_ERR}" == "true" ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] Copy of ${imageid} completed with error code ${EXIT}"; cat ${STDERR}; local ERR=true; continue; } || { if ${_DEBUG}; then cat ${STDERR}; fi; }
         fi
         
 

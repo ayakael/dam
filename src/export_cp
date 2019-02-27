@@ -27,8 +27,6 @@ export_cp() {
     local EXIT=$?
     [[ ${EXIT} -ne 0 ]] && return 1
     export_mv "${GIT_DIR}" ${IMAGEID} >${STDERR} 2>&1
-    local EXIT=$?
-    [[ ${EXIT} -ne 0 ]] && return 2
 
     ## Transfers selected TRACKIDs to TARGET
     trackidList=($(awk -v imageid=${IMAGEID} 'BEGIN{FS="\t"}{if($1=="true" && $2==imageid && $4=="null"){print $3}}' "${DB_FILE}"))

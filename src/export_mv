@@ -12,6 +12,7 @@
 export_mv() {
     local GITDIR="${1}"
     local IMAGEID="${2}"
+    local ERROR=false
     
     # Generated trackidList to know what id to assign to each file
     local trackidList=$(awk -v field="\"TRACKID\"" 'BEGIN{RS="[,]?\n";FS=" : "}{if($1~field){print $2}}' "${GITDIR}/${IMAGEID}.tags" | tr -d '"')
@@ -20,7 +21,8 @@ export_mv() {
     local COUNT=1
     for trackid in ${trackidList[@]}; do
         mv "${GITDIR}/$(printf 'split-track%02d.flac' ${COUNT})" "${GITDIR}/${IMAGEID}-${trackid}.flac"
-        [[ $? -ne 0 ]]; local ERROR=true
+        local EXIT=$?
+        [[ ${EXIT} -ne 0 ]]; local ERROR=true
         local COUNT=$(( ${COUNT} + 1 ))
     done
     [[ "${ERROR}" == "true" ]] && return 1 || return 0
