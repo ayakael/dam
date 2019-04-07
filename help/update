@@ -5,3 +5,5 @@ Populates database present in target folder with new images.
 Options
    --from <old commit hash>
       Defines what what commit should dam update from. Defaults to when last succesfull update occured.
+   --include
+      Automatically includes newly added images to update
