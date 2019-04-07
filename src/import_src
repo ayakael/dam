@@ -34,7 +34,7 @@ import_src() {
             [[ $? -eq 0 ]] || return 4
             gen_image "${TRACK_DIR}/img.flac" $(printf "%s\t" ${fileList[@]})
             local EXIT="$?"
-            [[ $? -eq 0 ]] || return 3
+            [[ ${EXIT} -eq 0 ]] || return 3
         ;;
         CUETOOLS|EAC)
             med_integrity "${TRACK_DIR}/img.flac" >${STDERR} 2>&1 
@@ -53,7 +53,7 @@ import_src() {
     # Generate addmetaList and trackmetaList
     echo "Generating metadata"
     case ${SOURCE} in 
-        (FLAC)
+        FLAC)
             local trackList=(${fileList[@]}) 
             local addmetaList=($(gen_metatrack ${trackList[@]}))
             local trackmetaList=($(print_meta_flac ${trackList[@]}))
