@@ -17,7 +17,7 @@ print_cue_breaklist() {
     local breakList=(0:00:00)
     if shntool cue ${fileList[@]} >/dev/null 2>&1; then
         shntool cue ${fileList[@]} > joined.cue
-        local breakList=(${breakList[@]}  $(cuebreakpoints joined.cue | sed 's|\.|:|g'))
+        local breakList=(${breakList[@]}  $(print_breakpoints joined.cue))
         rm joined.cue
     else
         local durList=($(soxi -D "${fileList[@]}"))
