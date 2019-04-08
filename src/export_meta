@@ -25,7 +25,7 @@ export_meta() {
         local TRACKNO="$(print_mtag_trackno ${GIT_DIR} ${IMAGEID} ${trackid})"
         _msg ECHO "Checking ${trackid}"
         ## Path and metadata parsing 
-        local FUTURE_META="$(print_meta_mtag ${GIT_DIR}/${IMAGEID}.tags ${TRACKNO} | tr '\\' -d);IMAGESIZE=$(du -sb ${GIT_DIR}/${IMAGEID}.jpg)"
+        local FUTURE_META="$(print_meta_mtag ${GIT_DIR}/${IMAGEID}.tags ${TRACKNO} | tr '\\' -d);IMAGESIZE=$(du -sb ${GIT_DIR}/${IMAGEID}.jpg | awk '{print $1}')"
         local FUTURE_PATH="$(print_future_path ${FUTURE_META} | tr '"\:*?|<>' '________' )"
         local PRESENT_PATH="$(print_present_path "${DB_FILE}" ${IMAGEID} ${trackid})"
         local PRESENT_META="$(print_meta_flac "${TARGET}/${PRESENT_PATH}")"
