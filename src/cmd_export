@@ -64,6 +64,8 @@ cmd_export() {
     
     local COUNT=0
     for imageid in ${exportableidList[@]}; do
+        local CP_ERR=false
+        local GIT_GET=false
         local COUNT=$(( ${COUNT} + 1 ))
         echo "[ ${COUNT} / ${#exportableidList[@]} ] Deploying ${imageid}"
         # Processes deployableids (IMAGEIDs that have TRACKIDs that are not present in target, but are selected)
@@ -73,9 +75,16 @@ cmd_export() {
                 git -C  "${GIT_DIR}" annex get "${imageid}.flac" >${STDERR} 2>&1
                 local ERROR=$?
                 local GIT_GET=true
-                [[ ${ERROR} -eq 255 ]] && git -C "${GIT_DIR}" annex get "${imageid}.flac" >/dev/null 2>&1
-                local ERROR=$?
-                [[ $ERROR -ne 0 ]] && { _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#exportableidList[@]} ] ${imageid} could not be downloaded from server"; cat ${STDERR}; local ERR=true; continue; } || { if ${_DEBUG}; then cat ${STDERR}; fi; }
+                if [[ $ERROR -ne 0 ]] && [[ ${ERROR} -ne 255 ]]; then 
+                    _ansi up 2
+                    echo -en '\033[K'
+                    echo "[ ${COUNT} / ${#exportableidList[@]} ] ${imageid} could not be downloaded from server"
+                    cat ${STDERR}
+                    local ERR=true
+                    continue 
+                else 
+                    if ${_DEBUG}; then cat ${STDERR}; fi;
+                fi
             fi
             export_cp "${GIT_DIR}" "${TARGET}" "${DB_FILE}" ${imageid} > ${STDERR} 2>&1
             local EXIT=$?
