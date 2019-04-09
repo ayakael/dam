@@ -20,6 +20,7 @@ chk_deployed_ids() {
 
     local COUNT=0
     for flac in ${flacList[@]}; do
+        local flac=$(sed 's|${TARGET}/||' <<< ${flac})
         local COUNT=$(( ${COUNT} + 1 ))
         local ERR=false
         echo "[ ${COUNT} / ${#flacList[@]} ] Checking ${flac}"
