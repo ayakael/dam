@@ -16,7 +16,7 @@ chk_deployed_ids() {
     local TARGET="${1}"
     local DB_FILE="${2}"
 
-    local flacList=($(find "${TARGET}" -name '*.flac' -not -path '*/\.*' -printf "%P\n"))
+    local flacList=($(find "${TARGET}"/* -name '*.flac' -printf "%p\n"))
 
     local COUNT=0
     for flac in ${flacList[@]}; do
@@ -27,10 +27,11 @@ chk_deployed_ids() {
         local IMAGEID=$(awk 'BEGIN{RS=";";FS="="}{if($1=="IMAGEID"){print $2}}' <<< ${METADATA})
         local TRACKID=$(awk 'BEGIN{RS=";";FS="="}{if($1=="TRACKID"){print $2}}' <<< ${METADATA})
         
-        if [[ -z "${IMAGEID+x}" ]] || [[ -z "${TRACKID+x}" ]]; then echo "${flac} does not contain IMAGEID or TRACKID metadata" > ${STDERR}; local ERR=true; fi
-        [[ "${ERR}" == "true" ]] && { cat ${STDERR}; continue; } 
-
-        
+        if [[ -z "${IMAGEID+x}" ]] || [[ -z "${TRACKID+x}" ]]; then 
+            _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#flacList[@]} ] ${flac} does not contain IMAGEID or TRACKID metadata"
+            local ERR=true
+            continue
+        fi
         if [[ -z "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE})" ]]; then
             local ERR=true
             echo  "Fixing accounting for ${flac}" > ${STDERR}
@@ -40,9 +41,8 @@ chk_deployed_ids() {
             echo "Fixing path for ${flac}"  > ${STDERR}
             gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){$4=path}{print $0}}' ${DB_FILE}
         fi
-        [[ "${ERR}" == "true" ]] && cat ${STDERR} 
+        [[ "${ERR}" == "true" ]] && return 1 || return 0 
     done
-
 }
 
 
