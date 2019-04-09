@@ -46,7 +46,7 @@ export_meta() {
             mv "${TARGET}/${PRESENT_PATH}" "${TARGET}/${FUTURE_PATH}"
             [[ $? -eq 0 ]] || local ERR=true
             rmdir -p --ignore-fail-on-non-empty "$(dirname "${TARGET}/${PRESENT_PATH}")" >/dev/null 2>&1
-            [[ -f "${FUTURE_PATH}" ]] && gawk -i inplace -v trackid=${trackid} -v value="${FUTURE_PATH}" 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}
+            [[ -f "${TARGET}/${FUTURE_PATH}" ]] && gawk -i inplace -v trackid=${trackid} -v value="${FUTURE_PATH}" 'BEGIN{FS="\t";OFS="\t"}{if($3==trackid){$4=value}{print $0}}' ${DB_FILE}
         fi
     done
     [[ "${ERR}" == "true" ]] && return 1 || return 0
