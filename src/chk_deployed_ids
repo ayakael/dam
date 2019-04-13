@@ -35,11 +35,11 @@ chk_deployed_ids() {
         fi
         if [[ -z "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $0}}' ${DB_FILE})" ]]; then
             local ERR=true
-            echo  "Fixing accounting for ${flac}" > ${STDERR}
+            _ansi up 2; echo -en '\033[K'; echo  "[ ${COUNT} / ${#flacList[@]} ] Fixing accounting for ${flac}" 
             echo -e "true\t${IMAGEID}\t${TRACKID}\t${flac}" >> ${DB_FILE}
         elif [[ "$(awk -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){print $4}}' ${DB_FILE})" != "${flac}" ]]; then
             local ERR=true
-            echo "Fixing path for ${flac}"  > ${STDERR}
+            _ansi up 2; echo -en '\033[K'; echo "[ ${COUNT} / ${#flacList[@]} ] Fixing path for ${flac}" 
             gawk -i inplace -v imageid=${IMAGEID} -v trackid=${TRACKID} 'BEGIN{FS="\t"}{if($2==imageid && $3==trackid){$4=path}{print $0}}' ${DB_FILE}
         fi
     done
